@@ -1,6 +1,11 @@
 from typing import Dict
 from collections import defaultdict
-from object.objects import edge
+from config import *
+
+
+class edge:
+    def __init__(self, time_):
+        self.time = time_
 
 class Graph:
     def __init__(self, file_dir):
@@ -45,3 +50,6 @@ class Graph:
             print(idx, "is not a valid index.")
             exit(1)
         return self.ID[idx]
+
+    def get_edge(self, from_, to_):
+        return self.table[from_][to_]

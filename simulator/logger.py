@@ -1,3 +1,5 @@
+from config import *
+
 class Logger:
     def __init__(self):
         self.orderResults = []
