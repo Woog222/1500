@@ -40,6 +40,9 @@ class Program:
                 if not order.serviced:
                     left.append(order)
 
+        self.logger.order_result_init("results/final.csv")
+        self.logger.write_order(WEEK)
+
     def batch_alloc(self, batch:list[Order]):
 
         def start_time(veh, order):
@@ -69,6 +72,8 @@ class Program:
         where = veh.start_center
         terminal = -1
 
+        arrival_time = -1; start_time=-1
+
         for order in batch:
             if order.serviced or left < order.cbm or \
             (terminal !=-1 and travel_time(where, order.dest_id) < 0) or \
@@ -77,12 +82,11 @@ class Program:
             (terminal ==-1 and travel_time(order.terminal_id, order.dest_id) < 0):
                 continue
 
-            arrival_time = -1; start_time = -1
 
             if terminal == -1:
                 arrival_time = when + travel_time(where, order.terminal_id) + travel_time(order.terminal_id,
                                               order.dest_id)
-                start_time = can_time_cal(arrival_time, where, order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start , order.end)
                 if start_time > MAX_START_TIME:
                     continue
                 terminal = order.terminal_id
@@ -92,15 +96,15 @@ class Program:
 
             if order.dest_id != where:
                 arrival_time = when + travel_time(where, order.dest_id)
-                start_time = can_time_cal(arrival_time, where, order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start, order.end)
                 if start_time > MAX_START_TIME:
                     continue
                 when = start_time + order.load
 
+
             where = order.dest_id
             left -= order.cbm
             order.serviced = True
-
             self.logger.add_order(veh.veh_num, order.order_id, self.graph.idx2id(order.dest_id), arrival_time,
                              start_time - arrival_time, order.load, when)
 
