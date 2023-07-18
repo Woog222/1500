@@ -1,7 +1,7 @@
 from config import *
 
 class Order:
-    def __init__(self, order_id, terminal_id, dest_id, latitude, longitude, cbm, load, group, from_idx, to_idx):
+    def __init__(self, order_id, terminal_id, dest_id, latitude, longitude, cbm, load, group, start, end):
         self.order_id = order_id
         self.terminal_id = terminal_id
         self.dest_id = dest_id
@@ -10,12 +10,12 @@ class Order:
         self.cbm = cbm
         self.load = load
         self.group = group
-        self.from_idx = from_idx
-        self.to_idx = to_idx
+        self.start = start
+        self.end = end
         self.serviced = False
 
     def __str__(self):
-        return f"{self.order_id}( {self.group} ) : \n {self.from_idx} - {self.to_idx}, {self.terminal_id} -> {self.dest_id}\n"
+        return f"{self.order_id}( {self.group} ) : \n {self.start} - {self.end}, {self.terminal_id} -> {self.dest_id}\n"
 
 
 class OrderTable:
@@ -35,15 +35,22 @@ class OrderTable:
                     terminal_id = data[3]
                     dest_id = data[4]
                     cbm = float(data[5])
-                    from_idx = int(data[6])
-                    to_idx = int(data[7])
+                    start = int(data[6])
+                    end = int(data[7])
                     load = int(data[8])
-                    group = int(data[12])  # Assuming that the group data is in the 13th column (0-indexed)
+                    group = int(data[11])
 
                     self.table[group].append(
-                        Order(order_id, graph.id2idx(terminal_id), graph.id2idx(dest_id),
-                              latitude, longitude, cbm,
-                              load, group, from_idx, to_idx
+                        Order(order_id = order_id,
+                              terminal_id= graph.id2idx(terminal_id),
+                              dest_id= graph.id2idx(dest_id),
+                              latitude = latitude,
+                              longitude = longitude,
+                              cbm= cbm,
+                              load = load,
+                              group= group,
+                              start = start,
+                              end = end
                               )
                     )
         except FileNotFoundError:

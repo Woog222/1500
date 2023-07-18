@@ -1,4 +1,5 @@
 from config import *
+from object.objects import *
 
 class Logger:
     def __init__(self):
@@ -9,7 +10,7 @@ class Logger:
 
     def add_order(self, vehicleId, ordNo, siteCode, arrivalTime, waitingTime, serviceTime, departureTime):
         self.orderResults.append(
-            (vehicleId, ordNo, siteCode, arrivalTime, waitingTime, serviceTime, departureTime, self.sequence))
+            OrderResult(vehicleId, ordNo, siteCode, arrivalTime, waitingTime, serviceTime, departureTime, self.sequence))
         self.sequence += 1
 
     def update_logs(self, cur_time_):
@@ -27,6 +28,6 @@ class Logger:
             self.update_logs(cur_time)
             if f:
                 for order in self.orderResults:
-                    f.write(order)
+                    f.write(str(order))
             else:
-                print(order_result_dir + " is not a valid result directory.")
+                print(ORDER_RESULT_DIR + " is not a valid result directory.")
