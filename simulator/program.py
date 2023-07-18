@@ -95,7 +95,7 @@ class Program:
             else:
                 arrival_time = when + travel_time(where, order.dest_id)
                 start_time = can_time_cal(arrival_time, order.start, order.end)
-            if cur_batch != LAST_BATCH and (order.start + DAY - (start_time%DAY)) % DAY > HOUR*6:
+            if cur_batch != LAST_BATCH and (order.start + DAY - (arrival_time%DAY)) % DAY > HOUR*6:
                 continue
 
             if terminal == -1:
