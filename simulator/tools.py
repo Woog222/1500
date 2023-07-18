@@ -7,11 +7,13 @@ def can_time_cal(arrival_time:int, start:int ,end:int):
     if start < end:
         if start<= remainder and remainder <= end:
             return arrival_time
-        else:
+        elif remainder < start:
+            return quotient*DAY + start
+        else: # end < remainder
             return (quotient+1)*DAY + start
     else:
-        if start < remainder and remainder < end:
-            return (quotient+1)*DAY + start
+        if end < remainder and remainder < start:
+            return quotient*DAY + start
         else:
             return arrival_time
 
