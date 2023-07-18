@@ -4,9 +4,9 @@ from simulator.logger import Logger
 from simulator.tools import *
 import math
 
+
 class Program:
     def __init__(self):
-
         self.graph = Graph(OD_MATRIX)
         print("Graph constructed")
         self.vehicleTable = Vehicle_Table(VEHICLES, self.graph)
@@ -31,7 +31,7 @@ class Program:
             batch.extend(left)
 
             print(f"\tbatch {group}.. ", end='')
-            self.batch_alloc(batch)
+            self.batch_alloc(batch, group)
             self.logger.write_order(group * 60 * 6)
             print("done")
 
@@ -43,7 +43,7 @@ class Program:
         self.logger.order_result_init("results/final.csv")
         self.logger.write_order(WEEK)
 
-    def batch_alloc(self, batch:list[Order]):
+    def batch_alloc(self, batch:list[Order], cur_batch):
 
         def start_time(veh, order):
             e = self.graph.get_edge(veh.start_center, order.dest_id)
@@ -59,9 +59,14 @@ class Program:
 
             for veh in self.vehicleTable.table:
                 batch.sort(key=lambda order: start_time(veh, order))
-                allocated |= self.veh_cycle(veh, batch)
+                allocated |= self.veh_cycle(veh, batch, cur_batch)
 
-    def veh_cycle(self, veh:Vehicle, batch):
+    """
+        cur_batch : 0,1,2,3,4,5,6,7
+    """
+
+
+    def veh_cycle(self, veh:Vehicle, batch, cur_batch):
 
         ret = False
         def travel_time(_from, _to):
@@ -74,6 +79,7 @@ class Program:
 
         arrival_time = -1; start_time=-1
 
+
         for order in batch:
             if order.serviced or left < order.cbm or \
             (terminal !=-1 and travel_time(where, order.dest_id) < 0) or \
@@ -82,6 +88,16 @@ class Program:
             (terminal ==-1 and travel_time(order.terminal_id, order.dest_id) < 0):
                 continue
 
+            if terminal == -1:
+                arrival_time = when + travel_time(where, order.terminal_id) + travel_time(order.terminal_id,
+                                                                                          order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start, order.end)
+            else:
+                arrival_time = when + travel_time(where, order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start, order.end)
+            cur_batch_min = (cur_batch % 4) * 60 *6
+            if (cur_batch_min + DAY - start_time) % DAY > HOUR*6:
+                continue
 
             if terminal == -1:
                 arrival_time = when + travel_time(where, order.terminal_id) + travel_time(order.terminal_id,
