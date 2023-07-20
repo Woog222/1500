@@ -48,7 +48,7 @@ class Program:
         def start_time(veh, order):
             e = self.graph.get_edge(veh.start_center, order.dest_id)
             if e.time == -1.0:
-                return -1
+                return MAX
 
             arrival_time = int(math.ceil(e.time) + veh.free_time)
             return can_time_cal(arrival_time, order.start, order.end)
@@ -58,7 +58,7 @@ class Program:
             allocated = False
 
             for veh in self.vehicleTable.table:
-                batch.sort(key=lambda order: start_time(veh, order))
+                batch.sort(key=lambda order: (start_time(veh, order), order.cbm))
                 allocated |= self.veh_cycle(veh, batch, cur_batch)
 
     """
