@@ -88,7 +88,6 @@ class Program:
             self.travel_time(order.terminal_id, order.dest_id) < 0:
                 continue
 
-
             arrival_time = when + self.travel_time(where, order.terminal_id) + \
                            self.travel_time(order.terminal_id, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
@@ -116,7 +115,7 @@ class Program:
         while True:
             order = self.next_order(batch = batch, veh = veh, where = where, when = when,
                                     left = left, terminal = terminal, carry_over= (cur_batch != LAST_BATCH))
-            if order is None: continue # can't allocate anymore
+            if order is None: break # can't allocate anymore
 
             if order.dest_id != where:
                 arrival_time = when + self.travel_time(where, order.dest_id)
