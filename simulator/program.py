@@ -96,8 +96,8 @@ class Program:
             #     continue
 
             # 작업 끝나는 시간 > 작업 할당시간 + 72시간
-            if start_time + order.load > (order.group+12)*6*60: continue
             if start_time > MAX_START_TIME: continue
+            if start_time + order.load > (order.group + 12) * 6 * 60: continue
 
             # to terminal
             terminal = order.terminal_id
