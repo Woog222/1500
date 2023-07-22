@@ -40,8 +40,9 @@ class Program:
 
             left = []
             for order in batch:
-                if not order.serviced:
-                    left.append(order)
+                if order.serviced or order.group + 12 <= group:
+                    continue
+                left.append(order)
 
         self.logger.order_result_init("results/final.csv")
         self.logger.write_order(WEEK)
@@ -94,6 +95,8 @@ class Program:
             # if cur_batch != LAST_BATCH and (order.start + DAY - (arrival_time%DAY)) % DAY > HOUR*6:
             #     continue
 
+            # 작업 끝나는 시간 > 작업 할당시간 + 72시간
+            if start_time + order.load > (order.group+12)*6*60: continue
             if start_time > MAX_START_TIME: continue
 
             # to terminal
@@ -148,7 +151,7 @@ class Program:
             start_time = can_time_cal(arrival_time, order.start, order.end)
             # if carry_over and (order.start + DAY - (arrival_time % DAY)) % DAY > HOUR * 6:
             #     continue
-
+            if start_time + order.load > (order.group + 12) * 6 * 60: continue
             if start_time < MAX_START_TIME and start_time < best_start:
                 ret = order
                 best_start = start_time
