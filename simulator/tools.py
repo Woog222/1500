@@ -1,4 +1,5 @@
 from config import *
+from object.objects import *
 
 def can_time_cal(arrival_time:int, start:int ,end:int):
     quotient = arrival_time // DAY
@@ -16,4 +17,8 @@ def can_time_cal(arrival_time:int, start:int ,end:int):
             return quotient*DAY + start
         else:
             return arrival_time
+
+
+
+
 
