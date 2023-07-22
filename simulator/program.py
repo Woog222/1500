@@ -151,10 +151,11 @@ class Program:
             start_time = can_time_cal(arrival_time, order.start, order.end)
             # if carry_over and (order.start + DAY - (arrival_time % DAY)) % DAY > HOUR * 6:
             #     continue
-            if start_time + order.load > (order.group + 12) * 6 * 60: continue
+
             if start_time < MAX_START_TIME and start_time < best_start:
                 ret = order
                 best_start = start_time
+            if start_time + order.load > (order.group + 12) * 6 * 60: continue
 
         return ret
 

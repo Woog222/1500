@@ -38,7 +38,7 @@ class OrderTable:
                     start = int(data[6])
                     end = int(data[7])
                     load = int(data[8])
-                    group = int(data[11])
+                    group = int(data[9])
 
                     self.table[group].append(
                         Order(order_id = order_id,
