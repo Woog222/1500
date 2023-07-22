@@ -91,10 +91,12 @@ class Program:
             arrival_time = when + self.travel_time(where, order.terminal_id) + \
                            self.travel_time(order.terminal_id, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
-            if cur_batch != LAST_BATCH and (order.start + DAY - (arrival_time%DAY)) % DAY > HOUR*6:
+            if cur_batch != LAST_BATCH and start_time - arrival_time > HOUR*6:
                 continue
 
             if start_time > MAX_START_TIME: continue
+
+            if start_time + order.load > (order.group + 12) * 360: continue
 
             # to terminal
             terminal = order.terminal_id
@@ -146,10 +148,11 @@ class Program:
 
             arrival_time = when + self.travel_time(where, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
-            if carry_over and (order.start + DAY - (arrival_time % DAY)) % DAY > HOUR * 6:
+            if carry_over and start_time - arrival_time > HOUR * 6:
                 continue
 
-            if start_time < MAX_START_TIME and start_time < best_start:
+            if start_time < MAX_START_TIME and start_time < best_start and \
+                    start_time + order.load <= (order.group + 12) * 360:
                 ret = order
                 best_start = start_time
 
