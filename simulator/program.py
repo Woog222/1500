@@ -40,7 +40,7 @@ class Program:
 
             left = []
             for order in batch:
-                if order.serviced or order.group + 12 <= group:
+                if order.serviced: # or order.group + 12 <= group
                     continue
                 left.append(order)
 
@@ -92,8 +92,9 @@ class Program:
             arrival_time = when + self.travel_time(where, order.terminal_id) + \
                            self.travel_time(order.terminal_id, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
-            # if cur_batch != LAST_BATCH and (order.start + DAY - (arrival_time%DAY)) % DAY > HOUR*6:
-            #     continue
+
+            if cur_batch != LAST_BATCH and start_time - arrival_time > HOUR*6:
+                continue
 
             # 작업 끝나는 시간 > 작업 할당시간 + 72시간
             if start_time > MAX_START_TIME: continue
@@ -149,13 +150,14 @@ class Program:
 
             arrival_time = when + self.travel_time(where, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
-            # if carry_over and (order.start + DAY - (arrival_time % DAY)) % DAY > HOUR * 6:
-            #     continue
 
-            if start_time < MAX_START_TIME and start_time < best_start:
+            if carry_over and start_time - arrival_time > HOUR * 6:
+                continue
+
+            if start_time < MAX_START_TIME and start_time < best_start and \
+                    start_time + order.load <= (order.group + 12) * 6 * 60:
                 ret = order
                 best_start = start_time
-            if start_time + order.load > (order.group + 12) * 6 * 60: continue
 
         return ret
 
