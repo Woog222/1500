@@ -29,5 +29,5 @@ ORDER_COLUMNS =\
         "DepartureTime," + \
         "Delivered\n"
 
-VEH_COLUMNS = "VehicleID,TravelDistance,TotalCost,FixedCost,VariableCost"
+VEH_COLUMNS = "VehicleID,TravelDistance,TotalCost,FixedCost,VariableCost\n"
 ORDER_RESULT_DIR = os.path.join("results", "order_result.csv")
