@@ -139,7 +139,7 @@ class Program:
                 when = start_time + order.load
 
             distance = self.travel_distance(where, order.dest_id)
-            veh.travel_distance += order.dest_id
+            veh.travel_distance += distance
             where = order.dest_id
             left -= order.cbm
             order.serviced = True

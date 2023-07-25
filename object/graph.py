@@ -17,7 +17,7 @@ class Graph:
         # table reset with {-1, -1}
         init_value = edge(-1)
         self.table = [[init_value for _ in range(GRAPH_SIZE)] for _ in range(GRAPH_SIZE)]
-        self.dist_table = [[100000 for _ in range(GRAPH_SIZE)] for _ in range(GRAPH_SIZE)]
+        self.dist_table = [[0 for _ in range(GRAPH_SIZE)] for _ in range(GRAPH_SIZE)]
         for i in range(GRAPH_SIZE):
             self.table[i][i] = edge(0)
             self.dist_table[i][i] = 0
