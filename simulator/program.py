@@ -20,6 +20,9 @@ class Program:
     def travel_time(self, _from, _to):
         return math.ceil(self.graph.get_edge(_from, _to).time)
 
+    def travel_distance(self, _from, _to):
+        return self.graph.get_length(_from, _to)
+
     def simulator(self):
         print("Simulation ongoing..")
         self.logger.order_result_init(ORDER_RESULT_DIR)
@@ -46,6 +49,11 @@ class Program:
 
         self.logger.order_result_init("results/final.csv")
         self.logger.write_order(WEEK)
+        self.logger.init_veh_result("results/veh_results.csv")
+        for veh in self.vehicleTable.table:
+            self.logger.write_veh_result(veh, veh.veh_num)
+
+
 
     def batch_alloc(self, batch:list[Order], cur_batch):
 
@@ -103,12 +111,16 @@ class Program:
             # to terminal
             terminal = order.terminal_id
             when += self.travel_time(where, order.terminal_id)
+            distance = self.travel_distance(where, terminal)
             where = order.terminal_id
+            veh.travel_distance += distance
             self.logger.add_order(veh.veh_num, STRING_NULL, self.graph.idx2id(terminal), when, 0, 0, when)
 
             # first order
             when = start_time + order.load
             where = order.dest_id
+            distance = self.travel_distance(terminal, where)
+            veh.travel_distance += distance
             self.logger.add_order(veh.veh_num, order.order_id, self.graph.idx2id(order.dest_id), arrival_time,
                                   start_time - arrival_time, order.load, when)
             order.serviced = True
@@ -126,6 +138,8 @@ class Program:
                 start_time = can_time_cal(arrival_time, order.start, order.end)
                 when = start_time + order.load
 
+            distance = self.travel_distance(where, order.dest_id)
+            veh.travel_distance += order.dest_id
             where = order.dest_id
             left -= order.cbm
             order.serviced = True

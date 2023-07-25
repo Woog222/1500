@@ -10,14 +10,17 @@ class edge:
 class Graph:
     def __init__(self, file_dir):
         self.table = None
+        self.dist_table = None
         self.IDX = {}
         self.ID = {}
 
         # table reset with {-1, -1}
         init_value = edge(-1)
         self.table = [[init_value for _ in range(GRAPH_SIZE)] for _ in range(GRAPH_SIZE)]
+        self.dist_table = [[100000 for _ in range(GRAPH_SIZE)] for _ in range(GRAPH_SIZE)]
         for i in range(GRAPH_SIZE):
             self.table[i][i] = edge(0)
+            self.dist_table[i][i] = 0
 
         # input
         with open(file_dir, 'r') as fs:
@@ -31,10 +34,11 @@ class Graph:
                 if dest not in self.IDX:
                     self.IDX[dest] = idx
                     idx += 1
-                from_, to = self.IDX[origin], self.IDX[dest]
+                from_, to_ = self.IDX[origin], self.IDX[dest]
 
                 # adj matrix
-                self.table[from_][to] = edge(float(time))
+                self.table[from_][to_] = edge(float(time))
+                self.dist_table[from_][to_] = float(length)
 
         # ID setting
         self.ID = {v: k for k, v in self.IDX.items()}
@@ -53,3 +57,6 @@ class Graph:
 
     def get_edge(self, from_, to_):
         return self.table[from_][to_]
+
+    def get_length(self, from_, to_):
+        return self.dist_table[from_][to_]

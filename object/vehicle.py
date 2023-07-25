@@ -10,6 +10,8 @@ class Vehicle:
         self.start_center = start_center
         self.free_time = 0
 
+        self.travel_distance = 0
+
     def __str__(self):
         return f"capa: {self.capa}, vc: {self.vc}, veh_num: {self.veh_num}, free_time: {self.free_time}"
 
