@@ -49,3 +49,4 @@ class Logger:
                 f.write(f"\n{vehicleID}, {distance}, {tc}, {fc}, {vc}")
             else:
                 print(self.veh_result_dir + " is not a valid result directory.")
+        return tc

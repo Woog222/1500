@@ -50,8 +50,11 @@ class Program:
         self.logger.order_result_init("results/final.csv")
         self.logger.write_order(WEEK)
         self.logger.init_veh_result("results/veh_results.csv")
+        total_cost = 0
         for veh in self.vehicleTable.table:
-            self.logger.write_veh_result(veh, veh.veh_num)
+            veh_tc = self.logger.write_veh_result(veh, veh.veh_num)
+            total_cost += veh_tc
+        print(f"\tTotal Cost: {total_cost}")
 
 
 
