@@ -132,6 +132,7 @@ class Program:
             veh.work_time += travel_time + order.load
             veh.travel_time += travel_time
             veh.service_time += order.load
+            veh.count += 1
             veh.waiting_time += start_time - arrival_time
             self.logger.add_order(veh.veh_num, order.order_id, self.graph.idx2id(order.dest_id), arrival_time,
                                   start_time - arrival_time, order.load, when)
@@ -152,6 +153,7 @@ class Program:
 
             distance = self.travel_distance(where, order.dest_id)
             travel_time = self.travel_time(where, order.dest_id)
+            veh.count += 1
             veh.travel_distance += distance
             veh.work_time += travel_time + order.load
             veh.travel_time += travel_time
