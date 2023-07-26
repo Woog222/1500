@@ -117,10 +117,7 @@ class Program:
             when += travel_time
             distance = self.travel_distance(where, terminal)
             where = order.terminal_id
-            veh.travel_distance += distance
-            veh.volume += order.cbm
-            veh.travel_time += travel_time
-            veh.work_time += travel_time
+            veh = self.update_vehicle(veh, order, distance, travel_time, terminal=True)
             self.logger.add_order(veh.veh_num, STRING_NULL, self.graph.idx2id(terminal), when, 0, 0, when)
 
             # first order
@@ -128,12 +125,8 @@ class Program:
             where = order.dest_id
             travel_time = self.travel_distance(terminal, where)
             distance = travel_time
-            veh.travel_distance += distance
-            veh.work_time += travel_time + order.load
-            veh.travel_time += travel_time
-            veh.service_time += order.load
-            veh.count += 1
-            veh.waiting_time += start_time - arrival_time
+            veh = self.update_vehicle(veh, order, distance, travel_time, terminal=False,
+                                      start_time=start_time, arrival_time=arrival_time)
             self.logger.add_order(veh.veh_num, order.order_id, self.graph.idx2id(order.dest_id), arrival_time,
                                   start_time - arrival_time, order.load, when)
             order.serviced = True
@@ -153,12 +146,8 @@ class Program:
 
             distance = self.travel_distance(where, order.dest_id)
             travel_time = self.travel_time(where, order.dest_id)
-            veh.count += 1
-            veh.travel_distance += distance
-            veh.work_time += travel_time + order.load
-            veh.travel_time += travel_time
-            veh.service_time += order.load
-            veh.waiting_time += start_time - arrival_time
+            veh = self.update_vehicle(veh, order, distance, travel_time, terminal=False,
+                                      start_time=start_time, arrival_time=arrival_time)
             where = order.dest_id
             left -= order.cbm
             order.serviced = True
@@ -193,4 +182,18 @@ class Program:
                 best_start = start_time
 
         return ret
+
+    def update_vehicle(self, veh, order, distance, travel_time, terminal=True, start_time=None, arrival_time=None):
+        veh.travel_distance += distance
+        veh.travel_time += travel_time
+        veh.work_time += travel_time
+
+        if not terminal:
+            veh.volume += order.cbm
+            veh.work_time += order.load
+            veh.count += 1
+            veh.service_time += order.load
+            veh.waiting_time += start_time - arrival_time
+
+        return veh
 
