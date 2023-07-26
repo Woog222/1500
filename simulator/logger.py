@@ -46,7 +46,9 @@ class Logger:
         tc = fc + vc
         with open(self.veh_result_dir, "a") as f:
             if f:
-                f.write(f"{vehicleID},{distance},{tc},{fc},{vc}\n")
+                f.write(f"{vehicleID},{veh.count},{veh.volume},{distance}")
+                f.write(f",{veh.work_time},{veh.travel_time},{veh.service_time}")
+                f.write(f",{veh.waiting_time},{tc},{fc},{vc}\n")
             else:
                 print(self.veh_result_dir + " is not a valid result directory.")
         return tc

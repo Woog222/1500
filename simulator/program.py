@@ -113,17 +113,26 @@ class Program:
 
             # to terminal
             terminal = order.terminal_id
-            when += self.travel_time(where, order.terminal_id)
+            travel_time = self.travel_time(where, order.terminal_id)
+            when += travel_time
             distance = self.travel_distance(where, terminal)
             where = order.terminal_id
             veh.travel_distance += distance
+            veh.volume += order.cbm
+            veh.travel_time += travel_time
+            veh.work_time += travel_time
             self.logger.add_order(veh.veh_num, STRING_NULL, self.graph.idx2id(terminal), when, 0, 0, when)
 
             # first order
             when = start_time + order.load
             where = order.dest_id
-            distance = self.travel_distance(terminal, where)
+            travel_time = self.travel_distance(terminal, where)
+            distance = travel_time
             veh.travel_distance += distance
+            veh.work_time += travel_time + order.load
+            veh.travel_time += travel_time
+            veh.service_time += order.load
+            veh.waiting_time += start_time - arrival_time
             self.logger.add_order(veh.veh_num, order.order_id, self.graph.idx2id(order.dest_id), arrival_time,
                                   start_time - arrival_time, order.load, when)
             order.serviced = True
@@ -142,7 +151,12 @@ class Program:
                 when = start_time + order.load
 
             distance = self.travel_distance(where, order.dest_id)
+            travel_time = self.travel_time(where, order.dest_id)
             veh.travel_distance += distance
+            veh.work_time += travel_time + order.load
+            veh.travel_time += travel_time
+            veh.service_time += order.load
+            veh.waiting_time += start_time - arrival_time
             where = order.dest_id
             left -= order.cbm
             order.serviced = True
