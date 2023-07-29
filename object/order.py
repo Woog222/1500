@@ -1,21 +1,79 @@
 from config import *
+from simulator.tools import can_time_cal
+
 
 class Order:
-    def __init__(self, order_id, terminal_id, dest_id, latitude, longitude, cbm, load, group, start, end):
+
+    general_sequence = 0
+    def __init__(self, dest_id, order_id = ORDER_ID_NULL,
+                 terminal_id = -1, latitude=0, longitude=0, cbm=0, load=0,
+                 group=-1, start=0, end=DAY, veh_id=STRING_NULL):
         self.order_id = order_id
-        self.terminal_id = terminal_id
-        self.dest_id = dest_id
-        self.latitude = latitude
-        self.longitude = longitude
+        self.terminal_id = terminal_id #int idx
+        self.dest_id = dest_id #int idx
+        #self.latitude = latitude
+        #self.longitude = longitude
         self.cbm = cbm
         self.load = load
         self.group = group
         self.start = start
         self.end = end
-        self.serviced = False
+
+        # for optimization
+        self.prev_free = -1
+        self.next_arrival = -1
+
+        # for logging
+        self.veh_id = veh_id
+        self.serviced = self.delivered = False
+        self.arrival_time = -1
+        self.start_time = -1
+        self.sequence = -1
+
+
+
+    def allocate(self, arrival_time:int, veh_id:str):
+        self.serviced = True
+        self.arrival_time = arrival_time
+        self.veh_id = veh_id
+        self.start_time = can_time_cal(arrival_time, self.start, self.end)
+        Order.general_sequence += 1
+        self.sequence = Order.general_sequence
+
+    def update(self, cur_time:int):
+        if self.serviced and (self.start_time + self.load <= cur_time):
+            self.delivered = True
+
 
     def __str__(self):
-        return f"{self.order_id}( {self.group} ) : \n {self.start} - {self.end}, {self.terminal_id} -> {self.dest_id}\n"
+        separator = ","
+        sb = []
+
+        terminal_order = self.order_id == STRING_NULL
+
+        sb.append(str(self.order_id) + separator)
+        sb.append(str(self.veh_id)+ separator)
+        sb.append(str(self.sequence)+ separator)
+        sb.append(str(self.dest_id)+ separator)
+
+        if self.delivered:
+            sb.append(str(self.arrival_time)+ separator)
+            sb.append(str(self.start_time - self.arrival_time)+ separator)
+            sb.append(str(self.load)+ separator)
+            sb.append(str(self.start_time + self.load)+ separator)
+            sb.append(STRING_NULL if terminal_order else "Yes")
+            sb.append(separator)
+        else:
+            sb.append(STRING_NULL + separator)
+            sb.append(STRING_NULL + separator)
+            sb.append(STRING_NULL + separator)
+            sb.append(STRING_NULL + separator)
+            sb.append(STRING_NULL if terminal_order else "No")
+            sb.append(separator)
+
+        sb.append('\n')
+
+        return "".join(sb)
 
 
 class OrderTable:
@@ -56,3 +114,8 @@ class OrderTable:
         except FileNotFoundError:
             print(f"invalid directories : {file_dir}")
             exit(1)
+
+    def update_orders(self, cur_time:int):
+        for batch in self.table:
+            for order in batch:
+                order.update(cur_time)

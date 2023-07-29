@@ -12,7 +12,16 @@ GROUP_INTERVAL = 360
 MAX_START_TIME = WEEK - 60
 INT_NULL = -1
 
-STRING_NULL = "-1"
+ORDER_ID_NULL = "Null"
+STRING_NULL = "Null"
+TERMINAL_START_CHARACTER = "O"
+DEST_START_CHARACTER = "D"
+
+
+FINAL_ORDER_RESULT_DIR = os.path.join("results", "final.csv")
+ORDER_RESULT_DIR = os.path.join("results", "order_result.csv")
+VEH_RESULT_DIR = os.path.join("results", "vehicle_result.csv")
+IDX2ID_DIR = os.path.join("results", "id2idx.csv")
 ORDERS = os.path.join("data", "orders.txt")
 OD_MATRIX = os.path.join("data", "od_matrix.txt")
 TERMINALS = os.path.join("data", "terminals.txt")
@@ -42,4 +51,3 @@ VEH_COLUMNS = \
         "FixedCost," + \
         "VariableCost\n"
 
-ORDER_RESULT_DIR = os.path.join("results", "order_result.csv")
