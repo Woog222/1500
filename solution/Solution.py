@@ -24,7 +24,7 @@ class Vehicle_Alloc:
 
     def allocate(self):
         """
-        
+
         :return:
         """
 
@@ -199,10 +199,9 @@ class Solution:
         """
         self.graph = graph
         self.order_list = order_list
+
+        """
+            improve it!
+        """
         self.vehicle_list = vehicle_list
 
-        """
-        """
-
-        self.vehicle_allocs = []
-        for veh

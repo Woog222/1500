@@ -51,7 +51,7 @@ class Program:
         :return: Solution object in a batch setting
         """
 
-        ret =
+
 
         # terminal list
         terminals = []
