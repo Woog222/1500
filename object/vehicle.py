@@ -9,6 +9,7 @@ import config
 class Vehicle:
     def __init__(self, capa, fc, vc, veh_ton, start_center, veh_num, graph):
 
+
         """
             CONST
         """
@@ -19,19 +20,21 @@ class Vehicle:
         self.veh_num = veh_num
         self.start_center = start_center
 
-        """
-            CONST in batch
-        """
-        self.start_loc = start_center
         self.free_time = 0
         self.graph = graph
         self.allocated_order_list = []
 
         """
+            CONST in batch
+        """
+        self.start_loc = start_center
+
+
+        """
             NON-CONST 
         """
         self.cur_loc = self.cur_time = self.left = 0
-        self.order_list = []
+        self.order_list = [] # solution
 
     def __str__(self):
         return f"{self.veh_num}," \
@@ -140,11 +143,10 @@ class Vehicle:
     def get_count(self):
         ret = 0
         for order in self.allocated_order_list:
-            ret += 1 if self.graph.is_terminal(order.dest_id) else 0
+            ret += 0 if self.graph.is_terminal(order.dest_id) else 1
         return ret
 
     def get_travel_distance(self):
-
         route = self.get_route()
         ret = 0
         for i in range(1, len(route)):

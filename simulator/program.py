@@ -1,41 +1,41 @@
-from config import *
-from object.objects import *
-from simulator.logger import Logger
+import config
+from object.graph import Graph
+from object.order import OrderTable, Order
+from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
 import math
 
 
 class Program:
     def __init__(self):
-        self.graph = Graph(OD_MATRIX)
+        self.graph = Graph(config.OD_MATRIX)
         print("Graph constructed")
-        self.vehicleTable = Vehicle_Table(VEHICLES, self.graph)
+        self.vehicleTable = Vehicle_Table(config.VEHICLES, self.graph)
         print("Vehicle Table constructed")
-        # self.terminalTable = Terminal_Table(TERMINALS, self.graph)
+        # self.terminalTable = Terminal_Table(config.TERMINALS, self.graph)
         # print("Terminal Table constructed")
-        self.orderTable = OrderTable(ORDERS, self.graph)
+        self.orderTable = OrderTable(config.ORDERS, self.graph)
         print("Order Table constructed", end="\n\n")
-
 
     def simulator(self):
         print("Simulation ongoing..")
-
-
         self.vehicleTable.write_order_result(init=True, final=False)
+
         left = []
-        for group in range(ORDER_GROUP_SIZE):
+        for group in range(config.LAST_BATCH):
             batch = self.orderTable.table[group]
             if not batch: continue
             batch.extend(left)
 
             print(f"\tbatch {group}.. ", end='')
             self.batch_alloc(batch, group)
-            self.orderTable.update_orders(group*GROUP_INTERVAL)
+            self.orderTable.update_orders(group* config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
             print("done")
 
             left = []
             for order in batch:
+                ## 72 hour limit
                 if order.serviced or order.group + 12 <= group:
                     continue
                 left.append(order)
@@ -44,6 +44,14 @@ class Program:
         self.vehicleTable.write_veh_result()
 
     def batch_alloc(self, batch:list[Order], cur_batch):
+        """
+
+        :param batch:
+        :param cur_batch:
+        :return: Solution object in a batch setting
+        """
+
+        ret =
 
         # terminal list
         terminals = []

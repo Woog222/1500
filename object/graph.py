@@ -52,9 +52,6 @@ class Graph:
             for idx, id in enumerate(self.ID):
                 f.write(f"{idx},{id}\n")
 
-
-
-
     def is_terminal(self, idx:int):
         return self.ID[idx].startswith(TERMINAL_START_CHARACTER)
 
