@@ -14,7 +14,7 @@ class Solver:
         self.swap_vehicles()
         self.swap_orders()
 
-    def swap_vehicle(self):
+    def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
         for (veh1, veh2) in combinations(vehicle_list, 2):
             if self.do_swap_vehicle(veh1, veh2):
