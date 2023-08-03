@@ -39,7 +39,7 @@ class Vehicle:
                f"{self.get_total_service_time()}," \
                f"{self.get_total_waiting_time()}," \
                f"{total_cost}," \
-               f"{fc}" \
+               f"{fc}," \
                f"{total_cost - fc}\n"
 
     def __lt__(self, other):
