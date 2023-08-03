@@ -101,7 +101,8 @@ class Cycle:
         sb = [str(self.terminal_loading_order)]
         for order in self.orders:
             sb.append(str(order))
-        return f"{','.join(sb)}\n"
+        ret = '\n'.join(sb)
+        return f"{ret}\n"
 
 
 
