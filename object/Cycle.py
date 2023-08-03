@@ -73,7 +73,7 @@ class Cycle:
             ex) [1, 3, 3, 4] X, [1, 3, 4] O
         :return: [terminal, dest1, dest2 ..]
         """
-        if len(self.orders): return []
+        if len(self.orders) == 0: return []
 
 
         ret = [self.terminal]

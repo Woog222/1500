@@ -59,6 +59,8 @@ class Program:
                     continue
                 left.append(order)
 
+
+        self.orderTable.update_orders(WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 
