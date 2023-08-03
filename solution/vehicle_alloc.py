@@ -24,26 +24,13 @@ class Vehicle_Alloc:
 
 
     """
-        After fully confirmed, allocate.
-    """
-    def allocate(self):
-        """
-        :return:
-        """
-
-    """
     When any modifications are made to the "self.order_list",
-    these two methods below must be called!
+    update cycle must be called
     """
 
-    def reset_cache(self):
-        self.route_cache = [-1]
-        self.dist_cache = -1
-        self.work_cache = -1
-        self.max_capa_cache = -1
-        self.after_time_cache = -1
 
     def update_cycle(self):
+        self.reset_cache()
 
         self.cycle_list = []
         if len(self.order_list) == 0: return
@@ -68,6 +55,14 @@ class Vehicle_Alloc:
         # last one
         self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle))
         return
+
+
+    def reset_cache(self):
+        self.route_cache = [-1]
+        self.dist_cache = -1
+        self.work_cache = -1
+        self.max_capa_cache = -1
+        self.after_time_cache = -1
 
     """
            Complex Methods

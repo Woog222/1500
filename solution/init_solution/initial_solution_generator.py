@@ -5,6 +5,13 @@ from object.vehicle import Vehicle
 from simulator.tools import can_time_cal
 
 
+class Veh_helper:
+    def __init__(self, vehicle: Vehicle):
+        self.vehicle = vehicle
+        self.cur_loc = vehicle.start_loc
+        self.cur_time = vehicle.free_time
+        self.allocated_order = []
+
 class Initial_Solution_Generator:
     """
         For Batch
@@ -18,7 +25,7 @@ class Initial_Solution_Generator:
         """
 
         self.graph = graph
-        self.vehicle_list = vehicle_list
+        self.vehicle_list = [ Veh_helper(veh) for veh in vehicle_list]
         self.order_list = order_list
         self.carry_over = carry_over
 
@@ -45,54 +52,80 @@ class Initial_Solution_Generator:
         Solution 객체 형태로 초기해를 만들어서 리턴하는 함수 작성하면 됨!
         :return: Solution Object for Terminal Problem
         """
+        # terminal list
+        terminals = []
+        for order in self.order_list: terminals.append(order.terminal_id)
+        terminals = list(set(terminals))
 
-    def terminal_alloc(self):
+        for terminal in terminals:
+            terminal_orders = []
+            for order in self.order_list:
+                if order.terminal_id == terminal: terminal_orders.append(order)
+            self.terminal_alloc(terminal = terminal)
+
+
+
+
+    def terminal_alloc(self, terminal):
         """
         The Kernel of Our Optimization,,
         :param orders: orders from this terminal
         :param terminal:
         :return:
         """
-        self.vehicle_list.sort(key=lambda x:
-        self.graph.get_time(x.cur_loc, self.terminal) + x.cur_time
-                      )
 
-        for veh in self.vehicle_list:
-            order = self.next_order(batch=self.order_list, veh=veh,
-                                    terminal=self.terminal, carry_over=self.carry_over)
-            if order is None: continue
-            veh.add_order(order)
 
-    def next_veh(self, order:Order):
+        while True:
+            veh_helper = self.next_veh(terminal = terminal)
+            cur_loc = veh_helper.cur_loc; cur_time = veh_helper.cur_time
+            left = veh_helper.vehicle.capa
+
+            # cycle alloc
+            while True:
+                order = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
+                                        left= left, terminal = terminal)
+                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
+                start_time = arrival_time + order.load
+                veh_helper.allocated_order.append(order)
+
+
+
+
+
+
+    def next_veh(self, terminal):
         """
             find best vehicle
         :param order:
         :return:
         """
+        ret = self.vehicle_list[0]
+        best_arrival_time = config.MAX
+        for veh_helper in self.vehicle_list:
+            arrival_time = veh_helper.cur_time + self.graph.get_time(veh_helper.cur_loc, terminal)
+            if arrival_time < best_arrival_time:
+                ret = veh_helper
+                best_arrival_time = arrival_time
+        return ret
 
-    def next_order(self, batch: list[Order], veh: Vehicle, terminal: int,
-                   carry_over: bool):
 
-        where = veh.cur_loc
-        when = veh.cur_time
-        left = veh.left
+    def next_order(self, cur_loc, cur_time, left, terminal: int):
 
         ret = None
         best_start = config.MAX
-        for order in batch:
+        for order in self.order_list:
             if order.serviced or left < order.cbm or terminal != order.terminal_id or \
-                    self.graph.get_time(where, order.dest_id) < 0:
+                    self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
-            arrival_time = when + self.graph.get_time(where, order.dest_id)
+            arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
 
-            if carry_over and start_time - arrival_time > config.HOUR * 6:
+            if self.carry_over and start_time - arrival_time > config.HOUR * 6:
                 continue
 
             if start_time < config.MAX_START_TIME and start_time < best_start and \
                     start_time + order.load <= (order.group + 12) * 6 * 60:
                 ret = order
                 best_start = start_time
-
         return ret
