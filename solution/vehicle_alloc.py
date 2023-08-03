@@ -12,7 +12,7 @@ class Vehicle_Alloc:
     def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order]):
         self.graph = graph
         self.vehicle = vehicle # const
-        self.order_list = [] # temp list, not including terminal loading order (-1)
+        self.order_list = allocated_order_list # temp list, not including terminal loading order (-1)
         self.cycle_list = [] #
 
         # cache
@@ -44,7 +44,7 @@ class Vehicle_Alloc:
             # terminal loading
             if cur_terminal != order.terminal_id or left < order.cbm:
                 if cur_terminal != -1:
-                    self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle))
+                    self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle, self.graph))
                 cur_terminal = order.terminal_id
                 left = self.vehicle.capa
                 temp_orders = []
@@ -53,7 +53,7 @@ class Vehicle_Alloc:
             temp_orders.append(order)
 
         # last one
-        self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle))
+        self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle, self.graph))
         return
 
 

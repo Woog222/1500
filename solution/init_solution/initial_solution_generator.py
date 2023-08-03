@@ -80,33 +80,34 @@ class Initial_Solution_Generator:
         """
         vehicle_list = self.vehicle_list
         vehicle_list.sort(key = lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
-        allocated = False
+        allocated = True
 
         while allocated == True:
             allocated = False
             for veh in vehicle_list:
-                order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal, orders = orders)
-                if not order: continue
-                allocated = True
-                veh.allocated_order.append(order)
-                veh.left -= order.order.cbm
-                arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal) + \
-                               self.graph.get_time(terminal, order.order.dest_id)
-                veh.cur_time = can_time_cal(arrival_time, order.order.start, order.order.end) + order.order.load
-                veh.cur_loc = order.order.dest_id
-                order.allocated = True
+                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal, orders = orders)
+                if not order_helper: continue
 
-                while not order:
-                    order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
-                    if not order: break
-                    allocated = True
-                    veh.allocated_order.append(order)
-                    veh.left -= order.order.cbm
-                    if veh.cur_loc != order.order.dest_id:
-                        arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, order.order.dest_id)
-                        veh.cur_time = can_time_cal(arrival_time, order.order.start, order.order.end) + order.order.load
-                        veh.cur_loc = order.order.dest_id
-                    order.allocated = True
+
+                allocated = order_helper.allocated = True
+                veh.allocated_order.append(order_helper.order)
+
+                veh.left -= order_helper.order.cbm
+                arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal) + \
+                               self.graph.get_time(terminal, order_helper.order.dest_id)
+                veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
+                veh.cur_loc = order_helper.order.dest_id
+
+                while not order_helper:
+                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
+                    if not order_helper: break
+                    order_helper = allocated = True
+                    veh.allocated_order.append(order_helper.order)
+                    veh.left -= order_helper.order.cbm
+                    if veh.cur_loc != order_helper.order.dest_id:
+                        arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, order_helper.order.dest_id)
+                        veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
+                        veh.cur_loc = order_helper.order.dest_id
 
                 for veh in vehicle_list:
                     veh.left = veh.vehicle.capa
@@ -175,7 +176,7 @@ class Initial_Solution_Generator:
         best_start = config.MAX
         for order_helper in orders:
             order = order_helper.order
-            if order.serviced or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
+            if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
             if cur_loc == order.dest_id:

@@ -42,7 +42,6 @@ class Solution:
             Whenever any modification was made, must be called
         """
         for veh in self.vehicle_list:
-            veh.reset_cache()
             veh.update_cycle()
 
     def get_var_cost(self):

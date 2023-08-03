@@ -83,7 +83,7 @@ class Vehicle:
     def get_total_count(self):
         ret = 0
         for cycle in self.allocated_cycle_list:
-            ret += cycle.get_cycle_cnt()
+            ret += cycle.get_cycle_order_cnt()
         return ret
 
     def get_total_travel_distance(self):
