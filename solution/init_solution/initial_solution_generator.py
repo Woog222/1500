@@ -73,7 +73,7 @@ class Initial_Solution_Generator:
     def next_order(self, batch: list[Order], veh: Vehicle, terminal: int,
                    carry_over: bool):
 
-        where = veh.cur_loc;
+        where = veh.cur_loc
         when = veh.cur_time
         left = veh.left
 

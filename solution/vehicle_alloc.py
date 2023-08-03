@@ -28,7 +28,6 @@ class Vehicle_Alloc:
     """
     def allocate(self):
         """
-
         :return:
         """
 
