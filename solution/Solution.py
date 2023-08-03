@@ -1,5 +1,4 @@
-from sympy.integrals.rubi.utility_function import Order
-
+from object.order import Order
 from object.graph import Graph
 from solution.vehicle_alloc import Vehicle_Alloc
 
