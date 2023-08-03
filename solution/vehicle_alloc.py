@@ -9,7 +9,7 @@ from object.vehicle import Vehicle
 
 class Vehicle_Alloc:
 
-    def __init__(self, vehicle:Vehicle, graph:Graph):
+    def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order]):
         self.graph = graph
         self.vehicle = vehicle # const
         self.order_list = [] # temp list, not including terminal loading order (-1)
