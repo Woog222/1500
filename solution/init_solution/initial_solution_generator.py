@@ -17,6 +17,7 @@ class Veh_helper:
         self.vehicle = vehicle
         self.cur_loc = vehicle.start_loc
         self.cur_time = vehicle.free_time
+        self.left = vehicle.capa
         self.allocated_order = []
 
 class Initial_Solution_Generator:
@@ -76,47 +77,81 @@ class Initial_Solution_Generator:
         :param terminal:
         :return:
         """
+        vehicle_list = self.vehicle_list
+        vehicle_list.sort(key = lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
+        allocated = False
 
-        left_order = True
-        while left_order:
-            veh_helper = self.next_veh(terminal = terminal)
-
-            cur_loc = veh_helper.cur_loc
-            cur_time = veh_helper.cur_time + self.graph.get_time(cur_loc, terminal)
-            cur_loc = terminal
-            left = veh_helper.vehicle.capa
-
-            # cycle alloc
+        while allocated == True:
             allocated = False
-            while True:
-                order_helper = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
-                                        left= left, terminal = terminal)
-                if order_helper is None: break
-
-                order = order_helper.order
-                # order load_max not yet
-                if cur_loc != order.dest_id:
-                    arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-                    start_time = arrival_time + order.load
-
-                    cur_time = start_time + order.load
-                    cur_loc = order.dest_id
-                veh_helper.allocated_order.append(order)
-                left -= order.cbm
+            for veh in vehicle_list:
+                order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
+                if not order: continue
                 allocated = True
-                order_helper.allocated = True
+                veh.allocated_order.append(order)
+                veh.left -= order.order.cbm
+                arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal) + \
+                               self.graph.get_time(terminal, order.order.dest_id)
+                veh.cur_time = can_time_cal(arrival_time, order.order.start, order.order.end) + order.order.load
+                veh.cur_loc = order.order.dest_id
+                order.allocated = True
 
-            if allocated:
-                veh_helper.cur_time = cur_time
-                veh_helper.cur_loc = cur_loc
-            else:
-                break
+                while not order:
+                    order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
+                    if not order: break
+                    allocated = True
+                    veh.allocated_order.append(order)
+                    veh.left -= order.order.cbm
+                    if veh.cur_loc != order.order.dest_id:
+                        arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, order.order.dest_id)
+                        veh.cur_time = can_time_cal(arrival_time, order.order.start, order.order.end) + order.order.load
+                        veh.cur_loc = order.order.dest_id
+                    order.allocated = True
 
-            left_order = False
-            for order_helper in self.order_list:
-                if order_helper.allocated == False:
-                    left_order = True
-                    break
+                for veh in vehicle_list:
+                    veh.left = veh.vehicle.capa
+
+
+
+        # left_order = True
+        # while left_order:
+        #     veh_helper = self.next_veh(terminal = terminal)
+        #
+        #     cur_loc = veh_helper.cur_loc
+        #     cur_time = veh_helper.cur_time + self.graph.get_time(cur_loc, terminal)
+        #     cur_loc = terminal
+        #     left = veh_helper.vehicle.capa
+        #
+        #     # cycle alloc
+        #     allocated = False
+        #     while True:
+        #         order_helper = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
+        #                                 left= left, terminal = terminal)
+        #         if order_helper is None: break
+        #
+        #         order = order_helper.order
+        #         # order load_max not yet
+        #         if cur_loc != order.dest_id:
+        #             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
+        #             start_time = arrival_time + order.load
+        #
+        #             cur_time = start_time + order.load
+        #             cur_loc = order.dest_id
+        #         veh_helper.allocated_order.append(order)
+        #         left -= order.cbm
+        #         allocated = True
+        #         order_helper.allocated = True
+        #
+        #     if allocated:
+        #         veh_helper.cur_time = cur_time
+        #         veh_helper.cur_loc = cur_loc
+        #     else:
+        #         break
+        #
+        #     left_order = False
+        #     for order_helper in self.order_list:
+        #         if order_helper.allocated == False:
+        #             left_order = True
+        #             break
 
     def next_veh(self, terminal):
         """

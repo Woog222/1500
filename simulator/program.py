@@ -43,6 +43,8 @@ class Program:
             # solver.solve()
 
             # allocate
+            for veh_alloc in solution.vehicle_list:
+                print(f"{veh_alloc.vehicle.veh_num} : {len(veh_alloc.order_list)}")
             solution.allocate_solution()
             self.orderTable.update_orders(group * config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
