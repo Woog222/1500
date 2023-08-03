@@ -167,8 +167,11 @@ class Vehicle:
         return ret
 
     def get_total_cost(self):
-        ret = self.fc + self.vc * self.get_travel_distance()
-        return int(math.ceil(ret))
+        travel_dist = self.get_travel_distance()
+        ret = self.vc * travel_dist
+        if travel_dist > 0:
+            ret += self.fc
+        return ret
 
     def get_waiting_time(self):
         return self.get_spent_time() - self.get_travel_time()

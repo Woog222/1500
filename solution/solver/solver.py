@@ -14,8 +14,31 @@ class Solver:
         self.swap_vehicles()
         self.swap_orders()
 
-    def swap_vehicles(self):
-        return
+    def swap_vehicle(self):
+        vehicle_list = self.solution.vehicle_list
+        for (veh1, veh2) in combinations(vehicle_list, 2):
+            if self.do_swap_vehicle(veh1, veh2):
+                self.swap_vehicle(veh1, veh2)
+
+    def do_swap_vehicle(self, veh1, veh2):
+        if veh1.get_max_capa() > veh2.capa: return False
+        if veh2.get_max_capa() > veh1.capa: return False
+
+        original_cost = veh1.get_total_cost() + veh2.get_total_cost()
+        temp_veh1 = veh1
+        temp_veh2 = veh2
+        temp = temp_veh1.order_list
+        temp_veh1.order_list = temp_veh2.order_list
+        temp_veh2.order_list = temp
+        new_cost = temp_veh1.get_total_cost() + temp_veh2.get_total_cost()
+        if new_cost > original_cost: return False
+        return True
+
+
+    def swap_vehicle(self, veh1, veh2):
+        temp = veh1.order_list
+        veh1.order_list = veh2.order_list
+        veh2.order_list = temp
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
