@@ -3,7 +3,14 @@ from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
 from simulator.tools import can_time_cal
+from solution.Solution import Solution
+from solution.vehicle_alloc import Vehicle_Alloc
 
+
+class Order_helper:
+    def __init__(self, order:Order):
+        self.order = order
+        self.allocated = False
 
 class Veh_helper:
     def __init__(self, vehicle: Vehicle):
@@ -25,8 +32,8 @@ class Initial_Solution_Generator:
         """
 
         self.graph = graph
-        self.vehicle_list = [ Veh_helper(veh) for veh in vehicle_list]
-        self.order_list = order_list
+        self.vehicle_list = [Veh_helper(veh) for veh in vehicle_list]
+        self.order_list = [Order(order) for order in order_list]
         self.carry_over = carry_over
 
         if config.DEBUG and self.invalid():
@@ -41,8 +48,8 @@ class Initial_Solution_Generator:
             return True
 
         # same terminal
-        for order in self.order_list:
-            if order.terminal_id != self.terminal:
+        for order_helper in self.order_list:
+            if order_helper.order.terminal_id != self.terminal:
                 print("different terminal")
                 return True
         return False
@@ -54,7 +61,7 @@ class Initial_Solution_Generator:
         """
         # terminal list
         terminals = []
-        for order in self.order_list: terminals.append(order.terminal_id)
+        for order_helper in self.order_list: terminals.append(order_helper.order.terminal_id)
         terminals = list(set(terminals))
 
         for terminal in terminals:
@@ -63,7 +70,8 @@ class Initial_Solution_Generator:
                 if order.terminal_id == terminal: terminal_orders.append(order)
             self.terminal_alloc(terminal = terminal)
 
-
+        vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list]
+        return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)
 
 
     def terminal_alloc(self, terminal):
@@ -74,19 +82,47 @@ class Initial_Solution_Generator:
         :return:
         """
 
-
-        while True:
+        left_order = True
+        while left_order:
             veh_helper = self.next_veh(terminal = terminal)
-            cur_loc = veh_helper.cur_loc; cur_time = veh_helper.cur_time
+
+            cur_loc = veh_helper.cur_loc
+            cur_time = veh_helper.cur_time + self.graph.get_time(cur_loc, terminal)
+            cur_loc = terminal
             left = veh_helper.vehicle.capa
 
             # cycle alloc
+            allocated = False
             while True:
-                order = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
+                order_helper = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
                                         left= left, terminal = terminal)
-                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-                start_time = arrival_time + order.load
+                if order_helper is None: break
+
+                order = order_helper.order
+                # order load_max not yet
+                if cur_loc != order.dest_id:
+                    arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
+                    start_time = arrival_time + order.load
+
+                    cur_time = start_time + order.load
+                    cur_loc = order.dest_id
                 veh_helper.allocated_order.append(order)
+                left -= order.cbm
+                allocated = True
+                order_helper.allocated = True
+
+            if allocated:
+                veh_helper.cur_time = cur_time
+                veh_helper.cur_loc = cur_loc
+            else:
+                break
+
+            left_order = False
+            for order_helper in self.order_list:
+                if order_helper.allocated == False:
+                    left_order = True
+                    break
+
 
 
 
@@ -110,10 +146,10 @@ class Initial_Solution_Generator:
 
 
     def next_order(self, cur_loc, cur_time, left, terminal: int):
-
         ret = None
         best_start = config.MAX
-        for order in self.order_list:
+        for order_helper in self.order_list:
+            order = order_helper.order
             if order.serviced or left < order.cbm or terminal != order.terminal_id or \
                     self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
@@ -126,6 +162,6 @@ class Initial_Solution_Generator:
 
             if start_time < config.MAX_START_TIME and start_time < best_start and \
                     start_time + order.load <= (order.group + 12) * 6 * 60:
-                ret = order
+                ret = order_helper
                 best_start = start_time
         return ret
