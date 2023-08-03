@@ -3,6 +3,7 @@ from object.graph import Graph
 from object.order import OrderTable, Order
 from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
+from solution.init_solution.initial_solution_generator import Initial_Solution_Generator
 import math
 
 
@@ -28,7 +29,19 @@ class Program:
             batch.extend(left)
 
             print(f"\tbatch {group}.. ", end='')
-            self.batch_alloc(batch, group)
+            init_solution_generator = Initial_Solution_Generator(
+                graph = self.graph,
+                vehicle_list= self.vehicleTable,
+                order_list= batch,
+                carry_over = (group!=config.LAST_BATCH)
+            )
+            init_solution = init_solution_generator.get_init_solution()
+
+            # optimization
+            solution = init_solution
+
+            # allocate
+            solution.allocate_solution()
             self.orderTable.update_orders(group* config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
             print("done")

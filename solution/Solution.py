@@ -33,10 +33,14 @@ class Solution:
         """
         self.vehicle_list = vehicle_list
 
+    def allocate_solution(self):
+        for veh_alloc in self.vehicle_list:
+            veh_alloc.vehicle.allocate_vehicle(veh_alloc.cycle_list)
+
 
     def update(self):
         """
-            Whenever any modification was made,, must be called
+            Whenever any modification was made, must be called
         """
         for veh in self.vehicle_list:
             veh.reset_cache()
@@ -59,5 +63,7 @@ class Solution:
         for veh in self.vehicle_list:
             ret += veh.get_spent_time()
         return ret
+
+
 
 

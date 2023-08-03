@@ -22,6 +22,10 @@ class Vehicle_Alloc:
         self.max_capa_cache = -1
         self.after_time_cache = -1
 
+
+    """
+        After fully confirmed, allocate.
+    """
     def allocate(self):
         """
 
