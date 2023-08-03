@@ -63,14 +63,15 @@ class Initial_Solution_Generator:
             terminal_orders = []
             for order_helper in self.order_list:
                 order = order_helper.order
-                if order.terminal_id == terminal: terminal_orders.append(order)
-            self.terminal_alloc(terminal = terminal)
+                if order.terminal_id == terminal: terminal_orders.append(Order_helper(order))
+            self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
         vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list]
-        return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)
+        order_list = [ order_helper.order for order_helper in self.order_list]
+        return Solution(graph = self.graph, order_list = order_list, vehicle_list= vehicle_alloc_list)
 
 
-    def terminal_alloc(self, terminal):
+    def terminal_alloc(self, terminal, orders:list[Order_helper]):
         """
         The Kernel of Our Optimization,,
         :param orders: orders from this terminal
@@ -84,7 +85,7 @@ class Initial_Solution_Generator:
         while allocated == True:
             allocated = False
             for veh in vehicle_list:
-                order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
+                order = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal, orders = orders)
                 if not order: continue
                 allocated = True
                 veh.allocated_order.append(order)
@@ -169,14 +170,16 @@ class Initial_Solution_Generator:
         return ret
 
 
-    def next_order(self, cur_loc, cur_time, left, terminal: int):
+    def next_order(self, cur_loc, cur_time, left, terminal: int, orders:list[Order_helper]):
         ret = None
         best_start = config.MAX
-        for order_helper in self.order_list:
+        for order_helper in orders:
             order = order_helper.order
-            if order.serviced or left < order.cbm or terminal != order.terminal_id or \
-                    self.graph.get_time(cur_loc, order.dest_id) < 0:
+            if order.serviced or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
+
+            if cur_loc == order.dest_id:
+                return ret
 
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
