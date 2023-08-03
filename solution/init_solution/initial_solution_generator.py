@@ -9,7 +9,6 @@ class Initial_Solution_Generator:
     """
         For Batch
     """
-
     def __init__(self, graph:Graph, vehicle_list:list[Vehicle], order_list:list[Order], carry_over:bool):
         """
         :param graph:
@@ -29,7 +28,6 @@ class Initial_Solution_Generator:
         self.terminal = order_list[0].terminal_id
 
     def invalid(self):
-
         # no orders
         if len(self.order_list) == 0:
             print("no orders")

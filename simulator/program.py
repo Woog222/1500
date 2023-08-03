@@ -4,7 +4,7 @@ from object.order import OrderTable, Order
 from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
 from solution.init_solution.initial_solution_generator import Initial_Solution_Generator
-import math
+from solution.solver.solver import Solver
 
 
 class Program:
@@ -39,6 +39,8 @@ class Program:
 
             # optimization
             solution = init_solution
+            solver = Solver(solution, self.graph, group)
+            solver.solve()
 
             # allocate
             solution.allocate_solution()
