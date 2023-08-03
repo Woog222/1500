@@ -42,9 +42,6 @@ class Program:
             # solver = Solver(solution, self.graph, group)
             # solver.solve()
 
-            # allocate
-            for veh_alloc in solution.vehicle_list:
-                print(f"{veh_alloc.vehicle.veh_num} : {len(veh_alloc.order_list)}")
 
             solution.update()
             solution.allocate_solution()
@@ -60,7 +57,7 @@ class Program:
                 left.append(order)
 
 
-        self.orderTable.update_orders(WEEK)
+        self.vehicleTable.update_allocated_orders(WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 

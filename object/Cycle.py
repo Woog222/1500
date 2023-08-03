@@ -96,6 +96,10 @@ class Cycle:
             ret += order.load
         return ret
 
+    def update_orders(self, cur_time:int):
+        self.terminal_loading_order.update(cur_time)
+        for order in self.orders: order.update(cur_time)
+
 
     def __str__(self):
         sb = [str(self.terminal_loading_order)]

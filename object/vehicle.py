@@ -154,4 +154,9 @@ class Vehicle_Table:
             for veh in self.table:
                 f.write(str(veh))
 
+    def update_allocated_orders(self, cur_time):
+        for veh in self.table:
+            for cycle in veh.allocated_cycle_list:
+                cycle.update_orders(cur_time)
+
 
