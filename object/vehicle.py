@@ -1,9 +1,4 @@
 import math
-from operator import itemgetter
-
-from object.Cycle import Cycle
-from object.order import Order
-from simulator.tools import can_time_cal
 import config
 
 
@@ -55,7 +50,7 @@ class Vehicle:
         return self.free_time < other.free_time
 
 
-    def allocate_vehicle(self, cycle_list:list[Cycle]):
+    def allocate_vehicle(self, cycle_list): # cycle_list: list[Cycle]
         if len(cycle_list) == 0: return
 
         cur_time = self.free_time; cur_loc = self.start_loc

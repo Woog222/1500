@@ -10,7 +10,7 @@ def preprocessing():
         terminals = pd.read_csv(os.path.join(directory, 'terminals.csv'), encoding='cp949')
         od_matrix = pd.read_csv(os.path.join(directory, 'od_matrix.csv'))
         veh_table = pd.read_csv(os.path.join(directory, 'vehicles.csv'))
-        orders = pd.read_csv(os.path.join(directory, 'orders.csv'), encoding='cp949')
+        orders = pd.read_csv(os.path.join(directory, 'orders.csv'))
 
         # 주문 데이터 가공
         orders['하차가능시간_시작'] = 60 * orders['하차가능시간_시작'].str[:-3].astype('Int64')

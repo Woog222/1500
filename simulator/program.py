@@ -33,18 +33,18 @@ class Program:
                 graph = self.graph,
                 vehicle_list= self.vehicleTable.table,
                 order_list= batch,
-                carry_over = (group!=config.LAST_BATCH)
+                carry_over = ((group+1)!=config.LAST_BATCH)
             )
             init_solution = init_solution_generator.get_init_solution()
 
             # optimization
             solution = init_solution
-            solver = Solver(solution, self.graph, group)
-            solver.solve()
+            # solver = Solver(solution, self.graph, group)
+            # solver.solve()
 
             # allocate
             solution.allocate_solution()
-            self.orderTable.update_orders(group* config.GROUP_INTERVAL)
+            self.orderTable.update_orders(group * config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
             print("done")
 
@@ -79,7 +79,7 @@ class Program:
                 if order.terminal_id == terminal: terminal_orders.append(order)
 
             self.vehicleTable.init_vehicles()
-            self.terminal_alloc(terminal_orders, terminal, cur_batch != LAST_BATCH)
+            self.terminal_alloc(terminal_orders, terminal, (cur_batch+1) != LAST_BATCH)
             self.vehicleTable.alloc()
 
     def terminal_alloc(self, orders:list[Order], terminal:int, carry_over:bool):

@@ -33,13 +33,12 @@ class Initial_Solution_Generator:
 
         self.graph = graph
         self.vehicle_list = [Veh_helper(veh) for veh in vehicle_list]
-        self.order_list = [Order(order) for order in order_list]
+        self.order_list = [Order_helper(order) for order in order_list]
         self.carry_over = carry_over
 
         if config.DEBUG and self.invalid():
             print("different terminal")
             exit(1)
-        self.terminal = order_list[0].terminal_id
 
     def invalid(self):
         # no orders
@@ -47,11 +46,6 @@ class Initial_Solution_Generator:
             print("no orders")
             return True
 
-        # same terminal
-        for order_helper in self.order_list:
-            if order_helper.order.terminal_id != self.terminal:
-                print("different terminal")
-                return True
         return False
 
     def get_init_solution(self):
@@ -66,7 +60,8 @@ class Initial_Solution_Generator:
 
         for terminal in terminals:
             terminal_orders = []
-            for order in self.order_list:
+            for order_helper in self.order_list:
+                order = order_helper.order
                 if order.terminal_id == terminal: terminal_orders.append(order)
             self.terminal_alloc(terminal = terminal)
 
@@ -122,12 +117,6 @@ class Initial_Solution_Generator:
                 if order_helper.allocated == False:
                     left_order = True
                     break
-
-
-
-
-
-
 
     def next_veh(self, terminal):
         """
