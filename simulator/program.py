@@ -31,7 +31,7 @@ class Program:
             print(f"\tbatch {group}.. ", end='')
             init_solution_generator = Initial_Solution_Generator(
                 graph = self.graph,
-                vehicle_list= self.vehicleTable,
+                vehicle_list= self.vehicleTable.table,
                 order_list= batch,
                 carry_over = (group!=config.LAST_BATCH)
             )
