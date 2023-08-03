@@ -5,11 +5,12 @@ from object.vehicle import Vehicle
 from simulator.tools import can_time_cal
 
 
-class Init_helper:
+class Veh_helper:
     def __init__(self, vehicle: Vehicle):
         self.vehicle = vehicle
         self.cur_loc = vehicle.start_loc
-        self.cut_time = vehicle.free_time
+        self.cur_time = vehicle.free_time
+        self.allocated_order = []
 
 class Initial_Solution_Generator:
     """
@@ -24,7 +25,7 @@ class Initial_Solution_Generator:
         """
 
         self.graph = graph
-        self.vehicle_list = [ Init_helper(veh) for veh in vehicle_list]
+        self.vehicle_list = [ Veh_helper(veh) for veh in vehicle_list]
         self.order_list = order_list
         self.carry_over = carry_over
 
@@ -60,7 +61,6 @@ class Initial_Solution_Generator:
             terminal_orders = []
             for order in self.order_list:
                 if order.terminal_id == terminal: terminal_orders.append(order)
-
             self.terminal_alloc(terminal = terminal)
 
 
@@ -74,17 +74,40 @@ class Initial_Solution_Generator:
         :return:
         """
 
+
         while True:
-            veh = self.next_veh()
+            veh_helper = self.next_veh(terminal = terminal)
+            cur_loc = veh_helper.cur_loc; cur_time = veh_helper.cur_time
+            left = veh_helper.vehicle.capa
+
+            # cycle alloc
+            while True:
+                order = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
+                                        left= left, terminal = terminal)
+                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
+                start_time = arrival_time + order.load
+                veh_helper.allocated_order.append(order)
 
 
 
-    def next_veh(self, order:Order):
+
+
+
+    def next_veh(self, terminal):
         """
             find best vehicle
         :param order:
         :return:
         """
+        ret = self.vehicle_list[0]
+        best_arrival_time = config.MAX
+        for veh_helper in self.vehicle_list:
+            arrival_time = veh_helper.cur_time + self.graph.get_time(veh_helper.cur_loc, terminal)
+            if arrival_time < best_arrival_time:
+                ret = veh_helper
+                best_arrival_time = arrival_time
+        return ret
+
 
     def next_order(self, cur_loc, cur_time, left, terminal: int):
 
