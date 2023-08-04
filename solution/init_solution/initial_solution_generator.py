@@ -79,11 +79,12 @@ class Initial_Solution_Generator:
         :return:
         """
         vehicle_list = self.vehicle_list
-        vehicle_list.sort(key = lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
-        allocated = True
 
+
+        allocated = True
         while allocated == True:
             allocated = False
+            vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
             for veh in vehicle_list:
                 order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal, orders = orders)
                 if not order_helper: continue
