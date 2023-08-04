@@ -11,27 +11,40 @@ class Solver:
         self.cur_batch = cur_batch
 
     def solve(self):
-        self.swap_vehicles()
-        self.swap_orders()
+        self.solution.vehicle_list = self.swap_vehicles()
+        #self.swap_orders()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
+        swap_count = 0
         for (veh1, veh2) in combinations(vehicle_list, 2):
             if self.do_swap_vehicle(veh1, veh2):
+                swap_count += 1
                 self.swap_vehicle(veh1, veh2)
+        print(swap_count)
+        return vehicle_list
 
     def do_swap_vehicle(self, veh1, veh2):
-        if veh1.get_max_capa() > veh2.capa: return False
-        if veh2.get_max_capa() > veh1.capa: return False
+        # capa check
+        if veh1.get_max_capa() > veh2.vehicle.capa: return False
+        if veh2.get_max_capa() > veh1.vehicle.capa: return False
 
-        original_cost = veh1.get_total_cost() + veh2.get_total_cost()
         temp_veh1 = veh1
         temp_veh2 = veh2
         temp = temp_veh1.order_list
         temp_veh1.order_list = temp_veh2.order_list
         temp_veh2.order_list = temp
-        new_cost = temp_veh1.get_total_cost() + temp_veh2.get_total_cost()
-        if new_cost > original_cost: return False
+        temp_veh1.reset_cache()
+        temp_veh2.reset_cache()
+
+        # cost reduction check
+        original_cost = veh1.get_var_cost() + veh2.get_var_cost()
+        if len(veh1.vehicle.allocated_cycle_list) + len(veh1.order_list) > 0: original_cost += veh1.vehicle.fc
+        if len(veh2.vehicle.allocated_cycle_list) + len(veh2.order_list) > 0: original_cost += veh2.vehicle.fc
+        new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
+        if len(veh1.vehicle.allocated_cycle_list) + len(temp_veh1.order_list) > 0: new_cost += veh1.vehicle.fc
+        if len(veh2.vehicle.allocated_cycle_list) + len(temp_veh2.order_list) > 0: new_cost += veh2.vehicle.fc
+        if new_cost >= original_cost: return False
         return True
 
 
@@ -39,6 +52,10 @@ class Solver:
         temp = veh1.order_list
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
+        for veh in [veh1, veh2]:
+            veh.update_cycle()
+            veh.reset_cache()
+
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
@@ -112,9 +129,9 @@ class Solver:
                                      self.graph.get_dist(next_order1.terminal_id, next_order1.dest_id)
             else:
                 original_distance += self.graph.get_dist(order1.dest_id, next_order1.dest_id)
-        new_cost = veh1.vc * (new_distance - original_distance)
+        cost_diff = veh1.vc * (new_distance - original_distance)
 
-        if new_cost > 0: return False
+        if cost_diff > 0: return False
 
         return True
 

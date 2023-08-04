@@ -114,48 +114,6 @@ class Initial_Solution_Generator:
                     veh.left = veh.vehicle.capa
 
 
-
-        # left_order = True
-        # while left_order:
-        #     veh_helper = self.next_veh(terminal = terminal)
-        #
-        #     cur_loc = veh_helper.cur_loc
-        #     cur_time = veh_helper.cur_time + self.graph.get_time(cur_loc, terminal)
-        #     cur_loc = terminal
-        #     left = veh_helper.vehicle.capa
-        #
-        #     # cycle alloc
-        #     allocated = False
-        #     while True:
-        #         order_helper = self.next_order(cur_loc = cur_loc, cur_time = cur_time,
-        #                                 left= left, terminal = terminal)
-        #         if order_helper is None: break
-        #
-        #         order = order_helper.order
-        #         # order load_max not yet
-        #         if cur_loc != order.dest_id:
-        #             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-        #             start_time = arrival_time + order.load
-        #
-        #             cur_time = start_time + order.load
-        #             cur_loc = order.dest_id
-        #         veh_helper.allocated_order.append(order)
-        #         left -= order.cbm
-        #         allocated = True
-        #         order_helper.allocated = True
-        #
-        #     if allocated:
-        #         veh_helper.cur_time = cur_time
-        #         veh_helper.cur_loc = cur_loc
-        #     else:
-        #         break
-        #
-        #     left_order = False
-        #     for order_helper in self.order_list:
-        #         if order_helper.allocated == False:
-        #             left_order = True
-        #             break
-
     def next_veh(self, terminal):
         """
             find best vehicle
