@@ -12,7 +12,7 @@ class Solver:
 
     def solve(self):
         self.solution.vehicle_list = self.swap_vehicles()
-        #self.swap_orders()
+        # self.solution.vehicle_list = self.swap_orders()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
@@ -28,6 +28,24 @@ class Solver:
         # capa check
         if veh1.get_max_capa() > veh2.vehicle.capa: return False
         if veh2.get_max_capa() > veh1.vehicle.capa: return False
+
+        # time check
+        if len(veh2.order_list) > 0:
+            arrival_time1 = veh1.vehicle.free_time + \
+                            self.graph.get_time(veh1.vehicle.start_loc, veh2.order_list[0].terminal_id) + \
+                            self.graph.get_time(veh2.order_list[0].terminal_id, veh2.order_list[0].dest_id)
+            arrival_time2 = veh2.vehicle.free_time + \
+                            self.graph.get_time(veh2.vehicle.start_loc, veh2.order_list[0].terminal_id) + \
+                            self.graph.get_time(veh2.order_list[0].terminal_id, veh2.order_list[0].dest_id)
+            if arrival_time1 > arrival_time2: return False
+        if len(veh1.order_list) > 0:
+            arrival_time2 = veh2.vehicle.free_time + \
+                           self.graph.get_time(veh2.vehicle.start_loc, veh1.order_list[0].terminal_id) + \
+                           self.graph.get_time(veh1.order_list[0].terminal_id, veh1.order_list[0].dest_id)
+            arrival_time1 = veh1.vehicle.free_time + \
+                            self.graph.get_time(veh1.vehicle.start_loc, veh1.order_list[0].terminal_id) + \
+                            self.graph.get_time(veh1.order_list[0].terminal_id, veh1.order_list[0].dest_id)
+            if arrival_time2 > arrival_time1: return False
 
         temp_veh1 = veh1
         temp_veh2 = veh2
@@ -45,6 +63,7 @@ class Solver:
         if len(veh1.vehicle.allocated_cycle_list) + len(temp_veh1.order_list) > 0: new_cost += veh1.vehicle.fc
         if len(veh2.vehicle.allocated_cycle_list) + len(temp_veh2.order_list) > 0: new_cost += veh2.vehicle.fc
         if new_cost >= original_cost: return False
+
         return True
 
 
@@ -66,6 +85,8 @@ class Solver:
                     # swap
                     if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
                         self.swap_order(veh1, order1_idx, veh2, order2_idx)
+
+        return vehicle_list
 
     def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
         prev_order1, order1, next_order1, prev_order2, order2, next_order2 = self.return_prev_next(veh1, order1_idx,
