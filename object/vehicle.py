@@ -159,4 +159,8 @@ class Vehicle_Table:
             for cycle in veh.allocated_cycle_list:
                 cycle.update_orders(cur_time)
 
+    def update_freetime(self, cur_time):
+        for veh in self.table:
+            veh.free_time = max(veh.free_time, cur_time)
+
 

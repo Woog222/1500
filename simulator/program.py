@@ -24,10 +24,16 @@ class Program:
 
         left = []
         for group in range(config.LAST_BATCH):
+
+            # left
             batch = self.orderTable.table[group]
-            if not batch: continue
+            if len(batch)==0: continue
             batch.extend(left)
 
+            # free_time update
+            self.vehicleTable.update_freetime(group * config.GROUP_INTERVAL)
+
+            # init solution
             print(f"\tbatch {group}.. ", end='')
             init_solution_generator = Initial_Solution_Generator(
                 graph = self.graph,
@@ -42,10 +48,10 @@ class Program:
             # solver = Solver(solution, self.graph, group)
             # solver.solve()
 
-
+            # allocation
             solution.update()
             solution.allocate_solution()
-            self.orderTable.update_orders(group * config.GROUP_INTERVAL)
+            self.vehicleTable.update_allocated_orders(group * config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
             print("done")
 
@@ -55,81 +61,12 @@ class Program:
                 if order.serviced or order.group + 12 <= group:
                     continue
                 left.append(order)
-
+            print(f"{len(batch)} -> {len(left)}")
 
         self.vehicleTable.update_allocated_orders(WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 
-    def batch_alloc(self, batch:list[Order], cur_batch):
-        """
 
-        :param batch:
-        :param cur_batch:
-        :return: Solution object in a batch setting
-        """
-
-
-
-        # terminal list
-        terminals = []
-        for order in batch: terminals.append(order.terminal_id)
-        terminals = list(set(terminals))
-
-        for terminal in terminals:
-            terminal_orders = []
-            for order in batch:
-                if order.terminal_id == terminal: terminal_orders.append(order)
-
-            self.vehicleTable.init_vehicles()
-            self.terminal_alloc(terminal_orders, terminal, (cur_batch+1) != LAST_BATCH)
-            self.vehicleTable.alloc()
-
-    def terminal_alloc(self, orders:list[Order], terminal:int, carry_over:bool):
-        """
-        The Kernel of Our Optimization,,
-        :param orders: orders from this terminal
-        :param terminal:
-        :return:
-        """
-
-        # sort in order of arrival time
-        vehicles = self.vehicleTable.table
-        vehicles.sort(key = lambda x:
-            self.graph.get_time(x.cur_loc, terminal) + x.cur_time
-        )
-
-        for veh in vehicles:
-            order = self.next_order(batch = orders, veh =  veh,
-                             terminal = terminal, carry_over= carry_over)
-            if order is None: continue
-            veh.add_order(order)
-
-
-    def next_order(self, batch: list[Order], veh: Vehicle, terminal:int,
-                   carry_over:bool):
-
-        where = veh.cur_loc; when = veh.cur_time
-        left = veh.left
-
-        ret = None
-        best_start = MAX
-        for order in batch:
-            if  order.serviced or left < order.cbm or terminal != order.terminal_id or \
-                self.graph.get_time(where, order.dest_id) < 0:
-                continue
-
-            arrival_time = when + self.graph.get_time(where, order.dest_id)
-            start_time = can_time_cal(arrival_time, order.start, order.end)
-
-            if carry_over and start_time - arrival_time > HOUR * 6:
-                continue
-
-            if start_time < MAX_START_TIME and start_time < best_start and \
-                    start_time + order.load <= (order.group + 12) * 6 * 60:
-                ret = order
-                best_start = start_time
-
-        return ret
 
 

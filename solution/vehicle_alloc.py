@@ -53,7 +53,7 @@ class Vehicle_Alloc:
             temp_orders.append(order)
 
         # last one
-        self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle, self.graph))
+        self.cycle_list.append(Cycle(temp_orders, self.vehicle, self.graph))
         return
 
 

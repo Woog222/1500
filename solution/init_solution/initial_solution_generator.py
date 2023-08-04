@@ -52,7 +52,7 @@ class Initial_Solution_Generator:
     def get_init_solution(self):
         """
         Solution 객체 형태로 초기해를 만들어서 리턴하는 함수 작성하면 됨!
-        :return: Solution Object for Terminal Problem
+        :return: Solution Object for Batch Problem
         """
         # terminal list
         terminals = []
@@ -62,8 +62,7 @@ class Initial_Solution_Generator:
         for terminal in terminals:
             terminal_orders = []
             for order_helper in self.order_list:
-                order = order_helper.order
-                if order.terminal_id == terminal: terminal_orders.append(Order_helper(order))
+                if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
             self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
         vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list]
@@ -86,8 +85,8 @@ class Initial_Solution_Generator:
             allocated = False
             vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
             for veh in vehicle_list:
-                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal, orders = orders)
-                if not order_helper: continue
+                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                if order_helper is None: continue
 
 
                 allocated = order_helper.allocated = True
@@ -99,10 +98,10 @@ class Initial_Solution_Generator:
                 veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
                 veh.cur_loc = order_helper.order.dest_id
 
-                while not order_helper:
-                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, terminal)
-                    if not order_helper: break
-                    order_helper = allocated = True
+                while True:
+                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                    if order_helper is None: break
+                    order_helper.allocated = allocated = True
                     veh.allocated_order.append(order_helper.order)
                     veh.left -= order_helper.order.cbm
                     if veh.cur_loc != order_helper.order.dest_id:
@@ -110,8 +109,8 @@ class Initial_Solution_Generator:
                         veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
                         veh.cur_loc = order_helper.order.dest_id
 
-                for veh in vehicle_list:
-                    veh.left = veh.vehicle.capa
+            for veh in vehicle_list:
+                veh.left = veh.vehicle.capa
 
 
 
@@ -172,7 +171,7 @@ class Initial_Solution_Generator:
         return ret
 
 
-    def next_order(self, cur_loc, cur_time, left, terminal: int, orders:list[Order_helper]):
+    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper]):
         ret = None
         best_start = config.MAX
         for order_helper in orders:
@@ -180,8 +179,6 @@ class Initial_Solution_Generator:
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
-            if cur_loc == order.dest_id:
-                return ret
 
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
