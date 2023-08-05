@@ -17,6 +17,7 @@ class Vehicle_Alloc:
         self.vehicle = vehicle # const
         self.order_list = allocated_order_list # temp list, not including terminal loading order (-1)
         self.cycle_list = [] #
+        self.update_cycle()
 
         # cache
         self.route_cache = [-1]
