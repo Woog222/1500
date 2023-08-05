@@ -54,9 +54,8 @@ class Initial_Solution_Generator:
                 if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
             self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
-        vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list]
-        order_list = [ order_helper for order_helper in self.order_list]
-        return Solution(graph = self.graph, order_list = order_list, vehicle_list= vehicle_alloc_list)
+        vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list ]
+        return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)
 
 
     def terminal_alloc(self, terminal, orders:list[Order_helper]):
