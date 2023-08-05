@@ -45,8 +45,8 @@ class Program:
 
             # optimization
             solution = init_solution
-            # solver = Solver(solution, self.graph, group)
-            # solver.solve()
+            solver = Solver(solution, self.graph, group)
+            solver.solve()
 
             # allocation
             solution.update()
@@ -66,6 +66,11 @@ class Program:
         self.vehicleTable.update_allocated_orders(WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
+
+        total_cost = 0
+        for veh in self.vehicleTable.table:
+            total_cost += veh.get_total_cost()
+        print(f"Total Cost: {total_cost}")
 
 
 

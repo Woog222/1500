@@ -11,8 +11,8 @@ class Solver:
         self.cur_batch = cur_batch
 
     def solve(self):
-        self.solution.vehicle_list = self.swap_vehicles()
-        # self.solution.vehicle_list = self.swap_orders()
+        # self.solution.vehicle_list = self.swap_vehicles()
+        self.solution.vehicle_list = self.swap_orders()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
@@ -21,7 +21,6 @@ class Solver:
             if self.do_swap_vehicle(veh1, veh2):
                 swap_count += 1
                 self.swap_vehicle(veh1, veh2)
-        print(swap_count)
         return vehicle_list
 
     def do_swap_vehicle(self, veh1, veh2):
@@ -78,14 +77,15 @@ class Solver:
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
-
+        swap_count = 0
         for (veh1, veh2) in combinations(vehicle_list, 2):
             for order1_idx in range(veh1.get_count()):
                 for order2_idx in range(veh2.get_count()):
                     # swap
                     if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
+                        swap_count += 1
                         self.swap_order(veh1, order1_idx, veh2, order2_idx)
-
+        print(swap_count)
         return vehicle_list
 
     def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
@@ -93,16 +93,16 @@ class Solver:
                                                                                                    veh2, order2_idx)
 
         # feasibility check - cbm
-        if veh1.get_max_capa() - order1.cbm + order2.cbm > veh1.capa: return False
-        if veh2.get_max_capa() - order2.cbm + order1.cbm > veh2.capa: return False
+        if veh1.get_max_capa() - order1.cbm + order2.cbm > veh1.vehicle.capa: return False
+        if veh2.get_max_capa() - order2.cbm + order1.cbm > veh2.vehicle.capa: return False
 
         # feasibility check - time
         new_distance = 0
         if not prev_order1:
             prev_end_time = self.cur_batch * HOUR
-            arrival_time = prev_end_time + self.graph.get_time(veh1.veh.start_loc, order2.terminal_id) + \
+            arrival_time = prev_end_time + self.graph.get_time(veh1.vehicle.start_loc, order2.terminal_id) + \
                            self.graph.get_time(order2.terminal_id, order2.dest_id)
-            new_distance += self.graph.get_dist(veh1.veh.start_loc, order2.terminal_id) + \
+            new_distance += self.graph.get_dist(veh1.vehicle.start_loc, order2.terminal_id) + \
                             self.graph.get_dist(order2.terminal_id, order2.dest_id)
         else:
             prev_end_time = prev_order1.start_time + prev_order1.load
@@ -119,10 +119,10 @@ class Solver:
 
         if not next_order1:
             end_time = start_time + order2.load
-            if end_time > (self.cur_batch + 1) * HOUR: return False
+            if end_time > (self.cur_batch + 1) * GROUP_INTERVAL: return False
         else:
             end_time = start_time + order2.load
-            if order2.terminal_id != next_order2.terminal_id:
+            if order2.terminal_id != next_order1.terminal_id:
                 next_start_time = end_time + self.graph.get_time(order2.dest_id, next_order1.terminal_id) + \
                                   self.graph.get_time(next_order1.terminal_id, next_order1.dest_id)
                 new_distance += self.graph.get_dist(order2.dest_id, next_order1.terminal_id) + \
@@ -135,7 +135,7 @@ class Solver:
         # cost reduction check
         original_distance = 0
         if not prev_order1:
-            original_distance += self.graph.get_dist(veh1.veh.cur_loc, order1.terminal_id) + \
+            original_distance += self.graph.get_dist(veh1.vehicle.start_loc, order1.terminal_id) + \
                                  self.graph.get_dist(order1.terminal_id, order1.dest_id)
         else:
             if prev_order1.terminal_id != order1.terminal_id:
@@ -150,16 +150,19 @@ class Solver:
                                      self.graph.get_dist(next_order1.terminal_id, next_order1.dest_id)
             else:
                 original_distance += self.graph.get_dist(order1.dest_id, next_order1.dest_id)
-        cost_diff = veh1.vc * (new_distance - original_distance)
+        cost_diff = veh1.vehicle.vc * (new_distance - original_distance)
 
-        if cost_diff > 0: return False
+        if cost_diff >= 0: return False
 
         return True
 
     def swap_order(self, veh1, i, veh2, j):
         temp = veh1.order_list[i]
-        veh1.order_list[i] = veh1.order_list[j]
+        veh1.order_list[i] = veh2.order_list[j]
         veh2.order_list[j] = temp
+        for veh in [veh1, veh2]:
+            veh.update_cycle()
+            veh.reset_cache()
 
     def return_prev_next(self, veh1, i, veh2, j):
         order1 = veh1.order_list[i]
