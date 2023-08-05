@@ -6,6 +6,7 @@ class Order_helper:
     def __init__(self, order:Order):
         self.order = order
         self.allocated = False
+        self.start_time = -1
 
 class Veh_helper:
     def __init__(self, vehicle: Vehicle):

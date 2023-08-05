@@ -83,8 +83,10 @@ class Initial_Solution_Generator:
                 veh.left -= order_helper.order.cbm
                 arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal) + \
                                self.graph.get_time(terminal, order_helper.order.dest_id)
-                veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
+                start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
+                veh.cur_time = start_time + order_helper.order.load
                 veh.cur_loc = order_helper.order.dest_id
+                order_helper.start_time = start_time
 
                 while True:
                     order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
@@ -94,8 +96,10 @@ class Initial_Solution_Generator:
                     veh.left -= order_helper.order.cbm
                     if veh.cur_loc != order_helper.order.dest_id:
                         arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, order_helper.order.dest_id)
-                        veh.cur_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end) + order_helper.order.load
+                        start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
+                        veh.cur_time = start_time + order_helper.order.load
                         veh.cur_loc = order_helper.order.dest_id
+                    order_helper.start_time = start_time
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
