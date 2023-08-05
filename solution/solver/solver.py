@@ -31,19 +31,19 @@ class Solver:
         # time check
         if len(veh2.order_list) > 0:
             arrival_time1 = veh1.vehicle.free_time + \
-                            self.graph.get_time(veh1.vehicle.start_loc, veh2.order_list[0].terminal_id) + \
-                            self.graph.get_time(veh2.order_list[0].terminal_id, veh2.order_list[0].dest_id)
+                            self.graph.get_time(veh1.vehicle.start_loc, veh2.order_list[0].order.terminal_id) + \
+                            self.graph.get_time(veh2.order_list[0].order.terminal_id, veh2.order_list[0].order.dest_id)
             arrival_time2 = veh2.vehicle.free_time + \
-                            self.graph.get_time(veh2.vehicle.start_loc, veh2.order_list[0].terminal_id) + \
-                            self.graph.get_time(veh2.order_list[0].terminal_id, veh2.order_list[0].dest_id)
+                            self.graph.get_time(veh2.vehicle.start_loc, veh2.order_list[0].order.terminal_id) + \
+                            self.graph.get_time(veh2.order_list[0].order.terminal_id, veh2.order_list[0].order.dest_id)
             if arrival_time1 > arrival_time2: return False
         if len(veh1.order_list) > 0:
             arrival_time2 = veh2.vehicle.free_time + \
-                           self.graph.get_time(veh2.vehicle.start_loc, veh1.order_list[0].terminal_id) + \
-                           self.graph.get_time(veh1.order_list[0].terminal_id, veh1.order_list[0].dest_id)
+                           self.graph.get_time(veh2.vehicle.start_loc, veh1.order_list[0].order.terminal_id) + \
+                           self.graph.get_time(veh1.order_list[0].order.terminal_id, veh1.order_list[0].order.dest_id)
             arrival_time1 = veh1.vehicle.free_time + \
-                            self.graph.get_time(veh1.vehicle.start_loc, veh1.order_list[0].terminal_id) + \
-                            self.graph.get_time(veh1.order_list[0].terminal_id, veh1.order_list[0].dest_id)
+                            self.graph.get_time(veh1.vehicle.start_loc, veh1.order_list[0].order.terminal_id) + \
+                            self.graph.get_time(veh1.order_list[0].order.terminal_id, veh1.order_list[0].order.dest_id)
             if arrival_time2 > arrival_time1: return False
 
         temp_veh1 = veh1
@@ -123,33 +123,33 @@ class Solver:
         else:
             end_time = start_time + order2.load
             if order2.terminal_id != next_order1.terminal_id:
-                next_start_time = end_time + self.graph.get_time(order2.dest_id, next_order1.terminal_id) + \
-                                  self.graph.get_time(next_order1.terminal_id, next_order1.dest_id)
-                new_distance += self.graph.get_dist(order2.dest_id, next_order1.terminal_id) + \
-                                self.graph.get_dist(next_order1.terminal_id, next_order1.dest_id)
+                next_start_time = end_time + self.graph.get_time(order2.order.dest_id, next_order1.terminal_id) + \
+                                  self.graph.get_time(next_order1.terminal_id, next_order1.order.dest_id)
+                new_distance += self.graph.get_dist(order2.order.dest_id, next_order1.terminal_id) + \
+                                self.graph.get_dist(next_order1.terminal_id, next_order1.order.dest_id)
             else:
-                next_start_time = end_time + self.graph.get_time(order2.dest_id, next_order1.dest_id)
-                new_distance += self.graph.get_dist(order2.dest_id, next_order1.dest_id)
+                next_start_time = end_time + self.graph.get_time(order2.order.dest_id, next_order1.order.dest_id)
+                new_distance += self.graph.get_dist(order2.order.dest_id, next_order1.order.dest_id)
             if next_start_time > next_order1.start_time: return False
 
         # cost reduction check
         original_distance = 0
         if not prev_order1:
-            original_distance += self.graph.get_dist(veh1.vehicle.start_loc, order1.terminal_id) + \
-                                 self.graph.get_dist(order1.terminal_id, order1.dest_id)
+            original_distance += self.graph.get_dist(veh1.vehicle.start_loc, order1.order.terminal_id) + \
+                                 self.graph.get_dist(order1.order.terminal_id, order1.order.dest_id)
         else:
-            if prev_order1.terminal_id != order1.terminal_id:
-                original_distance += self.graph.get_dist(prev_order1.dest_id, order1.terminal_id) + \
-                                     self.graph.get_dist(order1.terminal_id, order1.dest_id)
+            if prev_order1.order.terminal_id != order1.order.terminal_id:
+                original_distance += self.graph.get_dist(prev_order1.order.dest_id, order1.order.terminal_id) + \
+                                     self.graph.get_dist(order1.order.terminal_id, order1.order.dest_id)
             else:
-                original_distance += self.graph.get_dist(prev_order1.dest_id, order1.dest_id)
+                original_distance += self.graph.get_dist(prev_order1.order.dest_id, order1.order.dest_id)
 
         if next_order1:
-            if order1.terminal_id != next_order1.terminal_id:
-                original_distance += self.graph.get_dist(order1.dest_id, next_order1.terminal_id) + \
-                                     self.graph.get_dist(next_order1.terminal_id, next_order1.dest_id)
+            if order1.order.terminal_id != next_order1.order.terminal_id:
+                original_distance += self.graph.get_dist(order1.order.dest_id, next_order1.order.terminal_id) + \
+                                     self.graph.get_dist(next_order1.order.terminal_id, next_order1.order.dest_id)
             else:
-                original_distance += self.graph.get_dist(order1.dest_id, next_order1.dest_id)
+                original_distance += self.graph.get_dist(order1.order.dest_id, next_order1.order.dest_id)
         cost_diff = veh1.vehicle.vc * (new_distance - original_distance)
 
         if cost_diff >= 0: return False
