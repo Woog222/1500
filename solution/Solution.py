@@ -20,7 +20,6 @@ class Solution:
             For the batch problem, it includes every order in a batch (excluding ones that have been carried over to the next batch).
         """
 
-
         """
             CONST
             for reference only
@@ -32,6 +31,9 @@ class Solution:
             improve it!
         """
         self.vehicle_list = vehicle_list
+
+    def __str__(self):
+        return f"capa({self.get_capa_violation_score()}), time({self.get_time_violation_score()})"
 
     def allocate_solution(self):
         for veh_alloc in self.vehicle_list:
@@ -61,6 +63,18 @@ class Solution:
         ret = 0
         for veh in self.vehicle_list:
             ret += veh.get_spent_time()
+        return ret
+
+    def get_capa_violation_score(self):
+        ret = 0
+        for veh in self.vehicle_list:
+            ret += veh.get_capa_violation()
+        return ret
+
+    def get_time_violation_score(self):
+        ret = 0
+        for veh in self.vehicle_list:
+            ret += veh.get_time_violation()
         return ret
 
 

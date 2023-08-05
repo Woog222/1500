@@ -1,10 +1,11 @@
+import copy
+
 import config
 from object.graph import Graph
 from object.order import OrderTable, Order
 from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
 from solution.init_solution.initial_solution_generator import Initial_Solution_Generator
-from solution.solver.solver import Solver
 
 
 class Program:
@@ -26,7 +27,7 @@ class Program:
         for group in range(config.LAST_BATCH):
 
             # left
-            batch = self.orderTable.table[group]
+            batch = copy.copy(self.orderTable.table[group])
             if len(batch)==0: continue
             batch.extend(left)
 
@@ -34,7 +35,7 @@ class Program:
             self.vehicleTable.update_freetime(group * config.GROUP_INTERVAL)
 
             # init solution
-            print(f"\tbatch {group}.. ", end='')
+            print(f"\tbatch {group} : ", end=' ')
             init_solution_generator = Initial_Solution_Generator(
                 graph = self.graph,
                 vehicle_list= self.vehicleTable.table,
@@ -45,21 +46,21 @@ class Program:
 
             # optimization
             solution = init_solution
-            solver = Solver(solution, self.graph, group)
-            solver.solve()
+
+            # solver = Solver(solution, self.graph, group)
+            # solver.solve()
 
             # allocation
+            print(solution, end=' ')
             solution.update()
             solution.allocate_solution()
             self.vehicleTable.update_allocated_orders(group * config.GROUP_INTERVAL)
             self.vehicleTable.write_order_result(init=False, final=False)
-            print("done")
 
             left = []
             for order in batch:
                 ## 72 hour limit
-                if order.serviced or order.group + 12 <= group:
-                    continue
+                if order.serviced: continue
                 left.append(order)
             print(f"{len(batch)} -> {len(left)}")
 
@@ -67,10 +68,18 @@ class Program:
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 
-        total_cost = 0
-        for veh in self.vehicleTable.table:
-            total_cost += veh.get_total_cost()
-        print(f"Total Cost: {total_cost}")
+        total_service = total_not = 0
+        for group, order_group in enumerate(self.orderTable.table):
+            serviced_cnt = not_cnt = 0
+            for order in order_group:
+                if order.serviced: serviced_cnt += 1
+                else: not_cnt += 1
+            print(f"batch {group} : ( {serviced_cnt} , {not_cnt} )")
+            total_service += serviced_cnt
+            total_not += not_cnt
+
+        print(f"{total_service}, {total_not}")
+
 
 
 

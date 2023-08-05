@@ -136,8 +136,7 @@ class Initial_Solution_Generator:
             if self.carry_over and start_time - arrival_time > config.HOUR * 6:
                 continue
 
-            if start_time < config.MAX_START_TIME and start_time < best_start and \
-                    start_time + order.load <= (order.group + 12) * 6 * 60:
+            if start_time < config.MAX_START_TIME and start_time < best_start:
                 ret = order_helper
                 best_start = start_time
         return ret

@@ -1,10 +1,12 @@
 
 import copy
 
+import config
 from object.Cycle import Cycle
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
+from simulator.tools import can_time_cal
 from solution.helper import Order_helper
 
 
@@ -28,8 +30,6 @@ class Vehicle_Alloc:
     When any modifications are made to the "self.order_list",
     update cycle must be called
     """
-
-
     def update_cycle(self):
         self.reset_cache()
 
@@ -39,6 +39,7 @@ class Vehicle_Alloc:
         temp_orders = []
         left = self.vehicle.capa
         cur_terminal = -1
+        cur_loc = self.vehicle.start_loc; cur_time = self.vehicle.free_time
 
         for order_helper in self.order_list:
             order = order_helper.order
@@ -49,14 +50,21 @@ class Vehicle_Alloc:
                 cur_terminal = order.terminal_id
                 left = self.vehicle.capa
                 temp_orders = []
+                cur_time = self.graph.get_time(cur_loc, cur_terminal)
+                cur_loc = order.terminal_id
 
+            if cur_loc != order.dest_id:
+                arrival_time = self.graph.get_time(cur_loc, order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start, order.end)
+                cur_time = start_time + order.load; cur_loc = order.dest_id
+
+            order_helper.set_departure_time(cur_time)
             left -= order.cbm
             temp_orders.append(order)
 
         # last one
         self.cycle_list.append(Cycle(temp_orders, self.vehicle, self.graph))
         return
-
 
     def reset_cache(self):
         self.route_cache = [-1]
@@ -172,4 +180,25 @@ class Vehicle_Alloc:
 
     def get_wating_time(self):
         return self.get_spent_time() - self.get_travel_time() - self.get_work_time()
+
+
+    def get_capa_violation(self):
+        ret = 0; capa = self.vehicle.capa
+        for cycle in self.cycle_list:
+            ret += max(0, cycle.total_capa - capa)
+        return ret
+
+    def get_time_violation(self):
+        """
+        :return: 주문 할당시간으로 부터 24시간을 몇분이나 넘겨서 서비스가 끝났는지
+        """
+        ret = 0
+
+        for order_helper in self.order_list:
+            order = order_helper.order
+            allocated_time = order.group * config.GROUP_INTERVAL
+            spent_time = order_helper.departure_time - allocated_time
+            ret += max(0, spent_time - config.TIME_CRITERION)
+        return ret
+
 

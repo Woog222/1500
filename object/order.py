@@ -1,3 +1,4 @@
+import config
 from config import *
 from object.vehicle import Vehicle
 from simulator.tools import can_time_cal
@@ -94,19 +95,20 @@ class OrderTable:
                     load = int(data[8])
                     group = int(data[9])
 
-                    self.table[group].append(
-                        Order(order_id = order_id,
-                              terminal_id= graph.id2idx(terminal_id),
-                              dest_id= graph.id2idx(dest_id),
-                              latitude = latitude,
-                              longitude = longitude,
-                              cbm= cbm,
-                              load = load,
-                              group= group,
-                              start = start,
-                              end = end
-                              )
-                    )
+                    if group < config.LAST_BATCH:
+                        self.table[group].append(
+                            Order(order_id = order_id,
+                                  terminal_id= graph.id2idx(terminal_id),
+                                  dest_id= graph.id2idx(dest_id),
+                                  latitude = latitude,
+                                  longitude = longitude,
+                                  cbm= cbm,
+                                  load = load,
+                                  group= group,
+                                  start = start,
+                                  end = end
+                                  )
+                        )
         except FileNotFoundError:
             print(f"invalid directories : {file_dir}")
             exit(1)
