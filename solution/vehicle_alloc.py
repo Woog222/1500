@@ -24,6 +24,8 @@ class Vehicle_Alloc:
         self.work_cache = -1
         self.max_capa_cache = -1
         self.after_time_cache = -1
+        self.capa_violation_cache = -1
+        self.time_violation_cache = -1
 
 
     """
@@ -72,6 +74,8 @@ class Vehicle_Alloc:
         self.work_cache = -1
         self.max_capa_cache = -1
         self.after_time_cache = -1
+        self.capa_violation_cache = -1
+        self.time_violation_cache = -1
 
     """
            Complex Methods
@@ -183,15 +187,26 @@ class Vehicle_Alloc:
 
 
     def get_capa_violation(self):
+        """
+        capa 제한 넘은 무게들의 합
+        :return:
+        """
+        if self.capa_violation_cache != -1:
+            return self.capa_violation_cache
+
         ret = 0; capa = self.vehicle.capa
         for cycle in self.cycle_list:
             ret += max(0, cycle.total_capa - capa)
-        return ret
+
+        self.capa_violation_cache = ret
+        return self.capa_violation_cache
 
     def get_time_violation(self):
         """
-        :return: 주문 할당시간으로 부터 24시간을 몇분이나 넘겨서 서비스가 끝났는지
-        """
+        :return: 주문 할당 ~ 처리까지 24시간 초과 시간들의 합
+       합"""
+        if self.time_violation_cache != -1:
+            return self.time_violation_cache
         ret = 0
 
         for order_helper in self.order_list:
@@ -199,6 +214,8 @@ class Vehicle_Alloc:
             allocated_time = order.group * config.GROUP_INTERVAL
             spent_time = order_helper.departure_time - allocated_time
             ret += max(0, spent_time - config.TIME_CRITERION)
-        return ret
+
+        self.time_violation_cache = ret
+        return self.time_violation_cache
 
 
