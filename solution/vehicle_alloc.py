@@ -5,11 +5,12 @@ from object.Cycle import Cycle
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
+from solution.helper import Order_helper
 
 
 class Vehicle_Alloc:
 
-    def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order]):
+    def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order_helper]):
         self.graph = graph
         self.vehicle = vehicle # const
         self.order_list = allocated_order_list # temp list, not including terminal loading order (-1)
@@ -39,8 +40,8 @@ class Vehicle_Alloc:
         left = self.vehicle.capa
         cur_terminal = -1
 
-        for order in self.order_list:
-
+        for order_helper in self.order_list:
+            order = order_helper.order
             # terminal loading
             if cur_terminal != order.terminal_id or left < order.cbm:
                 if cur_terminal != -1:
@@ -138,7 +139,7 @@ class Vehicle_Alloc:
         if self.work_cache != -1: return self.work_cache
 
         ret = 0
-        for order in self.order_list: ret += order.load
+        for order_helper in self.order_list: ret += order_helper.order.load
 
         self.work_cache = ret
         return self.work_cache

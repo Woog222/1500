@@ -1,5 +1,6 @@
 from object.order import Order
 from object.graph import Graph
+from solution.helper import Order_helper
 from solution.vehicle_alloc import Vehicle_Alloc
 
 
@@ -8,7 +9,7 @@ class Solution:
         General Solution Frame
     """
 
-    def __init__(self, graph:Graph, vehicle_list:list[Vehicle_Alloc], order_list:list[Order]):
+    def __init__(self, graph:Graph, vehicle_list:list[Vehicle_Alloc], order_list:list[Order_helper]):
         """
         :param graph:
         :param vehicle_list: The list of vehicles to be considered.

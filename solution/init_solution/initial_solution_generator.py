@@ -4,21 +4,10 @@ from object.order import Order
 from object.vehicle import Vehicle
 from simulator.tools import can_time_cal
 from solution.Solution import Solution
+from solution.helper import Veh_helper, Order_helper
 from solution.vehicle_alloc import Vehicle_Alloc
 
 
-class Order_helper:
-    def __init__(self, order:Order):
-        self.order = order
-        self.allocated = False
-
-class Veh_helper:
-    def __init__(self, vehicle: Vehicle):
-        self.vehicle = vehicle
-        self.cur_loc = vehicle.start_loc
-        self.cur_time = vehicle.free_time
-        self.left = vehicle.capa
-        self.allocated_order = []
 
 class Initial_Solution_Generator:
     """
@@ -65,9 +54,8 @@ class Initial_Solution_Generator:
                 if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
             self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
-        vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list]
-        order_list = [ order_helper.order for order_helper in self.order_list]
-        return Solution(graph = self.graph, order_list = order_list, vehicle_list= vehicle_alloc_list)
+        vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list ]
+        return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)
 
 
     def terminal_alloc(self, terminal, orders:list[Order_helper]):
@@ -90,7 +78,7 @@ class Initial_Solution_Generator:
 
 
                 allocated = order_helper.allocated = True
-                veh.allocated_order.append(order_helper.order)
+                veh.allocated_order.append(order_helper)
 
                 veh.left -= order_helper.order.cbm
                 arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal) + \
@@ -102,7 +90,7 @@ class Initial_Solution_Generator:
                     order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
                     if order_helper is None: break
                     order_helper.allocated = allocated = True
-                    veh.allocated_order.append(order_helper.order)
+                    veh.allocated_order.append(order_helper)
                     veh.left -= order_helper.order.cbm
                     if veh.cur_loc != order_helper.order.dest_id:
                         arrival_time = veh.cur_time + self.graph.get_time(veh.cur_loc, order_helper.order.dest_id)
