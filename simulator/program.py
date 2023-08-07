@@ -6,6 +6,7 @@ from object.order import OrderTable, Order
 from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
 from solution.init_solution.initial_solution_generator import Initial_Solution_Generator
+from solution.solver.solver import Solver
 
 
 class Program:
@@ -46,7 +47,6 @@ class Program:
 
             # optimization
             solution = init_solution
-
             # solver = Solver(solution, self.graph, group)
             # solver.solve()
 
@@ -64,6 +64,11 @@ class Program:
                 left.append(order)
             print(f"{len(batch)} -> {len(left)}")
 
+            total_cost = 0
+            for veh in self.vehicleTable.table:
+                total_cost += veh.get_total_cost()
+            print(f"\tTotal Cost: {total_cost}")
+
         self.vehicleTable.update_allocated_orders(WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
@@ -79,6 +84,11 @@ class Program:
             total_not += not_cnt
 
         print(f"{total_service}, {total_not}")
+
+        total_cost = 0
+        for veh in self.vehicleTable.table:
+            total_cost += veh.get_total_cost()
+        print(f"Total Cost: {total_cost}")
 
 
 

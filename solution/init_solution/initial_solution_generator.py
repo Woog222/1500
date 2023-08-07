@@ -44,15 +44,26 @@ class Initial_Solution_Generator:
         :return: Solution Object for Batch Problem
         """
         # terminal list
-        terminals = []
-        for order_helper in self.order_list: terminals.append(order_helper.order.terminal_id)
-        terminals = list(set(terminals))
+        # terminals = []
+        # for order_helper in self.order_list: terminals.append(order_helper.order.terminal_id)
+        # terminals = list(set(terminals))
+        #
+        # for terminal in terminals:
+        #     terminal_orders = []
+        #     for order_helper in self.order_list:
+        #         if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
+        #     self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
-        for terminal in terminals:
-            terminal_orders = []
-            for order_helper in self.order_list:
-                if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
-            self.terminal_alloc(terminal = terminal, orders = terminal_orders)
+        terminals = {}
+        for order_helper in self.order_list:
+            terminal = order_helper.order.terminal_id
+            if terminal in terminals.keys(): terminals[terminal].append(order_helper)
+            else: terminals[terminal] = [order_helper]
+        terminals = dict(sorted(terminals.items(), key=lambda item: -len(item[1])))
+
+        for terminal in terminals.keys():
+            terminal_orders = terminals[terminal]
+            self.terminal_alloc(terminal=terminal, orders=terminal_orders)
 
         vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list ]
         return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)

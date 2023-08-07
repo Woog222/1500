@@ -69,6 +69,20 @@ class Vehicle_Alloc:
         self.cycle_list.append(Cycle(temp_orders, self.vehicle, self.graph))
         return
 
+    def update_orders(self):
+        route = self.get_route()
+        if len(route) == 1: return 0
+
+        time = self.vehicle.free_time
+        cur = route[0]
+        order_idx = 0
+        for next in route[1:]:
+            time += self.graph.get_time(cur, next)
+            if not self.graph.is_terminal(next):
+                order_helper = self.order_list[order_idx]
+                time = can_time_cal(time, order_helper.order.start, order_helper.order.end)
+                order_helper.departure_time = time + order_helper.order.load
+
     def reset_cache(self):
         self.route_cache = [-1]
         self.dist_cache = -1
@@ -218,5 +232,7 @@ class Vehicle_Alloc:
 
         self.time_violation_cache = ret
         return self.time_violation_cache
+
+
 
 
