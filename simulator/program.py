@@ -41,7 +41,8 @@ class Program:
                 graph = self.graph,
                 vehicle_list= self.vehicleTable.table,
                 order_list= batch,
-                carry_over = ((group+1)!=config.LAST_BATCH)
+                carry_over = ((group+1)!=config.LAST_BATCH),
+                group = group
             )
             init_solution = init_solution_generator.get_init_solution()
 

@@ -13,7 +13,7 @@ class Initial_Solution_Generator:
     """
         For Batch
     """
-    def __init__(self, graph:Graph, vehicle_list:list[Vehicle], order_list:list[Order], carry_over:bool):
+    def __init__(self, graph:Graph, vehicle_list:list[Vehicle], order_list:list[Order], carry_over:bool, group: int):
         """
         :param graph:
         :param vehicle_list
@@ -25,6 +25,7 @@ class Initial_Solution_Generator:
         self.vehicle_list = [Veh_helper(veh) for veh in vehicle_list]
         self.order_list = [Order_helper(order) for order in order_list]
         self.carry_over = carry_over
+        self.cur_batch = group
 
         if config.DEBUG and self.invalid():
             print("different terminal")
@@ -144,10 +145,12 @@ class Initial_Solution_Generator:
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
 
-            if self.carry_over and start_time - arrival_time > config.HOUR * 6:
+            if self.carry_over and \
+                    (start_time - arrival_time > config.HOUR * 6 or start_time >= (self.cur_batch+1)*config.GROUP_INTERVAL):
                 continue
 
             if start_time < config.MAX_START_TIME and start_time < best_start:
                 ret = order_helper
                 best_start = start_time
+
         return ret
