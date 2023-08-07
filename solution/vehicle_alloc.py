@@ -53,7 +53,7 @@ class Vehicle_Alloc:
                 cur_terminal = order.terminal_id
                 left = self.vehicle.capa
                 temp_orders = []
-                cur_time = self.graph.get_time(cur_loc, cur_terminal)
+                cur_time += self.graph.get_time(cur_loc, cur_terminal)
                 cur_loc = order.terminal_id
 
             if cur_loc != order.dest_id:
