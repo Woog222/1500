@@ -49,7 +49,7 @@ class Vehicle_Alloc:
             # terminal loading
             if cur_terminal != order.terminal_id or left < order.cbm:
                 if cur_terminal != -1:
-                    self.cycle_list.append(Cycle(copy.deepcopy(temp_orders), self.vehicle, self.graph))
+                    self.cycle_list.append(Cycle(copy.copy(temp_orders), self.vehicle, self.graph))
                 cur_terminal = order.terminal_id
                 left = self.vehicle.capa
                 temp_orders = []
@@ -121,7 +121,7 @@ class Vehicle_Alloc:
             ret.extend(cycle.get_cycle_route())
 
         self.route_cache = ret
-        return copy.copy(self.route_cache)
+        return copy.deepcopy(self.route_cache)
 
     def get_travel_distance(self):
         # caching
