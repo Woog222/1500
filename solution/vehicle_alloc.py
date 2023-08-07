@@ -121,7 +121,7 @@ class Vehicle_Alloc:
             ret.extend(cycle.get_cycle_route())
 
         self.route_cache = ret
-        return copy.deepcopy(self.route_cache)
+        return copy.copy(self.route_cache)
 
     def get_travel_distance(self):
         # caching
