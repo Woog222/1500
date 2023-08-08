@@ -174,7 +174,7 @@ class Vehicle_Alloc:
     def get_max_capa(self):
         # caching
         if self.max_capa_cache != -1: return self.max_capa_cache
-        if len(self.order_list): return 0
+        if len(self.order_list) == 0: return 0
 
         ret = 0
         for cycle in self.cycle_list:

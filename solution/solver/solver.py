@@ -15,7 +15,7 @@ class Solver:
         for veh in self.solution.vehicle_list:
             bef += veh.vehicle.get_total_cost()
             bef += veh.get_var_cost()
-            if veh.vehicle.get_total_cost()==0 and bef > 0: bef += veh.vehicle.fc
+            if veh.vehicle.get_total_cost()==0 and veh.get_var_cost() > 0: bef += veh.vehicle.fc
 
         self.solution.vehicle_list = self.swap_vehicles()
         # self.solution.vehicle_list = self.swap_orders()
@@ -24,7 +24,7 @@ class Solver:
         for veh in self.solution.vehicle_list:
             aft += veh.vehicle.get_total_cost()
             aft += veh.get_var_cost()
-            if veh.vehicle.get_total_cost() == 0 and aft > 0: aft += veh.vehicle.fc
+            if veh.vehicle.get_total_cost() == 0 and veh.get_var_cost(): aft += veh.vehicle.fc
         print(f"\tsolver: {bef} -> {aft}")
 
     def swap_vehicles(self):
@@ -72,6 +72,9 @@ class Solver:
 
         # cost reduction check
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
+        if veh1.vehicle.get_total_count()==0 and veh1.get_count() > 0: original_cost += veh1.vehicle.fc
+        if veh2.vehicle.get_total_count()==0 and veh2.get_count() > 0: original_cost += veh2.vehicle.fc
+
         new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
         if veh1.vehicle.get_total_count()==0 and temp_veh1.get_count() > 0: new_cost += veh1.vehicle.fc
         if veh2.vehicle.get_total_count()==0 and temp_veh2.get_count() > 0: new_cost += veh2.vehicle.fc
@@ -86,8 +89,6 @@ class Solver:
         veh2.order_list = temp
         for veh in [veh1, veh2]:
             veh.update_cycle()
-            veh.reset_cache()
-            veh.update_orders()
 
 
     def swap_orders(self):
@@ -161,8 +162,6 @@ class Solver:
 
         for veh in [veh1, veh2]:
             veh.update_cycle()
-            veh.reset_cache()
-            veh.update_orders()
 
     def return_prev_next(self, veh1, i, veh2, j):
         order1 = veh1.order_list[i]
