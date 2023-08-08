@@ -1,4 +1,5 @@
 import copy
+import math
 
 import config
 from object.graph import Graph
@@ -36,7 +37,7 @@ class Program:
             self.vehicleTable.update_freetime(group * config.GROUP_INTERVAL)
 
             # init solution
-            print(f"\tbatch {group} : ", end=' ')
+            print(f"\n\tbatch {group} : ")
             init_solution_generator = Initial_Solution_Generator(
                 graph = self.graph,
                 vehicle_list= self.vehicleTable.table,
@@ -48,13 +49,13 @@ class Program:
 
             # optimization
             solution = init_solution
-            print(f"solver: {solution.get_total_cost()} -> ", end='')
+            print(f"\toptimization: {int(math.ceil(solution.get_total_cost()))} -> ", end='')
             solver = Solver(solution, self.graph, group)
             solver.solve()
-            print(f"{solution.get_total_cost()}")
+            print(f"{int(math.ceil(solution.get_total_cost()))}")
 
             # allocation
-            print(solution, end=' ')
+            print(f"\t{solution}", end=' ')
             solution.update()
             solution.allocate_solution()
             self.vehicleTable.update_allocated_orders(group * config.GROUP_INTERVAL)
@@ -91,7 +92,7 @@ class Program:
         total_cost = 0
         for veh in self.vehicleTable.table:
             total_cost += veh.get_total_cost()
-        print(f"Total Cost: {total_cost}")
+        print(f"Final Cost: {total_cost}")
 
 
 

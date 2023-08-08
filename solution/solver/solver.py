@@ -1,3 +1,4 @@
+import config
 from solution.Solution import Solution
 from itertools import combinations
 from object.graph import Graph
@@ -13,8 +14,8 @@ class Solver:
 
     def solve(self):
         self.solution.vehicle_list = self.swap_vehicles()
-        self.solution.vehicle_list = self.swap_cycles()
-        self.solution.vehicle_list = self.swap_orders()
+        # self.solution.vehicle_list = self.swap_cycles()
+        # self.solution.vehicle_list = self.swap_orders()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
@@ -38,6 +39,17 @@ class Solver:
 
         if temp_veh1.get_time_violation() > 0: return False
         if temp_veh2.get_time_violation() > 0: return False
+
+        if len(temp_veh1.order_list) > 0:
+            order_helper = temp_veh1.order_list[-1]
+            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.cur_batch + 1 == config.LAST_BATCH:
+                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if len(temp_veh2.order_list) > 0:
+            order_helper = temp_veh2.order_list[-1]
+            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.cur_batch + 1 == config.LAST_BATCH:
+                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
 
         # cost reduction check
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
@@ -91,6 +103,15 @@ class Solver:
         # feasibility check - time
         if temp_veh1.get_time_violation() > 0: return False
         if temp_veh2.get_time_violation() > 0: return False
+
+        order_helper = temp_veh1.order_list[-1]
+        if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if self.cur_batch + 1 == config.LAST_BATCH:
+            if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        order_helper = temp_veh2.order_list[-1]
+        if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if self.cur_batch + 1 == config.LAST_BATCH:
+            if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
 
         # cost reduction check
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
@@ -160,6 +181,17 @@ class Solver:
         if temp_veh1.get_time_violation() > 0: return False
         if temp_veh2.get_time_violation() > 0: return False
 
+        if len(temp_veh1.order_list) > 0:
+            order_helper = temp_veh1.order_list[-1]
+            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.cur_batch + 1 == config.LAST_BATCH:
+                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if len(temp_veh2.order_list) > 0:
+            order_helper = temp_veh2.order_list[-1]
+            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.cur_batch + 1 == config.LAST_BATCH:
+                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
         if veh1.vehicle.get_total_count() == 0 and veh1.get_count() > 0: original_cost += veh1.vehicle.fc
         if veh2.vehicle.get_total_count() == 0 and veh2.get_count() > 0: original_cost += veh2.vehicle.fc
@@ -184,9 +216,10 @@ class Solver:
         end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
         end_idx2 = start_idx2 + cycle2.get_cycle_order_cnt()
 
-        temp = veh1.order_list
+        temp = veh1.order_list.copy()
         veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
         veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
+
 
         for veh in [veh1, veh2]:
             veh.update_cycle()
