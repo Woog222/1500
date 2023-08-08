@@ -53,6 +53,13 @@ class Solution:
             ret += veh.get_var_cost()
         return ret
 
+    def get_total_cost(self):
+        ret = 0
+        for veh in self.vehicle_list:
+            ret += veh.get_var_cost()
+            if veh.vehicle.get_total_count() == 0 and veh.get_count() > 0: ret += veh.vehicle.fc
+        return ret
+
     def get_total_waiting_time(self):
         ret = 0
         for veh in self.vehicle_list:

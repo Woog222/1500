@@ -48,8 +48,10 @@ class Program:
 
             # optimization
             solution = init_solution
+            print(f"solver: {solution.get_total_cost()} -> ", end='')
             solver = Solver(solution, self.graph, group)
             solver.solve()
+            print(f"{solution.get_total_cost()}")
 
             # allocation
             print(solution, end=' ')
