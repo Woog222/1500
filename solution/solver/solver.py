@@ -42,14 +42,14 @@ class Solver:
 
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
-            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-            if self.cur_batch + 1 == config.LAST_BATCH:
-                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            start_time = order_helper.departure_time - order_helper.order.load
+            if (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL) or start_time >= config.MAX_START_TIME:
+                return False
         if len(temp_veh2.order_list) > 0:
             order_helper = temp_veh2.order_list[-1]
-            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-            if self.cur_batch + 1 == config.LAST_BATCH:
-                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            start_time = order_helper.departure_time - order_helper.order.load
+            if (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL) or start_time >= config.MAX_START_TIME:
+                return False
 
         # cost reduction check
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
@@ -105,13 +105,13 @@ class Solver:
         if temp_veh2.get_time_violation() > 0: return False
 
         order_helper = temp_veh1.order_list[-1]
-        if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-        if self.cur_batch + 1 == config.LAST_BATCH:
-            if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        start_time = order_helper.departure_time - order_helper.order.load
+        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+            return False
         order_helper = temp_veh2.order_list[-1]
-        if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-        if self.cur_batch + 1 == config.LAST_BATCH:
-            if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        start_time = order_helper.departure_time - order_helper.order.load
+        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+            return False
 
         # cost reduction check
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
@@ -183,14 +183,14 @@ class Solver:
 
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
-            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-            if self.cur_batch + 1 == config.LAST_BATCH:
-                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            start_time = order_helper.departure_time - order_helper.order.load
+            if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+                return False
         if len(temp_veh2.order_list) > 0:
             order_helper = temp_veh2.order_list[-1]
-            if order_helper.departure_time - order_helper.order.load > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
-            if self.cur_batch + 1 == config.LAST_BATCH:
-                if order_helper.departure_time >= (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            start_time = order_helper.departure_time - order_helper.order.load
+            if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+                return False
 
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
         if veh1.vehicle.get_total_count() == 0 and veh1.get_count() > 0: original_cost += veh1.vehicle.fc

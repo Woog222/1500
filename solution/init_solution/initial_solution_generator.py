@@ -135,7 +135,7 @@ class Initial_Solution_Generator:
 
     def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper]):
         ret = None
-        best_start = config.MAX
+        best_score = config.MAX
         for order_helper in orders:
             order = order_helper.order
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
@@ -145,12 +145,17 @@ class Initial_Solution_Generator:
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
 
+            score = start_time
+            if self.cur_batch - order.group >= 8:
+                score -= config.MAX_START_TIME * 2
+
             if self.carry_over and \
                     (start_time - arrival_time > config.HOUR * 6 or start_time >= (self.cur_batch+1)*config.GROUP_INTERVAL):
                 continue
 
-            if start_time < config.MAX_START_TIME and start_time < best_start:
+
+            if start_time < config.MAX_START_TIME and score < best_score:
                 ret = order_helper
-                best_start = start_time
+                best_score = score
 
         return ret
