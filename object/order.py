@@ -75,6 +75,7 @@ class Order:
             sb.append(str(self.cbm))
             sb.append(str(self.start))
             sb.append(str(self.end))
+            sb.append(str(self.group))
         return seperator.join(sb)
 
 

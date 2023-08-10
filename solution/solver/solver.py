@@ -2,7 +2,6 @@ import config
 from solution.Solution import Solution
 from itertools import combinations
 from object.graph import Graph
-from simulator.tools import *
 from solution.vehicle_alloc import Vehicle_Alloc
 
 
@@ -113,7 +112,8 @@ class Solver:
         original_cost = veh1.get_var_cost() + veh2.get_var_cost()
         new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
 
-        if new_cost >= original_cost: return False
+        if new_cost >= original_cost:
+            return False
 
 
         return True
