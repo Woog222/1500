@@ -18,7 +18,6 @@ class Initial_Solution_Generator:
         :param graph:
         :param vehicle_list
         :param order_list: The list of orders to be dealt with.
-            For the terminal problem, it includes every order starting in a certain terminal (excluding ones that have been carried over to the next batch).
         """
 
         self.graph = graph
@@ -28,7 +27,6 @@ class Initial_Solution_Generator:
         self.cur_batch = group
 
         if config.DEBUG and self.invalid():
-            print("different terminal")
             exit(1)
 
     def invalid(self):
@@ -107,22 +105,6 @@ class Initial_Solution_Generator:
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
-
-
-    def next_veh(self, terminal):
-        """
-            find best vehicle
-        :param order:
-        :return:
-        """
-        ret = self.vehicle_list[0]
-        best_arrival_time = config.MAX
-        for veh_helper in self.vehicle_list:
-            arrival_time = veh_helper.cur_time + self.graph.get_time(veh_helper.cur_loc, terminal)
-            if arrival_time < best_arrival_time:
-                ret = veh_helper
-                best_arrival_time = arrival_time
-        return ret
 
 
     def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper]):
