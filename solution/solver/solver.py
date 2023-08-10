@@ -20,8 +20,15 @@ class Solver:
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
         for (veh1, veh2) in combinations(vehicle_list, 2):
+            check1 = copy.deepcopy(veh1.order_list)
+            check2 = copy.deepcopy(veh2.order_list)
             if self.do_swap_vehicle(veh1, veh2):
+                if check1 != veh1.order_list or check2 != veh2.order_list: print("if bef wrong! (1)")
                 self.swap_vehicle(veh1, veh2)
+                if check1 != veh1.order_list or check2 != veh2.order_list: print("if aft wrong! (1)")
+            else:
+                if check1 != veh1.order_list or check2 != veh2.order_list: print("else wrong! (1)")
+
         return vehicle_list
 
     def do_swap_vehicle(self, veh1, veh2):
@@ -29,8 +36,8 @@ class Solver:
         if veh1.get_max_capa() > veh2.vehicle.capa: return False
         if veh2.get_max_capa() > veh1.vehicle.capa: return False
 
-        temp_veh1 = copy.copy(veh1)
-        temp_veh2 = copy.copy(veh2)
+        temp_veh1 = veh1
+        temp_veh2 = veh2
         temp = temp_veh1.order_list
         temp_veh1.order_list = temp_veh2.order_list
         temp_veh2.order_list = temp
@@ -70,7 +77,6 @@ class Solver:
         veh2.order_list = temp
         for veh in [veh1, veh2]:
             veh.update_cycle()
-
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
@@ -178,8 +184,7 @@ class Solver:
         temp_veh1.update_cycle()
         temp_veh2.update_cycle()
 
-        if temp_veh1.get_time_violation() > 0: return False
-        if temp_veh2.get_time_violation() > 0: return False
+        if temp_veh1.get_time_violation() + temp_veh2.get_time_violation() > 0: return False
 
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
@@ -200,8 +205,6 @@ class Solver:
         if veh2.vehicle.get_total_count() == 0 and temp_veh2.get_count() > 0: new_cost += veh2.vehicle.fc
 
         if new_cost >= original_cost: return False
-
-
         return True
 
     def swap_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx):
@@ -216,7 +219,7 @@ class Solver:
         end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
         end_idx2 = start_idx2 + cycle2.get_cycle_order_cnt()
 
-        temp = veh1.order_list.copy()
+        temp = veh1.order_list
         veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
         veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
 

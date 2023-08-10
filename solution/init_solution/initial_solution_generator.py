@@ -44,16 +44,6 @@ class Initial_Solution_Generator:
         Solution 객체 형태로 초기해를 만들어서 리턴하는 함수 작성하면 됨!
         :return: Solution Object for Batch Problem
         """
-        # terminal list
-        # terminals = []
-        # for order_helper in self.order_list: terminals.append(order_helper.order.terminal_id)
-        # terminals = list(set(terminals))
-        #
-        # for terminal in terminals:
-        #     terminal_orders = []
-        #     for order_helper in self.order_list:
-        #         if order_helper.order.terminal_id == terminal: terminal_orders.append(order_helper)
-        #     self.terminal_alloc(terminal = terminal, orders = terminal_orders)
 
         terminals = {}
         for order_helper in self.order_list:
@@ -67,6 +57,7 @@ class Initial_Solution_Generator:
             self.terminal_alloc(terminal=terminal, orders=terminal_orders)
 
         vehicle_alloc_list = [ Vehicle_Alloc(vehicle=veh.vehicle, graph = self.graph, allocated_order_list=veh.allocated_order)  for veh in self.vehicle_list ]
+
         return Solution(graph = self.graph, order_list = self.order_list, vehicle_list= vehicle_alloc_list)
 
 
@@ -98,7 +89,8 @@ class Initial_Solution_Generator:
                 start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
                 veh.cur_time = start_time + order_helper.order.load
                 veh.cur_loc = order_helper.order.dest_id
-                order_helper.start_time = start_time
+                order_helper.set_departure_time(start_time + order_helper.order.load)
+
 
                 while True:
                     order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
@@ -111,7 +103,7 @@ class Initial_Solution_Generator:
                         start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
                         veh.cur_time = start_time + order_helper.order.load
                         veh.cur_loc = order_helper.order.dest_id
-                    order_helper.start_time = start_time
+                    order_helper.set_departure_time(start_time + order_helper.order.load)
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa

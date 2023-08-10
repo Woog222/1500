@@ -57,7 +57,7 @@ class Vehicle_Alloc:
                 cur_loc = order.terminal_id
 
             if cur_loc != order.dest_id:
-                arrival_time = self.graph.get_time(cur_loc, order.dest_id)
+                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
                 start_time = can_time_cal(arrival_time, order.start, order.end)
                 cur_time = start_time + order.load; cur_loc = order.dest_id
 
