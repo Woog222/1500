@@ -4,7 +4,6 @@ from itertools import combinations
 from object.graph import Graph
 from simulator.tools import *
 from solution.vehicle_alloc import Vehicle_Alloc
-import copy
 
 
 class Solver:
@@ -15,8 +14,8 @@ class Solver:
 
     def solve(self):
         self.solution.vehicle_list = self.swap_vehicles()
-        # self.solution.vehicle_list = self.swap_cycles()
-        # self.solution.vehicle_list = self.swap_orders()
+        self.solution.vehicle_list = self.swap_cycles()
+        self.solution.vehicle_list = self.swap_orders()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
