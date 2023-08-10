@@ -70,6 +70,11 @@ class Order:
             sb.append(STRING_NULL)
             sb.append(STRING_NULL)
             sb.append(STRING_NULL if terminal_order else "No")
+
+        if DEBUG:
+            sb.append(str(self.cbm))
+            sb.append(str(self.start))
+            sb.append(str(self.end))
         return seperator.join(sb)
 
 
