@@ -3,6 +3,7 @@ from solution.Solution import Solution
 from itertools import combinations
 from object.graph import Graph
 from simulator.tools import *
+from solution.vehicle_alloc import Vehicle_Alloc
 import copy
 
 
@@ -20,14 +21,21 @@ class Solver:
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
         for (veh1, veh2) in combinations(vehicle_list, 2):
-            check1 = copy.deepcopy(veh1.order_list)
-            check2 = copy.deepcopy(veh2.order_list)
+            check1 = veh1.order_list
+            check2 = veh2.order_list
             if self.do_swap_vehicle(veh1, veh2):
-                if check1 != veh1.order_list or check2 != veh2.order_list: print("if bef wrong! (1)")
                 self.swap_vehicle(veh1, veh2)
-                if check1 != veh1.order_list or check2 != veh2.order_list: print("if aft wrong! (1)")
             else:
-                if check1 != veh1.order_list or check2 != veh2.order_list: print("else wrong! (1)")
+                if check1 != veh1.order_list or check2 != veh2.order_list:
+                    print("else wrong! (1)\ncheck1:", end=' ')
+                    for order in check1: print(f"{order.order.order_id}", end=' ')
+                    print("\nveh1.order_list:", end=' ')
+                    for order in veh1.order_list: print(f"{order.order.order_id}", end=' ')
+                    print("\ncheck2:", end=' ')
+                    for order in check2: print(f"{order.order.order_id}", end=' ')
+                    print("\nveh2.order_list: ", end=' ')
+                    for order in veh2.order_list: print(f"{order.order.order_id}", end=' ')
+                    print("\n")
 
         return vehicle_list
 
@@ -36,11 +44,8 @@ class Solver:
         if veh1.get_max_capa() > veh2.vehicle.capa: return False
         if veh2.get_max_capa() > veh1.vehicle.capa: return False
 
-        temp_veh1 = veh1
-        temp_veh2 = veh2
-        temp = temp_veh1.order_list
-        temp_veh1.order_list = temp_veh2.order_list
-        temp_veh2.order_list = temp
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh2.order_list)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh1.order_list)
         temp_veh1.update_cycle()
         temp_veh2.update_cycle()
 
@@ -95,8 +100,8 @@ class Solver:
         if order2.order.cbm > veh1.vehicle.capa: return False
         if order1.order.cbm > veh2.vehicle.capa: return False
 
-        temp_veh1 = copy.copy(veh1)
-        temp_veh2 = copy.copy(veh2)
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1.order_list)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2.order_list)
         new_list1 = temp_veh1.order_list.copy()
         new_list1[order1_idx] = order2
         new_list2 = temp_veh2.order_list.copy()
@@ -172,15 +177,13 @@ class Solver:
         end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
         end_idx2 = start_idx2 + cycle2.get_cycle_order_cnt()
 
-        temp_veh1 = copy.copy(veh1)
-        temp_veh2 = copy.copy(veh2)
         new_order_list1 = veh1.order_list.copy()
         new_order_list2 = veh2.order_list.copy()
         temp = new_order_list1
         new_order_list1 = new_order_list1[:start_idx1] + new_order_list2[start_idx2:end_idx2] + new_order_list1[end_idx1:]
         new_order_list2 = new_order_list2[:start_idx2] + temp[start_idx1:end_idx1] + new_order_list2[end_idx2:]
-        temp_veh1.order_list = new_order_list1
-        temp_veh2.order_list = new_order_list2
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, new_order_list1)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, new_order_list2)
         temp_veh1.update_cycle()
         temp_veh2.update_cycle()
 
