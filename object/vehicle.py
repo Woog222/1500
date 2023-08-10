@@ -63,7 +63,7 @@ class Vehicle:
     """
         Complex Methods
     """
-    def get_total_route(self):
+    def get_total_route(self, coordinates = False):
         if len(self.allocated_cycle_list) == 0: return []
 
         ret = []

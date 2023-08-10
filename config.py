@@ -42,7 +42,8 @@ ORDER_COLUMNS =\
         "Delivered," + \
         "cbm," + \
         "start," + \
-        "end\n" \
+        "end," + \
+        "group\n" \
         if DEBUG else \
         "ORD_NO," + \
         "VehicleID," + \
