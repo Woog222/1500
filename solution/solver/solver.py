@@ -21,22 +21,8 @@ class Solver:
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
         for (veh1, veh2) in combinations(vehicle_list, 2):
-            check1 = veh1.order_list
-            check2 = veh2.order_list
             if self.do_swap_vehicle(veh1, veh2):
                 self.swap_vehicle(veh1, veh2)
-            else:
-                if check1 != veh1.order_list or check2 != veh2.order_list:
-                    print("else wrong! (1)\ncheck1:", end=' ')
-                    for order in check1: print(f"{order.order.order_id}", end=' ')
-                    print("\nveh1.order_list:", end=' ')
-                    for order in veh1.order_list: print(f"{order.order.order_id}", end=' ')
-                    print("\ncheck2:", end=' ')
-                    for order in check2: print(f"{order.order.order_id}", end=' ')
-                    print("\nveh2.order_list: ", end=' ')
-                    for order in veh2.order_list: print(f"{order.order.order_id}", end=' ')
-                    print("\n")
-
         return vehicle_list
 
     def do_swap_vehicle(self, veh1, veh2):
