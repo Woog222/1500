@@ -39,6 +39,19 @@ ORDER_COLUMNS =\
         "WaitingTime," + \
         "ServiceTime," + \
         "DepartureTime," + \
+        "Delivered," + \
+        "cbm," + \
+        "start," + \
+        "end\n" \
+        if DEBUG else \
+        "ORD_NO," + \
+        "VehicleID," + \
+        "Sequence," + \
+        "SiteCode," + \
+        "ArrivalTime," + \
+        "WaitingTime," + \
+        "ServiceTime," + \
+        "DepartureTime," + \
         "Delivered\n"
 
 VEH_COLUMNS = \
