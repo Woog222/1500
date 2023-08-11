@@ -18,5 +18,5 @@ if __name__ == "__main__":
             dir_id2idx=config.IDX2ID_DIR,
             dir_od_matrix= os.path.join("data", "real_raw", "od_matrix.csv"),
             dir_vehicle_result= config.VEH_RESULT_DIR)
-
+    checker.get_summary()
 
