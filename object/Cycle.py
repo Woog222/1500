@@ -65,6 +65,11 @@ class Cycle:
             ret = True
         """
 
+    def get_cycle_coordinates(self):
+        if len(self.orders) == 0: return []
+
+
+
     def get_cycle_route(self):
         """
         Actual cycle traveling route
@@ -74,7 +79,6 @@ class Cycle:
         :return: [terminal, dest1, dest2 ..]
         """
         if len(self.orders) == 0: return []
-
 
         ret = [self.terminal]
         cur_loc = self.terminal

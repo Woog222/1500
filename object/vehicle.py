@@ -63,12 +63,24 @@ class Vehicle:
     """
         Complex Methods
     """
-    def get_total_route(self, coordinates = False):
+    def get_total_route(self):
         if len(self.allocated_cycle_list) == 0: return []
 
         ret = []
         if self.allocated_cycle_list[0].terminal != self.start_center:
             ret.append(self.start_center)
+
+        for cycle in self.allocated_cycle_list:
+            ret.extend(cycle.get_cycle_route())
+
+        return ret
+
+    def get_route_coordinates(self):
+        if len(self.allocated_cycle_list) == 0: return []
+
+        ret = []
+        if self.allocated_cycle_list[0].terminal != self.start_center:
+            ret.append()
 
         for cycle in self.allocated_cycle_list:
             ret.extend(cycle.get_cycle_route())

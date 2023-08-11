@@ -32,7 +32,8 @@ class Order:
         self.start_time = -1
         self.sequence = -1
 
-
+    def get_coordinates(self):
+        return (self.latitude, self.longitude)
 
     def allocate(self, arrival_time:int, vehicle:Vehicle):
         self.serviced = True
