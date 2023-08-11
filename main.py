@@ -13,10 +13,10 @@ if __name__ == "__main__":
     program = Program()
     program.simulator()
 
-    checker(dir_final=config.FINAL_ORDER_RESULT_DIR,
+    ch = checker(dir_final=config.FINAL_ORDER_RESULT_DIR,
             dir_vehicles=os.path.join("data", "real_raw", "vehicles.csv"),
             dir_id2idx=config.IDX2ID_DIR,
             dir_od_matrix= os.path.join("data", "real_raw", "od_matrix.csv"),
             dir_vehicle_result= config.VEH_RESULT_DIR)
-    checker.get_summary()
+    ch.get_summary()
 
