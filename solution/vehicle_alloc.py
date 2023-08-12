@@ -2,6 +2,7 @@ import copy
 
 import config
 from object.Cycle import Cycle
+from object.bundle import Temporal_bundle
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
@@ -16,6 +17,8 @@ class Vehicle_Alloc:
         self.vehicle = vehicle # const
         self.order_list = allocated_order_list # temp list, not including terminal loading order (-1)
         self.cycle_list = [] #
+        self.temporal_bundle = []
+        self.spatial_bundle = []
         self.update_cycle()
 
         # cache
@@ -32,8 +35,14 @@ class Vehicle_Alloc:
     When any modifications are made to the "self.order_list",
     update cycle must be called
     """
-    def update_cycle(self):
+
+    def update(self):
         self.reset_cache()
+        self.update_temporal_bundle()
+        self.update_cycle()
+        self.update_spatial_bundle()
+
+    def update_cycle(self):
         self.cycle_list = []
         if len(self.order_list) == 0: return
 
@@ -67,6 +76,47 @@ class Vehicle_Alloc:
         self.cycle_list.append(Cycle(temp_orders, self.vehicle, self.graph))
         return
 
+    def update_temporal_bundle(self):
+        self.temporal_bundle = []
+        if len(self.order_list) == 0: return
+
+        temp_orders = [self.order_list[0].order]
+        cur_loc = self.order_list[0].order.dest_id
+
+        for order_helper in self.order_list[1:]:
+
+            order = order_helper.order
+            if self.graph.get_time(cur_loc, order.dest_id) > config.TEMPORAL_BUNDLE_CRITERION:
+                self.temporal_bundle.append(Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders= copy.copy(temp_orders)))
+                temp_orders = []
+            cur_loc = order.dest_id
+            temp_orders.append(order)
+
+        # last one
+        self.temporal_bundle.append(Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders= copy.copy(temp_orders)))
+
+
+    def update_spatial_bundle(self):
+        self.spatial_bundle = []
+        if len(self.order_list) == 0: return
+
+        temp_orders = [self.order_list[0].order]
+        cur_loc = self.order_list[0].order.dest_id
+
+        for order_helper in self.order_list[1:]:
+
+            order = order_helper.order
+            if self.graph.get_dist(cur_loc, order.dest_id) > config.TEMPORAL_BUNDLE_CRITERION:
+                self.spatial_bundle.append(
+                    Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
+                temp_orders = []
+            cur_loc = order.dest_id
+            temp_orders.append(order)
+
+        # last one
+        self.spatial_bundle.append(
+            Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
+        return
 
     def reset_cache(self):
         self.route_cache = [-1]

@@ -4,6 +4,7 @@ import math
 import config
 from object.graph import Graph
 from object.order import OrderTable, Order
+from object.terminal import Terminal_Table
 from object.vehicle import Vehicle_Table, Vehicle
 from simulator.tools import *
 from solution.init_solution.initial_solution_generator import Initial_Solution_Generator
@@ -16,10 +17,11 @@ class Program:
         print("Graph constructed")
         self.vehicleTable = Vehicle_Table(config.VEHICLES, self.graph)
         print("Vehicle Table constructed")
-        # self.terminalTable = Terminal_Table(config.TERMINALS, self.graph)
-        # print("Terminal Table constructed")
+        self.terminalTable = Terminal_Table(config.TERMINALS, self.graph)
+        print("Terminal Table constructed")
         self.orderTable = OrderTable(config.ORDERS, self.graph)
         print("Order Table constructed", end="\n\n")
+        self.graph.write_coordinates()
 
     def simulator(self):
         print("Simulation ongoing..")
@@ -50,10 +52,10 @@ class Program:
             # optimization
             solution = init_solution
 
-            print(f"\toptimization: {int(math.ceil(solution.get_total_cost()))} -> ", end='')
-            solver = Solver(solution, self.graph, group)
-            solver.solve()
-            print(f"{int(math.ceil(solution.get_total_cost()))}")
+            # print(f"\toptimization: {int(math.ceil(solution.get_total_cost()))} -> ", end='')
+            # solver = Solver(solution, self.graph, group)
+            # solver.solve()
+            # print(f"{int(math.ceil(solution.get_total_cost()))}")
 
             # allocation
             print(f"\t{solution}", end=' ')

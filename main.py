@@ -19,4 +19,3 @@ if __name__ == "__main__":
             dir_od_matrix= os.path.join("data", "real_raw", "od_matrix.csv"),
             dir_vehicle_result= config.VEH_RESULT_DIR)
     ch.get_summary()
-

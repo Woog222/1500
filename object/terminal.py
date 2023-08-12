@@ -11,19 +11,22 @@ class Terminal:
 
 class Terminal_Table:
     def __init__(self, file_dir=None, graph=None):
-        self.table = {}
+        # self.table = {}
+        self.graph = graph
 
-        if file_dir is not None and graph is not None:
-            # Read file using pandas
-            data = pd.read_csv(file_dir, sep='\s+', header=None)
-
-            for i in range(len(data)):
-                id, latitude, longitude, region = data.iloc[i, :]
+        with open(file_dir, 'r') as fs:
+            idx = 0
+            for line in fs:
+                id, latitude, longitude, region = line.split()
 
                 idx = graph.id2idx(id)
+                self.graph.coordinates[idx] = (float(latitude), float(longitude))
 
+                """                
                 if idx not in self.table:
-                    self.table[idx] = Terminal(latitude, longitude, region)
+                    # self.table[idx] = Terminal(latitude, longitude, region)
+                    
                 else:
                     print("duplicates in terminals.csv")
                     exit(1)
+                """

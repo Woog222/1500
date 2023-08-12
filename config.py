@@ -13,18 +13,25 @@ LAST_BATCH = 24
 GROUP_INTERVAL = 360
 MAX_START_TIME = WEEK - 60
 TIME_CRITERION = DAY * 3
-INT_NULL = -1
+TEMPORAL_BUNDLE_CRITERION = 100
+SPATIAL_BUNDLE_CRITERION = 100
 
 ORDER_ID_NULL = "Null"
 STRING_NULL = "Null"
 TERMINAL_START_CHARACTER = "O"
 DEST_START_CHARACTER = "D"
 
-
+"""
+        RESULT_FILE
+"""
 FINAL_ORDER_RESULT_DIR = os.path.join("results", "final.csv")
 ORDER_RESULT_DIR = os.path.join("results", "order_result.csv")
 VEH_RESULT_DIR = os.path.join("results", "vehicle_result.csv")
 IDX2ID_DIR = os.path.join("results", "id2idx.csv")
+COORDINAES_DIR = os.path.join("results", "coordinates.csv")
+"""
+        DATA
+"""
 ORDERS = os.path.join("data", "orders.txt")
 OD_MATRIX = os.path.join("data", "od_matrix.txt")
 TERMINALS = os.path.join("data", "terminals.txt")

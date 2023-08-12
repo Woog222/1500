@@ -103,10 +103,12 @@ class OrderTable:
                     group = int(data[9])
 
                     if group < config.LAST_BATCH:
+
+                        dest_idx = graph.id2idx(dest_id)
                         self.table[group].append(
                             Order(order_id = order_id,
                                   terminal_id= graph.id2idx(terminal_id),
-                                  dest_id= graph.id2idx(dest_id),
+                                  dest_id= dest_idx,
                                   latitude = latitude,
                                   longitude = longitude,
                                   cbm= cbm,
@@ -116,6 +118,7 @@ class OrderTable:
                                   end = end
                                   )
                         )
+                        self.graph.coordinates[dest_idx] = (latitude, longitude)
         except FileNotFoundError:
             print(f"invalid directories : {file_dir}")
             exit(1)

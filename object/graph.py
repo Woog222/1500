@@ -1,6 +1,8 @@
 import math
 from typing import Dict
 from collections import defaultdict
+
+import config
 from config import *
 
 
@@ -14,6 +16,7 @@ class Graph:
         self.table = None
         self.IDX = {}
         self.ID = []
+        self.coordinates = [] # ( latitude, longitude )
 
         # table reset with {-1, -1}
         init_value = edge()
@@ -42,6 +45,7 @@ class Graph:
                 # adj matrix
                 self.table[from_][to_] = edge(time, dist)
 
+        self.coordinates= [(-1,-1) for _ in range(idx)]
         if idx!= len(self.ID):
             print("graph not complete")
             exit(1)
@@ -62,8 +66,7 @@ class Graph:
         return self.table[from_][to_].dist
 
     def get_size(self):
-        return self.idx
-
+        return len(self.ID)
 
     def id2idx(self, id):
         if id not in self.IDX:
@@ -76,5 +79,16 @@ class Graph:
             print(idx, "is not a valid index.")
             exit(1)
         return self.ID[idx]
+
+    def get_coordinates(self, idx:int):
+        return self.coordinates[idx]
+
+    def write_coordinates(self):
+
+        with open(config.COORDINAES_DIR, 'w') as f:
+            f.write("idx,latitude,longitude\n")
+            for idx, coordinates in enumerate(self.coordinates):
+                f.write(f"{str(idx)},{str(coordinates[0])},{str(coordinates[1])}\n")
+
 
 
