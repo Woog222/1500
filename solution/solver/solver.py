@@ -33,8 +33,8 @@ class Solver:
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh2.order_list)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh1.order_list)
-        temp_veh1.update_cycle()
-        temp_veh2.update_cycle()
+        temp_veh1.update()
+        temp_veh2.update()
 
         if temp_veh1.get_time_violation() > 0: return False
         if temp_veh2.get_time_violation() > 0: return False
@@ -69,7 +69,7 @@ class Solver:
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
         for veh in [veh1, veh2]:
-            veh.update_cycle()
+            veh.update()
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
@@ -97,8 +97,8 @@ class Solver:
         new_list2[order2_idx] = order1
         temp_veh1.order_list = new_list1
         temp_veh2.order_list = new_list2
-        temp_veh1.update_cycle()
-        temp_veh2.update_cycle()
+        temp_veh1.update()
+        temp_veh2.update()
 
         # feasibility check - time
         if temp_veh1.get_time_violation() > 0: return False
@@ -130,7 +130,7 @@ class Solver:
         veh2.order_list[order2_idx] = temp
 
         for veh in [veh1, veh2]:
-            veh.update_cycle()
+            veh.update()
 
     def swap_cycles(self):
         vehicle_list = self.solution.vehicle_list
@@ -175,8 +175,8 @@ class Solver:
         new_order_list2 = new_order_list2[:start_idx2] + temp[start_idx1:end_idx1] + new_order_list2[end_idx2:]
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, new_order_list1)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, new_order_list2)
-        temp_veh1.update_cycle()
-        temp_veh2.update_cycle()
+        temp_veh1.update()
+        temp_veh2.update()
 
         if temp_veh1.get_time_violation() + temp_veh2.get_time_violation() > 0: return False
 
@@ -219,7 +219,7 @@ class Solver:
 
 
         for veh in [veh1, veh2]:
-            veh.update_cycle()
+            veh.update()
 
 
     def insert_cycles(self):
