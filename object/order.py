@@ -83,6 +83,7 @@ class Order:
 class OrderTable:
     def __init__(self, file_dir=None, graph=None):
         self.table = [[] for _ in range(LAST_BATCH)]
+        self.graph = graph
         if file_dir is not None and graph is not None:
             self.initialize(file_dir, graph)
 
