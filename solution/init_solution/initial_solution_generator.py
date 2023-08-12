@@ -103,6 +103,10 @@ class Initial_Solution_Generator:
                         veh.cur_loc = order_helper.order.dest_id
                     order_helper.set_departure_time(start_time + order_helper.order.load)
 
+
+
+
+
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
 

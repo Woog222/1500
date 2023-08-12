@@ -232,7 +232,7 @@ class Vehicle_Alloc:
     def get_spent_time(self):
         return self.get_after_time() - self.vehicle.free_time
 
-    def get_wating_time(self):
+    def get_waiting_time(self):
         return self.get_spent_time() - self.get_travel_time() - self.get_work_time()
 
 
