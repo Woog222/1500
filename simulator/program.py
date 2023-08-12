@@ -52,10 +52,10 @@ class Program:
             # optimization
             solution = init_solution
 
-            # print(f"\toptimization: {int(math.ceil(solution.get_total_cost()))} -> ", end='')
-            # solver = Solver(solution, self.graph, group)
-            # solver.solve()
-            # print(f"{int(math.ceil(solution.get_total_cost()))}")
+            print(f"\toptimization: {int(math.ceil(solution.get_total_cost()))} -> ", end='')
+            solver = Solver(solution, self.graph, group)
+            solver.solve()
+            print(f"{int(math.ceil(solution.get_total_cost()))}")
 
             # allocation
             print(f"\t{solution}", end=' ')
