@@ -1,9 +1,8 @@
-import copy
 import os.path
 
 import config
 
-from checker import checker
+from tool.checker import checker
 from simulator.program import Program
 from preproc.preprocessing import preprocessing
 

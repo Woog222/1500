@@ -2,7 +2,7 @@ import config
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
-from simulator.tools import can_time_cal
+from tool.tools import can_time_cal
 from solution.Solution import Solution
 from solution.helper import Veh_helper, Order_helper
 from solution.vehicle_alloc import Vehicle_Alloc

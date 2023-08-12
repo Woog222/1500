@@ -4,10 +4,11 @@ import config
 from object.Cycle import Cycle
 from object.bundle import Temporal_bundle
 from object.graph import Graph
-from object.order import Order
 from object.vehicle import Vehicle
-from simulator.tools import can_time_cal
+from tool.tools import can_time_cal
 from solution.helper import Order_helper
+from collections import deque
+from itertools import islice
 
 
 class Vehicle_Alloc:
@@ -15,7 +16,7 @@ class Vehicle_Alloc:
     def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order_helper]):
         self.graph = graph
         self.vehicle = vehicle # const
-        self.order_list = allocated_order_list # temp list, not including terminal loading order (-1)
+        self.order_list = deque(allocated_order_list) # temp list, not including terminal loading order (-1)
         self.cycle_list = [] #
         self.temporal_bundle = []
         self.spatial_bundle = []
@@ -83,7 +84,7 @@ class Vehicle_Alloc:
         temp_orders = [self.order_list[0].order]
         cur_loc = self.order_list[0].order.dest_id
 
-        for order_helper in self.order_list[1:]:
+        for order_helper in deque(islice(self.order_list,1, None)):
 
             order = order_helper.order
             if self.graph.get_time(cur_loc, order.dest_id) > config.TEMPORAL_BUNDLE_CRITERION:
@@ -103,7 +104,7 @@ class Vehicle_Alloc:
         temp_orders = [self.order_list[0].order]
         cur_loc = self.order_list[0].order.dest_id
 
-        for order_helper in self.order_list[1:]:
+        for order_helper in deque(islice(self.order_list,1, None)):
 
             order = order_helper.order
             if self.graph.get_dist(cur_loc, order.dest_id) > config.TEMPORAL_BUNDLE_CRITERION:

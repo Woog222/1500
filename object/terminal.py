@@ -14,7 +14,7 @@ class Terminal_Table:
         # self.table = {}
         self.graph = graph
 
-        with open(file_dir, 'r') as fs:
+        with open(file_dir, 'r', encoding='utf-8') as fs:
             idx = 0
             for line in fs:
                 id, latitude, longitude, region = line.split()

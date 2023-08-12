@@ -114,7 +114,7 @@ class checker:
 
 
 if __name__ == "__main__":
-    cls = checker(config.FINAL_ORDER_RESULT_DIR, config.IDX2ID_DIR, config.VEH_RESULT_DIR, './data/raw/od_matrix.csv', './data/raw/vehicles.csv')
+    cls = checker(config.FINAL_ORDER_RESULT_DIR, config.IDX2ID_DIR, config.VEH_RESULT_DIR, '../data/raw/od_matrix.csv', './data/raw/vehicles.csv')
     cls.get_summary()
     cls.check_traveltime()
     cls.check_timewindow()

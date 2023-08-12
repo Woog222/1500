@@ -1,6 +1,5 @@
 from object.order import Order
 from object.vehicle import Vehicle
-from simulator.tools import can_time_cal
 
 
 class Order_helper:
