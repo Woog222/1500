@@ -33,7 +33,7 @@ class Vehicle_Alloc:
 
     """
     When any modifications are made to the "self.order_list",
-    update cycle must be called
+    update must be called
     """
 
     def update(self):
