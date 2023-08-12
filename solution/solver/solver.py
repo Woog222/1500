@@ -167,11 +167,11 @@ class Solver:
         new_order_list2 = veh2.order_list.copy()
         temp = new_order_list1
 
-        new_order_list1 = deque_slice(new_order_list1, 0, start_idx1) + deque_slice(new_order_list2, start_idx2, end_idx2) + deque_slice(new_order_list1, end_idx1)
-        new_order_list2 = deque_slice(new_order_list1, 0, start_idx2) + deque_slice(new_order_list2, start_idx1, end_idx1) + deque_slice(new_order_list2, end_idx2)
+        #new_order_list1 = deque_slice(new_order_list1, 0, start_idx1) + deque_slice(new_order_list2, start_idx2, end_idx2) + deque_slice(new_order_list1, end_idx1)
+        #new_order_list2 = deque_slice(new_order_list1, 0, start_idx2) + deque_slice(new_order_list2, start_idx1, end_idx1) + deque_slice(new_order_list2, end_idx2)
 
-        #new_order_list1 = new_order_list1[:start_idx1] + new_order_list2[start_idx2:end_idx2] + new_order_list1[end_idx1:]
-        #new_order_list2 = new_order_list2[:start_idx2] + temp[start_idx1:end_idx1] + new_order_list2[end_idx2:]
+        new_order_list1 = new_order_list1[:start_idx1] + new_order_list2[start_idx2:end_idx2] + new_order_list1[end_idx1:]
+        new_order_list2 = new_order_list2[:start_idx2] + temp[start_idx1:end_idx1] + new_order_list2[end_idx2:]
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, new_order_list1)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, new_order_list2)
@@ -216,11 +216,11 @@ class Solver:
         temp = veh1.order_list
 
 
-        # veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
-        # veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
+        veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
+        veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
 
-        veh1.order_list = deque_slice(temp, 0, start_idx1) + deque_slice(veh2.order_list, start_idx2, end_idx2) + deque_slice(temp,end_idx1)
-        veh2.order_list = deque_slice(veh2.order_list, 0, start_idx2) + deque_slice(temp, start_idx1, end_idx1) + deque_slice(veh2.order_list,end_idx2)
+        #veh1.order_list = deque_slice(temp, 0, start_idx1) + deque_slice(veh2.order_list, start_idx2, end_idx2) + deque_slice(temp,end_idx1)
+        #veh2.order_list = deque_slice(veh2.order_list, 0, start_idx2) + deque_slice(temp, start_idx1, end_idx1) + deque_slice(veh2.order_list,end_idx2)
 
 
         for veh in [veh1, veh2]:
