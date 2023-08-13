@@ -97,20 +97,24 @@ class Solver:
         comb = combinations(self.solution.vehicle_list, 2)
         while swapped and cnt < 200:
             swapped = False
-
             for veh1, veh2 in comb:
-                while swapped and cnt < 200:
-                    for idx1 in range(len(veh1.spatial_bundle)):
-                        for idx2 in range(len(veh2.spatial_bundle)):
+                if self.spatial_bundle_try(veh1, veh2):
+                    cnt += 1
+                    swapped = True
 
-                            print(f"{idx1}, {idx2}")
-                            if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) > config.SPATIAL_BUNDLE_CRITERION:
-                                continue
-                            if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
-                                swapped = True
-                                cnt += 1
-                                break
-                        if swapped: break
+
+    def spatial_bundle_try(self,veh1:Vehicle_Alloc, veh2:Vehicle_Alloc) -> bool:
+
+        for idx1 in range(len(veh1.spatial_bundle)):
+            for idx2 in range(len(veh2.spatial_bundle)):
+
+                if euclidean_distance(veh1.spatial_bundle[idx1].center,
+                                      veh2.spatial_bundle[idx2].center) > config.SPATIAL_BUNDLE_CRITERION:
+                    continue
+                if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
+                    return True
+        return False
+
 
     def do_swap_spatial_bundle(self, veh1:Vehicle_Alloc, veh2:Vehicle_Alloc, idx1, idx2) -> bool:
         if len(veh1.order_list)==0 and len(veh2.order_list)==0: return False
