@@ -22,8 +22,14 @@ class Solver:
         self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
+        self.swap_orders()
+        print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
+
         self.swap_spatial_bundles()
         print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
+
+        self.swap_orders()
+        print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
 
         self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
@@ -31,10 +37,9 @@ class Solver:
         """
         self.solution.vehicle_list = self.swap_cycles()
         print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
-
-        self.solution.vehicle_list = self.swap_orders()
-        print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
         """
+
+
 
 
     def swap_vehicles(self) -> None:
@@ -230,14 +235,21 @@ class Solver:
             veh.update()
 
 
-    def swap_orders(self):
+    def swap_orders(self) -> None:
         vehicle_list = self.solution.vehicle_list
-        for (veh1, veh2) in combinations(vehicle_list, 2):
-            for order1_idx in range(veh1.get_count()):
-                for order2_idx in range(veh2.get_count()):
-                    if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
-                            self.swap_order(veh1, order1_idx, veh2, order2_idx)
-        return vehicle_list
+
+        comb = combinations(vehicle_list, 2)
+
+        swapped = True; cnt = 0
+        while swapped and cnt < 200:
+            swapped= False
+
+            for veh1, veh2 in comb:
+                for order1_idx in range(veh1.get_count()):
+                    for order2_idx in range(veh2.get_count()):
+                        if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
+                            swapped = True
+                            cnt += 1
 
     def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
         order1 = veh1.order_list[order1_idx]
@@ -259,8 +271,8 @@ class Solver:
         temp_veh2.update()
 
         # feasibility check - time
-        if temp_veh1.get_time_violation() > 0: return False
-        if temp_veh2.get_time_violation() > 0: return False
+        if temp_veh1.get_violation + temp_veh2.get_violation() > 0: return False
+
 
         order_helper = temp_veh1.order_list[-1]
         start_time = order_helper.departure_time - order_helper.order.load
@@ -272,12 +284,15 @@ class Solver:
             return False
 
         # cost reduction check
-        original_cost = veh1.get_var_cost() + veh2.get_var_cost()
-        new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
+        original_cost = veh1.get_added_cost() + veh2.get_added_cost()
+        new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
 
         if new_cost >= original_cost:
             return False
 
+        # now swap
+
+        self.swap_order(veh1, order1_idx, veh2, order2_idx)
 
         return True
 
