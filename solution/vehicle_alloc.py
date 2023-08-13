@@ -196,7 +196,7 @@ class Vehicle_Alloc:
         return self.get_travel_distance() * self.vehicle.vc
 
     def get_added_cost(self):
-        return self.get_var_cost() + ( self.vehicle.fc if len(self.vehicle.allocated_cycle_list) > 0 else 0 )
+        return self.get_var_cost() + ( self.vehicle.fc if len(self.vehicle.allocated_cycle_list) == 0 else 0 )
 
     # order count
     def get_count(self):
