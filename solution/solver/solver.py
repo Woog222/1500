@@ -14,6 +14,7 @@ class Solver:
         self.solution = solution
         self.graph = graph
         self.cur_batch = cur_batch
+        self.last = (cur_batch + 1)!=config.LAST_BATCH
 
     def solve(self):
 
@@ -67,13 +68,13 @@ class Solver:
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
             start_time = order_helper.departure_time - order_helper.order.load
-            if (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL) or start_time >= config.MAX_START_TIME:
-                return False
+            if self.last is False and (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL): return False
+            if self.last and (start_time > config.MAX_START_TIME): return False
         if len(temp_veh2.order_list) > 0:
             order_helper = temp_veh2.order_list[-1]
             start_time = order_helper.departure_time - order_helper.order.load
-            if (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL) or start_time >= config.MAX_START_TIME:
-                return False
+            if self.last is False and (start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL): return False
+            if self.last and start_time >= config.MAX_START_TIME: return False
 
         # cost reduction check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
@@ -149,11 +150,11 @@ class Solver:
 
         # feasibility - time
         start_time1 = veh1_alloc_temp.order_list[-1].departure_time - veh1_alloc_temp.order_list[-1].order.load
-        if start_time1 > (self.cur_batch+1)*config.GROUP_INTERVAL or start_time1 > config.MAX_START_TIME:
-            return False
+        if self.last is False and start_time1 > (self.cur_batch+1)*config.GROUP_INTERVAL: return False
+        if self.last and start_time1 > config.MAX_START_TIME: return False
         start_time2 = veh2_alloc_temp.order_list[-1].departure_time - veh2_alloc_temp.order_list[-1].order.load
-        if start_time2 > (self.cur_batch+1)*config.GROUP_INTERVAL or start_time2 > config.MAX_START_TIME:
-            return False
+        if self.last is False and start_time2 > (self.cur_batch+1)*config.GROUP_INTERVAL: return False
+        if self.last and start_time2 > config.MAX_START_TIME: return False
 
         # cost
         prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
@@ -232,13 +233,13 @@ class Solver:
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
             start_time = order_helper.departure_time - order_helper.order.load
-            if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-                return False
+            if self.last is False and start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.last and start_time >= config.MAX_START_TIME: return False
         if len(temp_veh2.order_list) > 0:
             order_helper = temp_veh2.order_list[-1]
             start_time = order_helper.departure_time - order_helper.order.load
-            if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-                return False
+            if self.last is False and start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+            if self.last and start_time >= config.MAX_START_TIME: return False
 
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
@@ -318,12 +319,12 @@ class Solver:
 
         order_helper = temp_veh1.order_list[-1]
         start_time = order_helper.departure_time - order_helper.order.load
-        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-            return False
+        if self.last is False and start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if self.last and start_time >= config.MAX_START_TIME: return False
         order_helper = temp_veh2.order_list[-1]
         start_time = order_helper.departure_time - order_helper.order.load
-        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-            return False
+        if self.last is False and start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL: return False
+        if self.last and start_time >= config.MAX_START_TIME: return False
 
         # cost reduction check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
