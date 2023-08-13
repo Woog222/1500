@@ -17,19 +17,19 @@ class Solver:
 
     def solve(self):
 
-        print(f"\tinit solution -> {self.solution.get_total_cost()}")
+        print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
 
         self.solution.vehicle_list = self.swap_vehicles()
-        print(f"\tswap vehicles -> {self.solution.get_total_cost()}")
+        print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
         self.solution.vehicle_list = self.swap_cycles()
-        print(f"\tswap cycles -> {self.solution.get_total_cost()}")
+        print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
 
         self.solution.vehicle_list = self.swap_orders()
-        print(f"\tswap orders -> {self.solution.get_total_cost()}")
+        print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
 
         self.swap_spatial_bundles()
-        print(f"\tswap spatial bundles -> {self.solution.get_total_cost()}")
+        print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
