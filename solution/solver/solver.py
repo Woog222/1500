@@ -22,21 +22,31 @@ class Solver:
         self.solution.vehicle_list = self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
+        self.swap_spatial_bundles()
+        print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
+
+        """
         self.solution.vehicle_list = self.swap_cycles()
         print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
 
         self.solution.vehicle_list = self.swap_orders()
         print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
+        """
 
-        self.swap_spatial_bundles()
-        print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
 
     def swap_vehicles(self):
-        vehicle_list = self.solution.vehicle_list
-        for (veh1, veh2) in combinations(vehicle_list, 2):
-            if self.do_swap_vehicle(veh1, veh2):
-                self.swap_vehicle(veh1, veh2)
-        return vehicle_list
+
+        swapped = True
+        cnt = 0
+        while swapped and cnt < 100:
+            swapped = False
+
+            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2):
+
+                if self.do_swap_vehicle(veh1, veh2):
+                    swapped = True
+                    cnt += 1
+                    break
 
     def do_swap_vehicle(self, veh1, veh2):
         # capa check
@@ -48,8 +58,9 @@ class Solver:
         temp_veh1.update()
         temp_veh2.update()
 
-        if temp_veh1.get_time_violation() > 0: return False
-        if temp_veh2.get_time_violation() > 0: return False
+        # violation
+        if temp_veh1.get_violation() + temp_veh2.get_violation() > 0: return False
+
 
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
@@ -63,84 +74,18 @@ class Solver:
                 return False
 
         # cost reduction check
-        original_cost = veh1.get_var_cost() + veh2.get_var_cost()
-        if veh1.vehicle.get_total_count()==0 and veh1.get_count() > 0: original_cost += veh1.vehicle.fc
-        if veh2.vehicle.get_total_count()==0 and veh2.get_count() > 0: original_cost += veh2.vehicle.fc
+        original_cost = veh1.get_added_cost() + veh2.get_added_cost()
+        new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
+        if new_cost > original_cost: return False
 
-        new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
-        if veh1.vehicle.get_total_count()==0 and temp_veh1.get_count() > 0: new_cost += veh1.vehicle.fc
-        if veh2.vehicle.get_total_count()==0 and temp_veh2.get_count() > 0: new_cost += veh2.vehicle.fc
-        if new_cost >= original_cost: return False
-
-        return True
-
-
-    def swap_vehicle(self, veh1, veh2):
+        # now swap
         temp = veh1.order_list
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
-        for veh in [veh1, veh2]:
-            veh.update()
-
-    def swap_orders(self):
-        vehicle_list = self.solution.vehicle_list
-        for (veh1, veh2) in combinations(vehicle_list, 2):
-            for order1_idx in range(veh1.get_count()):
-                for order2_idx in range(veh2.get_count()):
-                    if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
-                            self.swap_order(veh1, order1_idx, veh2, order2_idx)
-        return vehicle_list
-
-    def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
-        order1 = veh1.order_list[order1_idx]
-        order2 = veh2.order_list[order2_idx]
-
-        # feasibility check - cbm
-        if order2.order.cbm > veh1.vehicle.capa: return False
-        if order1.order.cbm > veh2.vehicle.capa: return False
-
-        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1.order_list)
-        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2.order_list)
-        new_list1 = temp_veh1.order_list.copy()
-        new_list1[order1_idx] = order2
-        new_list2 = temp_veh2.order_list.copy()
-        new_list2[order2_idx] = order1
-        temp_veh1.order_list = new_list1
-        temp_veh2.order_list = new_list2
-        temp_veh1.update()
-        temp_veh2.update()
-
-        # feasibility check - time
-        if temp_veh1.get_time_violation() > 0: return False
-        if temp_veh2.get_time_violation() > 0: return False
-
-        order_helper = temp_veh1.order_list[-1]
-        start_time = order_helper.departure_time - order_helper.order.load
-        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-            return False
-        order_helper = temp_veh2.order_list[-1]
-        start_time = order_helper.departure_time - order_helper.order.load
-        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
-            return False
-
-        # cost reduction check
-        original_cost = veh1.get_var_cost() + veh2.get_var_cost()
-        new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
-
-        if new_cost >= original_cost:
-            return False
-
-
+        for veh in [veh1, veh2]: veh.update()
         return True
 
-    def swap_order(self, veh1, order1_idx, veh2, order2_idx):
-        # swap
-        temp = veh1.order_list[order1_idx]
-        veh1.order_list[order1_idx] = veh2.order_list[order2_idx]
-        veh2.order_list[order2_idx] = temp
 
-        for veh in [veh1, veh2]:
-            veh.update()
 
     def swap_cycles(self):
         vehicle_list = self.solution.vehicle_list
@@ -294,3 +239,64 @@ class Solver:
         veh2.order_list = veh2_temp
         veh1.update(); veh2.update()
         return True
+
+
+    def swap_orders(self):
+        vehicle_list = self.solution.vehicle_list
+        for (veh1, veh2) in combinations(vehicle_list, 2):
+            for order1_idx in range(veh1.get_count()):
+                for order2_idx in range(veh2.get_count()):
+                    if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
+                            self.swap_order(veh1, order1_idx, veh2, order2_idx)
+        return vehicle_list
+
+    def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
+        order1 = veh1.order_list[order1_idx]
+        order2 = veh2.order_list[order2_idx]
+
+        # feasibility check - cbm
+        if order2.order.cbm > veh1.vehicle.capa: return False
+        if order1.order.cbm > veh2.vehicle.capa: return False
+
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1.order_list)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2.order_list)
+        new_list1 = temp_veh1.order_list.copy()
+        new_list1[order1_idx] = order2
+        new_list2 = temp_veh2.order_list.copy()
+        new_list2[order2_idx] = order1
+        temp_veh1.order_list = new_list1
+        temp_veh2.order_list = new_list2
+        temp_veh1.update()
+        temp_veh2.update()
+
+        # feasibility check - time
+        if temp_veh1.get_time_violation() > 0: return False
+        if temp_veh2.get_time_violation() > 0: return False
+
+        order_helper = temp_veh1.order_list[-1]
+        start_time = order_helper.departure_time - order_helper.order.load
+        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+            return False
+        order_helper = temp_veh2.order_list[-1]
+        start_time = order_helper.departure_time - order_helper.order.load
+        if start_time > (self.cur_batch + 1) * config.GROUP_INTERVAL or start_time >= config.MAX_START_TIME:
+            return False
+
+        # cost reduction check
+        original_cost = veh1.get_var_cost() + veh2.get_var_cost()
+        new_cost = temp_veh1.get_var_cost() + temp_veh2.get_var_cost()
+
+        if new_cost >= original_cost:
+            return False
+
+
+        return True
+
+    def swap_order(self, veh1, order1_idx, veh2, order2_idx):
+        # swap
+        temp = veh1.order_list[order1_idx]
+        veh1.order_list[order1_idx] = veh2.order_list[order2_idx]
+        veh2.order_list[order2_idx] = temp
+
+        for veh in [veh1, veh2]:
+            veh.update()
