@@ -25,8 +25,6 @@ class Solver:
         self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
-
-
         """
         self.solution.vehicle_list = self.swap_cycles()
         print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
@@ -44,8 +42,6 @@ class Solver:
             swapped = False
 
             for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
-                if (len(veh1.order_list) ==0) and (len(veh2.order_list) == 0):
-                    continue
 
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
@@ -99,7 +95,7 @@ class Solver:
                 shuffle(idxs1); shuffle(idxs2)
 
                 for idx1, idx2 in zip(idxs1, idxs2):
-                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.SPATIAL_BUNDLE_CRITERION:
+                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.NEIGHBORHOOD_CRITERION:
                         continue
                     if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
                         swapped = True

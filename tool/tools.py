@@ -58,4 +58,12 @@ def random_combinations(lst:list, r:int, graph:Graph):
         )
 
     all_combinations.sort(key = lambda x : fun(x))
-    return all_combinations
+
+    idx = 0
+    for i, comb in enumerate(all_combinations):
+        veh1 = comb[0]; veh2 = comb[1]
+        if (len(veh1.order_list) ==0) and (len(veh2.order_list) == 0):
+            break
+        else:
+            idx += 1
+    return all_combinations[:idx]
