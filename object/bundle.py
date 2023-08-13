@@ -1,5 +1,3 @@
-from pyasn1.codec import der
-
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
