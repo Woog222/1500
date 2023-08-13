@@ -79,7 +79,7 @@ class Solver:
         if new_cost > original_cost: return False
 
         # now swap
-        temp = veh1.order_list
+        temp = copy.copy(veh1.order_list)
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
         for veh in [veh1, veh2]: veh.update()
