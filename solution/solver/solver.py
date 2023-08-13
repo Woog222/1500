@@ -98,7 +98,7 @@ class Solver:
                 shuffle(idxs1); shuffle(idxs2)
 
                 for idx1, idx2 in zip(idxs1, idxs2):
-                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.NEIGHBORHOOD_CRITERION:
+                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.SPATIAL_BUNDLE_CRITERION:
                         continue
                     if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
                         swapped = True
