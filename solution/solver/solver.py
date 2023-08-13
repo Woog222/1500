@@ -271,7 +271,7 @@ class Solver:
         temp_veh2.update()
 
         # feasibility check - time
-        if temp_veh1.get_violation + temp_veh2.get_violation() > 0: return False
+        if temp_veh1.get_violation() + temp_veh2.get_violation() > 0: return False
 
 
         order_helper = temp_veh1.order_list[-1]
