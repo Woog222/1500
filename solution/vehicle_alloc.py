@@ -2,7 +2,7 @@ import copy
 
 import config
 from object.Cycle import Cycle
-from object.bundle import Temporal_bundle
+from object.bundle import Temporal_bundle, Spatial_bundle
 from object.graph import Graph
 from object.vehicle import Vehicle
 from tool.tools import can_time_cal
@@ -20,7 +20,7 @@ class Vehicle_Alloc:
         self.cycle_list = [] #
         self.temporal_bundle = []
         self.spatial_bundle = []
-        self.update_cycle()
+        self.update()
 
         # cache
         self.route_cache = [-1]
@@ -111,14 +111,14 @@ class Vehicle_Alloc:
             order = order_helper.order
             if self.graph.get_dist(cur_loc, order.dest_id) > config.TEMPORAL_BUNDLE_CRITERION:
                 self.spatial_bundle.append(
-                    Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
+                    Spatial_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
                 temp_orders = []
             cur_loc = order.dest_id
             temp_orders.append(order)
 
         # last one
         self.spatial_bundle.append(
-            Temporal_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
+            Spatial_bundle(graph=self.graph, vehicle=self.vehicle, orders=copy.copy(temp_orders)))
         return
 
     def reset_cache(self):
@@ -195,6 +195,9 @@ class Vehicle_Alloc:
     def get_var_cost(self):
         return self.get_travel_distance() * self.vehicle.vc
 
+    def get_added_cost(self):
+        return self.get_var_cost() + ( self.vehicle.fc if len(self.vehicle.allocated_cycle_list) > 0 else 0 )
+
     # order count
     def get_count(self):
         return len(self.order_list)
@@ -239,6 +242,9 @@ class Vehicle_Alloc:
         return self.get_spent_time() - self.get_travel_time() - self.get_work_time()
 
 
+    """
+        Violation
+    """
     def get_capa_violation(self):
         """
         capa 제한 넘은 무게들의 합
@@ -271,6 +277,8 @@ class Vehicle_Alloc:
         self.time_violation_cache = ret
         return self.time_violation_cache
 
+    def get_violation(self):
+        return self.get_time_violation() + self.get_capa_violation()
 
 
 

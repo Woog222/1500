@@ -1,6 +1,7 @@
 import itertools
 import math
 from collections import deque
+import random
 
 from config import *
 
@@ -30,3 +31,11 @@ def deque_slice(deq:deque, start_idx = 0, end_idx = None):
     return deque(itertools.islice(deq, start_idx, end_idx))
 
 
+def list_insert(to:list, from_idx:int, to_idx:int, items:list)->list:
+    return to[:from_idx] + items + to[to_idx:]
+
+
+def random_combinations(lst:list, r:int):
+    all_combinations = list(itertools.combinations(lst, r))
+    random.shuffle(all_combinations)
+    return all_combinations
