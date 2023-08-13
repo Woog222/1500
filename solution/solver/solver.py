@@ -19,11 +19,13 @@ class Solver:
 
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
 
+        self.swap_spatial_bundles()
+        print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
+
         self.solution.vehicle_list = self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
-        self.swap_spatial_bundles()
-        print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
+
 
         """
         self.solution.vehicle_list = self.swap_cycles()
@@ -34,7 +36,7 @@ class Solver:
         """
 
 
-    def swap_vehicles(self):
+    def swap_vehicles(self) -> None:
 
         swapped = True
         cnt = 0
@@ -48,15 +50,13 @@ class Solver:
                     cnt += 1
                     break
 
-    def do_swap_vehicle(self, veh1, veh2):
+    def do_swap_vehicle(self, veh1, veh2) -> bool:
         # capa check
         if veh1.get_max_capa() > veh2.vehicle.capa: return False
         if veh2.get_max_capa() > veh1.vehicle.capa: return False
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh2.order_list)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh1.order_list)
-        temp_veh1.update()
-        temp_veh2.update()
 
         # violation
         if temp_veh1.get_violation() + temp_veh2.get_violation() > 0: return False
@@ -85,7 +85,59 @@ class Solver:
         for veh in [veh1, veh2]: veh.update()
         return True
 
+    def swap_spatial_bundles(self) -> None:
 
+        swapped = True
+        cnt = 0
+        while swapped and cnt < 100:
+            swapped = False
+
+            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2):
+                idxs1 = list(range(len(veh1.spatial_bundle)))
+                idxs2 = list(range(len(veh2.spatial_bundle)))
+                shuffle(idxs1); shuffle(idxs2)
+
+                for idx1, idx2 in zip(idxs1, idxs2):
+                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.SPATIAL_BUNDLE_CRITERION:
+                        continue
+                    if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
+                        swapped = True
+                        cnt += 1
+                        break
+
+                if swapped: break
+
+    def do_swap_spatial_bundle(self, veh1:Vehicle_Alloc, veh2:Vehicle_Alloc, idx1, idx2) -> bool:
+
+        from1 = from2 = 0
+        for bundle in veh1.spatial_bundle[:idx1]: from1 += bundle.get_size()
+        for bundle in veh2.spatial_bundle[:idx2]: from2 += bundle.get_size()
+        to1 = from1 + veh1.spatial_bundle[idx1].get_size()
+        to2 = from2 + veh2.spatial_bundle[idx2].get_size()
+
+        veh1_temp = copy.copy(veh1.order_list)
+        veh2_temp = copy.copy(veh2.order_list)
+        temp1 = copy.copy(veh1.order_list[from1:to1])
+        temp2 = copy.copy(veh2.order_list[from2:to2])
+        veh1_temp = list_insert(veh1_temp, from1, to1, temp2)
+        veh2_temp = list_insert(veh2_temp, from2, to2, temp1)
+
+        veh1_alloc_temp = Vehicle_Alloc(veh1.vehicle, self.graph, allocated_order_list=veh1_temp)
+        veh2_alloc_temp = Vehicle_Alloc(veh2.vehicle, self.graph, allocated_order_list=veh2_temp)
+
+        # violation
+        if veh1_alloc_temp.get_violation() + veh2_alloc_temp.get_violation() > 0: return False
+
+        # cost
+        prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
+        new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
+        if prev_cost < new_cost: return False
+
+        # now swap!
+        veh1.order_list = veh1_temp
+        veh2.order_list = veh2_temp
+        veh1.update(); veh2.update()
+        return True
 
     def swap_cycles(self):
         vehicle_list = self.solution.vehicle_list
@@ -96,7 +148,7 @@ class Solver:
                         self.swap_cycle(veh1, cycle1_idx, veh2, cycle2_idx)
         return vehicle_list
 
-    def do_swap_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx):
+    def do_swap_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx) -> bool:
         try:
             cycle1 = veh1.cycle_list[cycle1_idx]
             cycle2 = veh2.cycle_list[cycle2_idx]
@@ -184,61 +236,6 @@ class Solver:
 
         for veh in [veh1, veh2]:
             veh.update()
-
-
-    def swap_spatial_bundles(self):
-
-        swapped = True
-        cnt = 0
-        while swapped and cnt < 100:
-            swapped = False
-
-            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2):
-                idxs1 = list(range(len(veh1.spatial_bundle)))
-                idxs2 = list(range(len(veh2.spatial_bundle)))
-                shuffle(idxs1); shuffle(idxs2)
-
-                for idx1, idx2 in zip(idxs1, idxs2):
-                    if euclidean_distance(veh1.spatial_bundle[idx1].center, veh2.spatial_bundle[idx2].center) >= config.SPATIAL_BUNDLE_CRITERION:
-                        continue
-                    if self.do_swap_spatial_bundle(veh1, veh2, idx1, idx2):
-                        swapped = True
-                        cnt += 1
-                        break
-
-                if swapped: break
-
-    def do_swap_spatial_bundle(self, veh1:Vehicle_Alloc, veh2:Vehicle_Alloc, idx1, idx2) -> bool:
-
-        from1 = from2 = 0
-        for bundle in veh1.spatial_bundle[:idx1]: from1 += bundle.get_size()
-        for bundle in veh2.spatial_bundle[:idx2]: from2 += bundle.get_size()
-        to1 = from1 + veh1.spatial_bundle[idx1].get_size()
-        to2 = from2 + veh2.spatial_bundle[idx2].get_size()
-
-        veh1_temp = copy.copy(veh1.order_list)
-        veh2_temp = copy.copy(veh2.order_list)
-        temp1 = copy.copy(veh1.order_list[from1:to1])
-        temp2 = copy.copy(veh2.order_list[from2:to2])
-        veh1_temp = list_insert(veh1_temp, from1, to1, temp2)
-        veh2_temp = list_insert(veh2_temp, from2, to2, temp1)
-
-        veh1_alloc_temp = Vehicle_Alloc(veh1.vehicle, self.graph, allocated_order_list=veh1_temp)
-        veh2_alloc_temp = Vehicle_Alloc(veh2.vehicle, self.graph, allocated_order_list=veh2_temp)
-
-        # violation
-        if veh1_alloc_temp.get_violation() + veh2_alloc_temp.get_violation() > 0: return False
-
-        # cost
-        prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
-        new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
-        if prev_cost < new_cost: return False
-
-        # now swap!
-        veh1.order_list = veh1_temp
-        veh2.order_list = veh2_temp
-        veh1.update(); veh2.update()
-        return True
 
 
     def swap_orders(self):
