@@ -91,7 +91,7 @@ class Solver:
         while swapped and cnt < 100:
             swapped = False
 
-            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2):
+            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
                 idxs1 = list(range(len(veh1.spatial_bundle)))
                 idxs2 = list(range(len(veh2.spatial_bundle)))
                 shuffle(idxs1); shuffle(idxs2)
