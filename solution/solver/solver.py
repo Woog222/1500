@@ -14,7 +14,7 @@ class Solver:
         self.solution = solution
         self.graph = graph
         self.cur_batch = cur_batch
-        self.last = (cur_batch + 1)!=config.LAST_BATCH
+        self.last = ((cur_batch + 1)==config.LAST_BATCH)
 
     def solve(self):
 
@@ -56,8 +56,13 @@ class Solver:
 
     def do_swap_vehicle(self, veh1, veh2) -> bool:
         # capa check
-        if veh1.get_max_capa() > veh2.vehicle.capa: return False
-        if veh2.get_max_capa() > veh1.vehicle.capa: return False
+        max1 = max2 = 0
+        for order in veh1.order_list:
+            max1 = max(max1, order.order.cbm)
+        for order in veh2.order_list:
+            max2 = max(max2, order.order.cbm)
+        if max1 > veh2.vehicle.capa: return False
+        if max2 > veh1.vehicle.capa: return False
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh2.order_list)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh1.order_list)
@@ -269,10 +274,6 @@ class Solver:
 
         veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
         veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
-
-        #veh1.order_list = deque_slice(temp, 0, start_idx1) + deque_slice(veh2.order_list, start_idx2, end_idx2) + deque_slice(temp,end_idx1)
-        #veh2.order_list = deque_slice(veh2.order_list, 0, start_idx2) + deque_slice(temp, start_idx1, end_idx1) + deque_slice(veh2.order_list,end_idx2)
-
 
         for veh in [veh1, veh2]:
             veh.update()
