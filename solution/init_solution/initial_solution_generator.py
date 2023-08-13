@@ -74,7 +74,7 @@ class Initial_Solution_Generator:
             allocated = False
             vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time))
             for veh in vehicle_list:
-                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
                 if order_helper is None: continue
 
 
@@ -91,7 +91,7 @@ class Initial_Solution_Generator:
 
 
                 while True:
-                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=False)
                     if order_helper is None: break
                     order_helper.allocated = allocated = True
                     veh.allocated_order.append(order_helper)
@@ -109,9 +109,16 @@ class Initial_Solution_Generator:
                 veh.left = veh.vehicle.capa
 
 
-    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper]):
+    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper], first):
         ret = None
         best_score = config.MAX
+
+        if len(orders) == 0: return ret
+
+        if first:
+            cur_time += self.graph.get_time(cur_loc, orders[0].order.terminal_id)
+            cur_loc = orders[0].order.terminal_id
+
         for order_helper in orders:
             order = order_helper.order
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:

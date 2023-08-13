@@ -19,6 +19,9 @@ class Solver:
 
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
 
+        self.swap_vehicles()
+        print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
+
         self.swap_spatial_bundles()
         print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
 
@@ -38,7 +41,7 @@ class Solver:
 
         swapped = True
         cnt = 0
-        while swapped and cnt < 100:
+        while swapped and cnt < 30:
             swapped = False
 
             for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
@@ -86,7 +89,7 @@ class Solver:
 
         swapped = True
         cnt = 0
-        while swapped and cnt < 100:
+        while swapped and cnt < 30:
             swapped = False
 
             for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
