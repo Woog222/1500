@@ -43,9 +43,7 @@ class Solver:
         cnt = 0
         while swapped and cnt < 30:
             swapped = False
-
-            for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
-
+            for veh1, veh2 in combinations(self.solution.vehicle_list, 2):
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
                     cnt += 1
