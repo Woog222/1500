@@ -116,8 +116,11 @@ class Solver:
         if len(veh1.order_list)==0 and len(veh2.order_list)==0: return False
 
         from1 = from2 = 0
-        for bundle in veh1.spatial_bundle[:idx1]: from1 += bundle.get_size()
-        for bundle in veh2.spatial_bundle[:idx2]: from2 += bundle.get_size()
+
+        if idx1 != 0:
+            for bundle in veh1.spatial_bundle[:idx1-1]: from1 += bundle.get_size()
+        if idx2 != 0:
+            for bundle in veh2.spatial_bundle[:idx2-1]: from2 += bundle.get_size()
         to1 = from1 + veh1.spatial_bundle[idx1].get_size()
         to2 = from2 + veh2.spatial_bundle[idx2].get_size()
 
