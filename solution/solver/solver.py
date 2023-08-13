@@ -214,10 +214,8 @@ class Solver:
 
 
         start_idx1 = start_idx2 = 0
-        if cycle1_idx > 0:
-            for i in range(cycle1_idx-1): start_idx1 += veh1.cycle_list[i].get_cycle_order_cnt()
-        if cycle2_idx > 0:
-            for j in range(cycle2_idx-1): start_idx2 += veh2.cycle_list[j].get_cycle_order_cnt()
+        for i in range(cycle1_idx): start_idx1 += veh1.cycle_list[i].get_cycle_order_cnt()
+        for j in range(cycle2_idx): start_idx2 += veh2.cycle_list[j].get_cycle_order_cnt()
         end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
         end_idx2 = start_idx2 + cycle2.get_cycle_order_cnt()
 
