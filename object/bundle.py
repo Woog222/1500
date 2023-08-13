@@ -32,3 +32,6 @@ class Spatial_bundle:
 
     def get_center(self):
         return self.center
+
+    def get_size(self):
+        return len(self.orders)
