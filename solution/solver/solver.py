@@ -44,6 +44,8 @@ class Solver:
             swapped = False
 
             for veh1, veh2 in random_combinations(self.solution.vehicle_list, 2, self.graph):
+                if (len(veh1.order_list) ==0) and (len(veh2.order_list) == 0):
+                    continue
 
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
@@ -78,7 +80,7 @@ class Solver:
         if new_cost > original_cost: return False
 
         # now swap
-        temp = copy.copy(veh1.order_list)
+        temp = veh1.order_list
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
         for veh in [veh1, veh2]: veh.update()
