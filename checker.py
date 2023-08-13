@@ -5,12 +5,14 @@ import warnings
 warnings.filterwarnings(action='ignore')
 
 class checker:
-    def __init__(self, dir_final, dir_id2idx, dir_vehicle_result, dir_od_matrix, dir_vehicles) -> None:
+    def __init__(self, dir_final, dir_id2idx, dir_vehicle_result, dir_od_matrix, dir_vehicles, dir_orders) -> None:
         self.final = pd.read_csv(dir_final)
         self.id2idx = pd.read_csv(dir_id2idx)
         self.vehicle_result = pd.read_csv(dir_vehicle_result)
         self.od_matrix = pd.read_csv(dir_od_matrix)
         self.vehicles = pd.read_csv(dir_vehicles)
+        try: self.orders = pd.read_csv(dir_orders)
+        except: self.orders = pd.read_csv(dir_orders, encoding='cp949')
 
         site_dict = {}
         for i in range(len(self.id2idx)):
@@ -19,8 +21,9 @@ class checker:
         
 
     def get_summary(self):
+        success_order = set(self.final.query('Delivered=="Yes"').ORD_NO.unique())
         num_success = self.final.query('Delivered=="Yes"').ORD_NO.nunique()
-        num_failed = self.final.query('Delivered=="No"').ORD_NO.nunique()
+        num_failed = len(set(self.orders['주문ID'].unique()).difference(success_order))
         num_vehicles = self.final.VehicleID.nunique()
         total_cost = self.vehicle_result.FixedCost.sum() + self.vehicle_result.VariableCost.sum()
 
@@ -114,7 +117,8 @@ class checker:
 
 
 if __name__ == "__main__":
-    cls = checker(config.FINAL_ORDER_RESULT_DIR, config.IDX2ID_DIR, config.VEH_RESULT_DIR, './data/raw/od_matrix.csv', './data/raw/vehicles.csv')
+    cls = checker(config.FINAL_ORDER_RESULT_DIR, config.IDX2ID_DIR, config.VEH_RESULT_DIR, './data/raw/od_matrix.csv',
+                  './data/raw/vehicles.csv', './data/raw/orders.csv')
     cls.get_summary()
     cls.check_traveltime()
     cls.check_timewindow()
