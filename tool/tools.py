@@ -4,6 +4,8 @@ from collections import deque
 import random
 
 from config import *
+from object.graph import Graph
+
 
 def can_time_cal(arrival_time:int, start:int ,end:int):
     quotient = arrival_time // DAY
@@ -24,8 +26,12 @@ def can_time_cal(arrival_time:int, start:int ,end:int):
 
 
 def euclidean_distance(loc1:(float, float), loc2: (float, float)) -> float:
-    dx = loc1[0] - loc2[0]; dy = loc1[1] - loc2[1]
-    return math.sqrt(dx**2 + dy**2)
+    scaling_factor = 111
+
+    dx = abs(loc1[0] - loc2[0]); dy = abs(loc1[1] - loc2[1])
+
+    dx *= scaling_factor; dy *= scaling_factor
+    return (dx**2 + dy**2)**0.5
 
 def deque_slice(deq:deque, start_idx = 0, end_idx = None):
     return deque(itertools.islice(deq, start_idx, end_idx))
@@ -35,7 +41,17 @@ def list_insert(to:list, from_idx:int, to_idx:int, items:list)->list:
     return to[:from_idx] + items + to[to_idx:]
 
 
-def random_combinations(lst:list, r:int):
+def random_combinations(lst:list, r:int, graph:Graph):
     all_combinations = list(itertools.combinations(lst, r))
-    random.shuffle(all_combinations)
+
+    def fun(veh_tuple):
+        veh1 = veh_tuple[0]
+        veh2 = veh_tuple[1]
+
+        return euclidean_distance(
+            graph.get_coordinates(veh1.vehicle.start_loc),
+            graph.get_coordinates(veh2.vehicle.start_loc)
+        )
+
+    all_combinations.sort(key = lambda x : fun(x))
     return all_combinations

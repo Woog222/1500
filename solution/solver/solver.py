@@ -22,7 +22,7 @@ class Solver:
         self.swap_spatial_bundles()
         print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
 
-        self.solution.vehicle_list = self.swap_vehicles()
+        self.swap_vehicles()
         print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
 
@@ -60,7 +60,6 @@ class Solver:
 
         # violation
         if temp_veh1.get_violation() + temp_veh2.get_violation() > 0: return False
-
 
         if len(temp_veh1.order_list) > 0:
             order_helper = temp_veh1.order_list[-1]
