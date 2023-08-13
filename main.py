@@ -16,5 +16,7 @@ if __name__ == "__main__":
             dir_vehicles=os.path.join("data", "real_raw", "vehicles.csv"),
             dir_id2idx=config.IDX2ID_DIR,
             dir_od_matrix= os.path.join("data", "real_raw", "od_matrix.csv"),
-            dir_vehicle_result= config.VEH_RESULT_DIR)
+            dir_vehicle_result= config.VEH_RESULT_DIR,
+            dir_orders= os.path.join("data", "real_raw", "orders.csv"))
+
     ch.get_summary()
