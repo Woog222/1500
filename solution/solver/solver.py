@@ -125,6 +125,15 @@ class Solver:
         to1 = from1 + veh1.spatial_bundle[idx1].get_size()
         to2 = from2 + veh2.spatial_bundle[idx2].get_size()
 
+        # feasibility - cbm
+        max1 = max2 = 0
+        for order in veh1.order_list[from1:to1]:
+            max1 = max(order.order.cbm, max1)
+        for order in veh2.order_list[from2:to2]:
+            max2 = max(order.order.cbm, max2)
+        if max1 > veh2.vehicle.capa: return False
+        if max2 > veh1.vehicle.capa: return False
+
         veh1_temp = copy.copy(veh1.order_list)
         veh2_temp = copy.copy(veh2.order_list)
         temp1 = copy.copy(veh1.order_list[from1:to1])
