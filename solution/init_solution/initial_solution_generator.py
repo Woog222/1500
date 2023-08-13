@@ -72,9 +72,18 @@ class Initial_Solution_Generator:
         allocated = True
         while allocated == True:
             allocated = False
+
+            left_orders = len(orders)
+            for order in orders:
+                if order.allocated == True: left_orders -= 1
+
             vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time))
+            if self.cur_batch+1 != config.LAST_BATCH: vehicle_list = vehicle_list[:int(left_orders)]
+            vehicle_list.sort(key=lambda x: self.graph.get_dist(x.cur_loc, terminal) * x.vehicle.vc + (
+                x.vehicle.fc if x.vehicle.get_total_count()+len(x.allocated_order) == 0 else 0))
+
             for veh in vehicle_list:
-                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
                 if order_helper is None: continue
 
 
@@ -91,7 +100,7 @@ class Initial_Solution_Generator:
 
 
                 while True:
-                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=False)
                     if order_helper is None: break
                     order_helper.allocated = allocated = True
                     veh.allocated_order.append(order_helper)
@@ -103,20 +112,22 @@ class Initial_Solution_Generator:
                         veh.cur_loc = order_helper.order.dest_id
                     order_helper.set_departure_time(start_time + order_helper.order.load)
 
-
-
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
 
 
-    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper]):
+    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper], first):
         ret = None
         best_score = config.MAX
         for order_helper in orders:
             order = order_helper.order
+
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
+            if first:
+                cur_time = cur_time + self.graph.get_time(cur_loc, order.terminal_id)
+                cur_loc = order.terminal_id
 
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
@@ -124,12 +135,16 @@ class Initial_Solution_Generator:
             if cur_loc != order.dest_id: end_time += order.load
 
             score = start_time
-            if self.cur_batch - order.group >= 8:
+            if self.cur_batch - order.group >= 4:
+                score -= config.MAX_START_TIME
+            elif self.cur_batch - order.group >= 8:
                 score -= config.MAX_START_TIME * 2
 
-            if self.carry_over and \
-                    (start_time - arrival_time > config.HOUR * 6 or start_time >= (self.cur_batch+1)*config.GROUP_INTERVAL):
-                continue
+
+            if self.carry_over and first and \
+                    (start_time-self.graph.get_time(cur_loc, order.dest_id) >= (self.cur_batch+1)*config.GROUP_INTERVAL): continue
+            if self.carry_over and start_time - arrival_time > config.GROUP_INTERVAL: continue
+
 
             if end_time - order.group*config.GROUP_INTERVAL > config.TIME_CRITERION: continue
 
