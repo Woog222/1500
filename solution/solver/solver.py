@@ -14,10 +14,10 @@ class Solver:
         self.cur_batch = cur_batch
 
     def solve(self):
-        self.solution.vehicle_list = self.swap_vehicles()
+        # self.solution.vehicle_list = self.swap_vehicles()
         # self.solution.vehicle_list = self.swap_cycles()
         # self.solution.vehicle_list = self.swap_orders()
-        # self.solution.vehicle_list = self.insert_cycles()
+        self.solution.vehicle_list = self.insert_cycles()
 
     def swap_vehicles(self):
         vehicle_list = self.solution.vehicle_list
@@ -223,14 +223,19 @@ class Solver:
 
 
     def insert_cycles(self):
-        vehicle_list = self.solution.vehicle_list
+        insert_count = 0
+        vehicle_list = vehicle_list2 = self.solution.vehicle_list
         vehicle_list.sort(key=lambda x: (x.vehicle.get_total_count(), x.get_count()))
         for from_veh in vehicle_list:
             for cycle_idx in range(len(from_veh.cycle_list)):
-                to_veh = self.next_to_veh(vehicle_list)
-                best_idx, feasibility = self.do_insert_cycle(from_veh, to_veh, cycle_idx)
-                if feasibility:
-                    self.insert_cycle(from_veh, to_veh, cycle_idx, best_idx)
+                vehicle_list2.sort(key=lambda x: x.get_waiting_time()+max(0, (self.cur_batch+1)*config.GROUP_INTERVAL-x.get_after_time()))
+                for to_veh in vehicle_list2:
+                    best_idx, feasibility = self.do_insert_cycle(from_veh, to_veh, cycle_idx)
+                    if feasibility:
+                        insert_count += 1
+                        self.insert_cycle(from_veh, to_veh, cycle_idx, best_idx)
+        print("insert count: ", insert_count)
+        return vehicle_list
 
     def do_insert_cycle(self, from_veh, to_veh, cycle_idx):
         try: cycle = from_veh.cycle_list[cycle_idx]
@@ -243,7 +248,7 @@ class Solver:
         if max_cbm > to_veh.vehicle.capa: return -1, False
 
         start_idx = 0
-        for i in range(cycle_idx): start_idx += from_veh.cycle_list[i].get_cycle_order_cnt()
+        for i in range(cycle_idx-1): start_idx += from_veh.cycle_list[i].get_cycle_order_cnt()
         end_idx = start_idx + cycle.get_cycle_order_cnt()
         target_orders = from_veh.order_list[start_idx:end_idx]
 
@@ -259,6 +264,7 @@ class Solver:
 
         start_idx2 = 0
         best_idx = -1
+        best_cost = config.MAX
         for to_cycle_idx in range(-1, len(to_veh.cycle_list)):
             if to_cycle_idx != -1:
                 to_cycle = to_veh.cycle_list[to_cycle_idx]
@@ -280,6 +286,7 @@ class Solver:
 
             if new_cost2 >= original_cost2: continue
 
+
             if new_cost2 < best_cost:
                 best_idx = start_idx2
                 best_cost = new_cost2
@@ -291,7 +298,7 @@ class Solver:
     def insert_cycle(self, from_veh, to_veh, cycle_idx, best_idx):
         cycle = from_veh.cycle_list[cycle_idx]
         start_idx = 0
-        for i in range(cycle_idx): start_idx += from_veh.cycle_list[i].get_cycle_order_cnt()
+        for i in range(cycle_idx-1): start_idx += from_veh.cycle_list[i].get_cycle_order_cnt()
         end_idx = start_idx + cycle.get_cycle_order_cnt()
         new_order_list = from_veh.order_list[:start_idx] + from_veh.order_list[end_idx:]
         target_list = from_veh.order_list[start_idx:end_idx]

@@ -72,7 +72,7 @@ class Initial_Solution_Generator:
         allocated = True
         while allocated == True:
             allocated = False
-            vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time, -x.vehicle.capa))
+            vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time))
             for veh in vehicle_list:
                 order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
                 if order_helper is None: continue
@@ -105,8 +105,6 @@ class Initial_Solution_Generator:
 
 
 
-
-
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
 
@@ -122,6 +120,8 @@ class Initial_Solution_Generator:
 
             arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
             start_time = can_time_cal(arrival_time, order.start, order.end)
+            end_time = start_time
+            if cur_loc != order.dest_id: end_time += order.load
 
             score = start_time
             if self.cur_batch - order.group >= 8:
@@ -130,6 +130,8 @@ class Initial_Solution_Generator:
             if self.carry_over and \
                     (start_time - arrival_time > config.HOUR * 6 or start_time >= (self.cur_batch+1)*config.GROUP_INTERVAL):
                 continue
+
+            if end_time - order.group*config.GROUP_INTERVAL > config.TIME_CRITERION: continue
 
 
             if start_time < config.MAX_START_TIME and score < best_score:
