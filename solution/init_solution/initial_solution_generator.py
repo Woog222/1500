@@ -136,18 +136,16 @@ class Initial_Solution_Generator:
             if cur_loc != order.dest_id: end_time += order.load
 
             score = start_time
-            if self.cur_batch - order.group >= 4:
-                score -= config.MAX_START_TIME
-            elif self.cur_batch - order.group >= 8:
-                score -= config.MAX_START_TIME * 2
+            if self.cur_batch - order.group >= 4: score -= config.MAX_START_TIME
+            elif self.cur_batch - order.group >= 8: score -= config.MAX_START_TIME * 2
 
 
             if self.carry_over and first and \
                     (start_time-self.graph.get_time(cur_loc, order.dest_id) >= (self.cur_batch+1)*config.GROUP_INTERVAL): continue
-            if self.carry_over and start_time - arrival_time > config.GROUP_INTERVAL: continue
+            # if self.carry_over and start_time - arrival_time > config.GROUP_INTERVAL: continue
 
 
-            if end_time - order.group*config.GROUP_INTERVAL > config.TIME_CRITERION: continue
+            if end_time - order.group*config.GROUP_INTERVAL >= config.TIME_CRITERION: continue
 
 
             if start_time < config.MAX_START_TIME and score < best_score:

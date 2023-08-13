@@ -138,6 +138,12 @@ class Solver:
         # violation
         if veh1_alloc_temp.get_violation() + veh2_alloc_temp.get_violation() > 0: return False
 
+        # feasibility - time
+        if veh1_alloc_temp.order_list[-1].departure_time - veh1_alloc_temp.order_list[-1].order.load > (self.cur_batch+1)*config.GROUP_INTERVAL:
+            return False
+        if veh2_alloc_temp.order_list[-1].departure_time - veh2_alloc_temp.order_list[-1].order.load > (self.cur_batch+1)*config.GROUP_INTERVAL:
+            return False
+
         # cost
         prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
