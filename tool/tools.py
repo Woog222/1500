@@ -48,9 +48,13 @@ def random_combinations(lst:list, r:int, graph:Graph):
         veh1 = veh_tuple[0]
         veh2 = veh_tuple[1]
 
-        return euclidean_distance(
-            graph.get_coordinates(veh1.vehicle.start_loc),
-            graph.get_coordinates(veh2.vehicle.start_loc)
+        no = (len(veh1.order_list) == 0) and (len(veh2.order_list) == 0)
+
+        return (1 if no else 0,
+                euclidean_distance(
+                    graph.get_coordinates(veh1.vehicle.start_loc),
+                    graph.get_coordinates(veh2.vehicle.start_loc)
+                )
         )
 
     all_combinations.sort(key = lambda x : fun(x))
