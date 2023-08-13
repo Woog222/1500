@@ -139,9 +139,11 @@ class Solver:
         if veh1_alloc_temp.get_violation() + veh2_alloc_temp.get_violation() > 0: return False
 
         # feasibility - time
-        if veh1_alloc_temp.order_list[-1].departure_time - veh1_alloc_temp.order_list[-1].order.load > (self.cur_batch+1)*config.GROUP_INTERVAL:
+        start_time1 = veh1_alloc_temp.order_list[-1].departure_time - veh1_alloc_temp.order_list[-1].order.load
+        if start_time1 > (self.cur_batch+1)*config.GROUP_INTERVAL or start_time1 > config.MAX_START_TIME:
             return False
-        if veh2_alloc_temp.order_list[-1].departure_time - veh2_alloc_temp.order_list[-1].order.load > (self.cur_batch+1)*config.GROUP_INTERVAL:
+        start_time2 = veh2_alloc_temp.order_list[-1].departure_time - veh2_alloc_temp.order_list[-1].order.load
+        if start_time2 > (self.cur_batch+1)*config.GROUP_INTERVAL or start_time2 > config.MAX_START_TIME:
             return False
 
         # cost
