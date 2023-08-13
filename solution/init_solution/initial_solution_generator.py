@@ -86,7 +86,6 @@ class Initial_Solution_Generator:
                 order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
                 if order_helper is None: continue
 
-
                 allocated = order_helper.allocated = True
                 veh.allocated_order.append(order_helper)
 

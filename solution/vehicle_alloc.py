@@ -39,7 +39,7 @@ class Vehicle_Alloc:
 
     def update(self):
         self.reset_cache()
-        self.update_temporal_bundle()
+        #self.update_temporal_bundle()
         self.update_cycle()
         self.update_spatial_bundle()
 

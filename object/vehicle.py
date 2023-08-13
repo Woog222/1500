@@ -122,7 +122,7 @@ class Vehicle:
     def get_total_cost(self):
         total_vc = self.vc * self.get_total_travel_distance()
         ret = total_vc + (self.fc if len(self.allocated_cycle_list)>0 else 0)
-        return int(math.ceil(ret))
+        return ret
 
     def get_total_waiting_time(self):
         return self.get_total_spent_time() - self.get_total_service_time() - self.get_total_travel_time()

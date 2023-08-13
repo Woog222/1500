@@ -1,4 +1,5 @@
 import copy
+import time
 from random import shuffle
 
 import config
@@ -19,7 +20,9 @@ class Solver:
     def solve(self):
 
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
-        for _ in range(3):
+
+        start_sec = time.time()
+        for _ in range(config.NUM_ITER):
             self.swap_vehicles()
             print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
@@ -31,6 +34,9 @@ class Solver:
 
             self.swap_cycles()
             print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
+
+            end_sec = time.time()
+            if end_sec - start_sec > config.TIMEOUT_SEC: break
 
         """
         self.solution.vehicle_list = self.swap_cycles()

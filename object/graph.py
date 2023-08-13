@@ -7,7 +7,7 @@ from config import *
 
 
 class edge:
-    def __init__(self, time_ = -1, dist_ = -1):
+    def __init__(self, time_ = -1.0, dist_ = -1.0):
         self.time = time_
         self.dist = dist_
 
@@ -40,8 +40,8 @@ class Graph:
                     idx += 1
                 from_, to_ = self.IDX[origin], self.IDX[dest]
 
-                time = int(math.ceil(float(time)))
-                dist = int(math.ceil(float(dist)))
+                time = float(time)
+                dist = float(dist)
                 # adj matrix
                 self.table[from_][to_] = edge(time, dist)
 
@@ -56,35 +56,34 @@ class Graph:
             for idx, id in enumerate(self.ID):
                 f.write(f"{idx},{id}\n")
 
-    def is_terminal(self, idx:int):
+    def is_terminal(self, idx:int) -> bool:
         return self.ID[idx].startswith(TERMINAL_START_CHARACTER)
 
-    def get_time(self, from_, to_):
+    def get_time(self, from_, to_) -> float:
         return self.table[from_][to_].time
 
-    def get_dist(self, from_, to_):
+    def get_dist(self, from_, to_) -> float:
         return self.table[from_][to_].dist
 
-    def get_size(self):
+    def get_size(self) -> int:
         return len(self.ID)
 
-    def id2idx(self, id):
+    def id2idx(self, id) -> int:
         if id not in self.IDX:
             print(id, "is not in od_matrix")
             exit(1)
         return self.IDX[id]
 
-    def idx2id(self, idx):
+    def idx2id(self, idx) -> str:
         if idx >= len(self.ID) or idx < 0:
             print(idx, "is not a valid index.")
             exit(1)
         return self.ID[idx]
 
-    def get_coordinates(self, idx:int):
+    def get_coordinates(self, idx:int) -> (float, float):
         return self.coordinates[idx]
 
-    def write_coordinates(self):
-
+    def write_coordinates(self) -> None:
         with open(config.COORDINAES_DIR, 'w') as f:
             f.write("idx,latitude,longitude\n")
             for idx, coordinates in enumerate(self.coordinates):
