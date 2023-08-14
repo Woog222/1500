@@ -36,7 +36,7 @@ class Solver:
             for name, fun in funs:
                 cnt = fun()
                 swapped |= cnt > 0
-                print(f"{name} ({cnt}) -> {self.solution.get_total_cost()}")
+                print(f"\t{name} ({cnt}) -> {self.solution.get_total_cost():.2f}")
 
             end_sec = time.time()
             if (end_sec - start_sec > config.TIMELIMIT_SEC) or (not swapped): break
