@@ -13,7 +13,7 @@ class Cycle:
         self.vehicle = vehicle
         self.terminal = orders[0].terminal_id
 
-        self.total_capa = 0
+        self.total_capa = 0.0
         for order in self.orders: self.total_capa += order.cbm
 
         if config.DEBUG and self.invalid():

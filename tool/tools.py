@@ -3,24 +3,23 @@ import math
 from collections import deque
 import random
 
-from config import *
+import config
 from object.graph import Graph
 
-
-def can_time_cal(arrival_time:int, start:int ,end:int):
-    quotient = arrival_time // DAY
-    remainder = arrival_time % DAY
+def can_time_cal(arrival_time: float, start: int, end: int):
+    quotient = int(arrival_time // config.DAY)
+    remainder = arrival_time % config.DAY
 
     if start < end:
-        if start<= remainder and remainder <= end:
+        if start <= remainder <= end:
             return arrival_time
         elif remainder < start:
-            return quotient*DAY + start
-        else: # end < remainder
-            return (quotient+1)*DAY + start
+            return quotient * config.DAY + start
+        else:  # end < remainder
+            return (quotient + 1) * config.DAY + start
     else:
-        if end < remainder and remainder < start:
-            return quotient*DAY + start
+        if end < remainder < start:
+            return quotient * config.DAY + start
         else:
             return arrival_time
 

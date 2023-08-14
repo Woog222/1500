@@ -32,21 +32,17 @@ class Vehicle:
         fc = self.fc if len(self.allocated_cycle_list) > 0 else 0
         return f"{self.veh_num}," \
                f"{self.get_total_count()}," \
-               f"{self.get_total_capa()}," \
-               f"{self.get_total_travel_distance()}," \
-               f"{self.get_total_spent_time()}," \
-               f"{self.get_total_travel_time()}," \
-               f"{self.get_total_service_time()}," \
-               f"{self.get_total_waiting_time()}," \
-               f"{total_cost}," \
-               f"{fc}," \
-               f"{total_cost - fc}\n"
+               f"{self.get_total_capa():.2f}," \
+               f"{self.get_total_travel_distance():.2f}," \
+               f"{self.get_total_spent_time():.2f}," \
+               f"{self.get_total_travel_time():.2f}," \
+               f"{self.get_total_service_time():.2f}," \
+               f"{self.get_total_waiting_time():.2f}," \
+               f"{total_cost:.2f}," \
+               f"{fc:.2f}," \
+               f"{total_cost - fc:.2f}\n"
 
     def __lt__(self, other):
-        if self.free_time == other.free_time:
-            if self.capa == other.capa:
-                return self.vc < other.vc
-            return self.capa > other.capa
         return self.free_time < other.free_time
 
 
@@ -69,18 +65,6 @@ class Vehicle:
         ret = []
         if self.allocated_cycle_list[0].terminal != self.start_center:
             ret.append(self.start_center)
-
-        for cycle in self.allocated_cycle_list:
-            ret.extend(cycle.get_cycle_route())
-
-        return ret
-
-    def get_route_coordinates(self):
-        if len(self.allocated_cycle_list) == 0: return []
-
-        ret = []
-        if self.allocated_cycle_list[0].terminal != self.start_center:
-            ret.append()
 
         for cycle in self.allocated_cycle_list:
             ret.extend(cycle.get_cycle_route())
@@ -122,7 +106,7 @@ class Vehicle:
     def get_total_cost(self):
         total_vc = self.vc * self.get_total_travel_distance()
         ret = total_vc + (self.fc if len(self.allocated_cycle_list)>0 else 0)
-        return int(math.ceil(ret))
+        return ret
 
     def get_total_waiting_time(self):
         return self.get_total_spent_time() - self.get_total_service_time() - self.get_total_travel_time()
