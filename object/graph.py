@@ -7,7 +7,7 @@ from config import *
 
 
 class edge:
-    def __init__(self, time_ = -1, dist_ = -1):
+    def __init__(self, time_ = -1.0, dist_ = -1.0):
         self.time = time_
         self.dist = dist_
 
@@ -40,12 +40,12 @@ class Graph:
                     idx += 1
                 from_, to_ = self.IDX[origin], self.IDX[dest]
 
-                time = int(math.ceil(float(time)))
-                dist = int(math.ceil(float(dist)))
+                time = float(time)
+                dist = float(dist)
                 # adj matrix
                 self.table[from_][to_] = edge(time, dist)
 
-        self.coordinates= [(-1,-1) for _ in range(idx)]
+        self.coordinates= [(-1.0,-1.0) for _ in range(idx)]
         if idx!= len(self.ID):
             print("graph not complete")
             exit(1)

@@ -22,7 +22,7 @@ class Spatial_bundle:
         self.terminal = orders[0].terminal_id
 
 
-        self.center = (0,0)
+        self.center = (0.0,0.0)
         size = len(self.orders)
         for order in self.orders:
             self.center += (order.latitude, order.longitude)
