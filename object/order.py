@@ -128,3 +128,22 @@ class OrderTable:
         for batch in self.table:
             for order in batch:
                 order.update(cur_time)
+
+    def __str__(self):
+        total_service = total_not = 0
+        sb = []
+
+        for group, order_group in enumerate(self.table):
+            serviced_cnt = not_cnt = 0
+            for order in order_group:
+                if order.serviced: serviced_cnt += 1
+                else: not_cnt += 1
+
+            sb.append(f"batch {group} : ( {serviced_cnt} , {not_cnt} )")
+            total_service += serviced_cnt
+            total_not += not_cnt
+        sb.append(f"{total_service}, {total_not}")
+
+        return "\n".join(sb)
+
+

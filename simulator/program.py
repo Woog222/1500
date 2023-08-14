@@ -67,32 +67,14 @@ class Program:
                 if order.serviced: continue
                 left.append(order)
             print(f"{len(batch)} -> {len(left)}")
+            print(f"\tTotal Cost: {self.vehicleTable.get_total_cost()}")
 
-            total_cost = 0
-            for veh in self.vehicleTable.table:
-                total_cost += veh.get_total_cost()
-            print(f"\tTotal Cost: {total_cost}")
-
-        self.vehicleTable.update_allocated_orders(WEEK)
+        self.vehicleTable.update_allocated_orders(config.WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 
-        total_service = total_not = 0
-        for group, order_group in enumerate(self.orderTable.table):
-            serviced_cnt = not_cnt = 0
-            for order in order_group:
-                if order.serviced: serviced_cnt += 1
-                else: not_cnt += 1
-            print(f"batch {group} : ( {serviced_cnt} , {not_cnt} )")
-            total_service += serviced_cnt
-            total_not += not_cnt
-
-        print(f"{total_service}, {total_not}")
-
-        total_cost = 0
-        for veh in self.vehicleTable.table:
-            total_cost += veh.get_total_cost()
-        print(f"Final Cost: {total_cost}")
+        print(self.orderTable)
+        print(f"Final Cost: {self.vehicleTable.get_total_cost():.2f}")
 
 
 
