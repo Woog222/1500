@@ -87,7 +87,8 @@ class Initial_Solution_Generator:
                     cur_loc = terminal,
                     cur_time = veh.cur_time + self.graph.get_time(veh.cur_loc, terminal),
                     left = veh.left,
-                    orders = orders)
+                    orders = orders,
+                    first = True)
                 if order_helper is None: continue
 
                 allocated = order_helper.allocated = True
@@ -103,7 +104,7 @@ class Initial_Solution_Generator:
 
 
                 while True:
-                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders)
+                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=False)
                     if order_helper is None: break
                     order_helper.allocated = allocated = True
                     veh.allocated_order.append(order_helper)
