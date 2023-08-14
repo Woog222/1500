@@ -6,10 +6,10 @@
 python -m venv .venv
 
 # activate venv
-source .venv/Scripts/activate
+call .venv/Scripts/activate
 
 # upgrade pip
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # install requirements.txt
 pip install -r requirements.txt # 원도우
