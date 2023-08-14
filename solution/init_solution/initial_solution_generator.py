@@ -83,7 +83,7 @@ class Initial_Solution_Generator:
                 x.vehicle.fc if x.vehicle.get_total_count() + len(x.allocated_order) == 0 else 0))
 
             for veh in vehicle_list:
-                order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
+                order_helper = self.next_order(veh, veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
                 if order_helper is None: continue
 
 
@@ -97,10 +97,11 @@ class Initial_Solution_Generator:
                 veh.cur_time = start_time + order_helper.order.load
                 veh.cur_loc = order_helper.order.dest_id
                 order_helper.set_departure_time(start_time + order_helper.order.load)
+                order_helper.set_arrival_time(arrival_time)
 
 
                 while True:
-                    order_helper = self.next_order(veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=False)
+                    order_helper = self.next_order(veh, veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=False)
                     if order_helper is None: break
                     order_helper.allocated = allocated = True
                     veh.allocated_order.append(order_helper)
@@ -111,12 +112,13 @@ class Initial_Solution_Generator:
                         veh.cur_time = start_time + order_helper.order.load
                         veh.cur_loc = order_helper.order.dest_id
                     order_helper.set_departure_time(start_time + order_helper.order.load)
+                    order_helper.set_arrival_time(arrival_time)
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
 
 
-    def next_order(self, cur_loc, cur_time, left, orders:list[Order_helper], first):
+    def next_order(self, veh, cur_loc, cur_time, left, orders:list[Order_helper], first):
         ret = None
         best_score = config.MAX
         if len(orders) > 0:
@@ -131,14 +133,10 @@ class Initial_Solution_Generator:
                 continue
 
             if cur_loc == order.dest_id:
-                temp_arrival_time = cur_time - config.HOUR
-                temp_start_time = can_time_cal(temp_arrival_time, order.start, order.end)
-                if temp_start_time <= temp_arrival_time:
-                    start_time = temp_start_time
-                    end_time = start_time + order.load
-                else:
-                    start_time = can_time_cal(cur_time, order.start, order.end)
-                    end_time = start_time + order.load
+                last_order = veh.allocated_order[-1]
+                arrival_time = last_order.arrival_time
+                start_time = can_time_cal(arrival_time, order.start, order.end)
+                end_time = start_time + order.load
             else:
                 arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
                 start_time = can_time_cal(arrival_time, order.start, order.end)
