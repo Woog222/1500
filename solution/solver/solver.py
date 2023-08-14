@@ -19,32 +19,30 @@ class Solver:
 
     def solve(self):
 
+        funs = [
+            ("distribution_cycles", self.distribute_cycles),
+            ("swap vehicles", self.swap_vehicles),
+            ("swap orders", self.swap_orders),
+            ("swap spatial bundles", self.swap_spatial_bundles),
+            ("swap cycles", self.swap_cycles)
+        ]
+
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
 
         start_sec = time.time()
         for _ in range(config.NUM_ITER):
             swapped = False
 
-            swapped |= self.distribute_cycles()
-            print(f"\tdistribute_cycles -> {self.solution.get_total_cost():.2f}")
-
-            swapped |= self.swap_vehicles()
-            print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
-
-            swapped |= self.swap_orders()
-            print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
-
-            swapped |= self.swap_spatial_bundles()
-            print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
-
-            swapped |=self.swap_cycles()
-            print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
+            for name, fun in funs:
+                cnt = fun()
+                swapped |= cnt > 0
+                print(f"{name} ({cnt}) -> {self.solution.get_total_cost()}")
 
             end_sec = time.time()
             if (end_sec - start_sec > config.TIMELIMIT_SEC) or (not swapped): break
 
 
-    def distribute_cycles(self) -> bool:
+    def distribute_cycles(self):
 
         distributed = True
         cnt = 0
@@ -58,7 +56,7 @@ class Solver:
                     distributed = True
                     cnt += 1
 
-        return cnt > 0
+        return cnt
 
     def distribute_cycle_try(self, veh1, veh2) -> bool:
 
@@ -138,7 +136,7 @@ class Solver:
                     swapped = True
                     cnt += 1
 
-        return cnt > 0
+        return cnt
 
 
     def do_swap_vehicle(self, veh1, veh2) -> bool:
@@ -191,7 +189,7 @@ class Solver:
                 if self.spatial_bundle_try(veh1, veh2):
                     cnt += 1
                     swapped = True
-        return cnt > 0
+        return cnt
 
 
     def spatial_bundle_try(self,veh1:Vehicle_Alloc, veh2:Vehicle_Alloc) -> bool:
@@ -271,7 +269,7 @@ class Solver:
                 if self.swap_cycle_try(veh1, veh2):
                     cnt += 1
                     swapped = True
-        return cnt > 0
+        return cnt
 
 
     def swap_cycle_try(self, veh1, veh2) -> bool:
@@ -381,7 +379,7 @@ class Solver:
                             swapped = True
                             cnt += 1
 
-        return cnt > 0
+        return cnt
 
     def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
         order1 = veh1.order_list[order1_idx]
