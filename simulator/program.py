@@ -71,9 +71,9 @@ class Program:
             total_cost = 0
             for veh in self.vehicleTable.table:
                 total_cost += veh.get_total_cost()
-            print(f"\tTotal Cost: {total_cost}")
+            print(f"\tTotal Cost: {total_cost:.2f}")
 
-        self.vehicleTable.update_allocated_orders(WEEK)
+        self.vehicleTable.update_allocated_orders(config.WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
         self.vehicleTable.write_veh_result()
 
