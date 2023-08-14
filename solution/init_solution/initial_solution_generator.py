@@ -130,10 +130,20 @@ class Initial_Solution_Generator:
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
-            arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-            start_time = can_time_cal(arrival_time, order.start, order.end)
-            end_time = start_time
-            if cur_loc != order.dest_id: end_time += order.load
+            if cur_loc == order.dest_id:
+                temp_arrival_time = cur_time - config.HOUR
+                temp_start_time = can_time_cal(temp_arrival_time, order.start, order.end)
+                if temp_start_time <= temp_arrival_time:
+                    start_time = temp_start_time
+                    end_time = start_time + order.load
+                else:
+                    start_time = can_time_cal(cur_time, order.start, order.end)
+                    end_time = start_time + order.load
+            else:
+                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
+                start_time = can_time_cal(arrival_time, order.start, order.end)
+                end_time = start_time + order.load
+
 
             score = start_time
             if self.cur_batch - order.group >= 4: score -= config.MAX_START_TIME
@@ -142,7 +152,6 @@ class Initial_Solution_Generator:
 
             if self.carry_over and first and \
                     (start_time-self.graph.get_time(cur_loc, order.dest_id) >= (self.cur_batch+1)*config.GROUP_INTERVAL): continue
-            # if self.carry_over and start_time - arrival_time > config.GROUP_INTERVAL: continue
 
 
             if end_time - order.group*config.GROUP_INTERVAL >= config.TIME_CRITERION: continue
