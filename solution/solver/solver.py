@@ -52,21 +52,22 @@ class Solver:
             distributed = False
 
             for veh1, veh2 in comb:
-                if self.distribute_cycle_try(veh1, veh2):
-                    distributed = True
-                    cnt += 1
+
+                if len(veh1.order_list)>0 and len(veh2.order_list) ==0:
+                    if self.distribute_cycle_try(veh1, veh2):
+                        distributed = True
+                        cnt += 1
 
         return cnt
 
     def distribute_cycle_try(self, veh1, veh2) -> bool:
 
         for idx1 in range(len(veh1.cycle_list)):
-            for idx2 in range(len(veh2.cycle_list)):
-                if self.do_distribute_cycle(veh1, idx1, veh2, idx2):
+                if self.do_distribute_cycle(veh1, idx1, veh2):
                     return True
         return False
 
-    def do_distribute_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx):
+    def do_distribute_cycle(self, veh1, cycle1_idx, veh2):
         """
         veh1 -> veh2 insertion
         :param veh1:
@@ -75,11 +76,8 @@ class Solver:
         :param cycle2_idx:
         :return:
         """
+        cycle1 = veh1.cycle_list[cycle1_idx]
 
-        try:
-            cycle1 = veh1.cycle_list[cycle1_idx]
-        except:
-            return False
 
         # feasibility - cbm
         max1 = 0
@@ -92,10 +90,8 @@ class Solver:
 
 
         veh1_temp_list = copy.copy(veh1.order_list)
-        veh2_temp_list = copy.copy(veh2.order_list)
-        temp1 = copy.copy(veh1.order_list[start_idx1:end_idx1])
+        veh2_temp_list = copy.copy(veh1.order_list[start_idx1:end_idx1])
         veh1_temp_list = list_delete(veh1_temp_list, start_idx1, end_idx1)
-        veh2_temp_list = list_insert(veh2_temp_list, cycle2_idx, cycle2_idx, temp1)
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1_temp_list)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2_temp_list)
@@ -169,7 +165,7 @@ class Solver:
         # cost reduction check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost > original_cost: return False
+        if new_cost >= original_cost: return False
 
         # now swap
         temp = veh1.order_list
