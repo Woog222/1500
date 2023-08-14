@@ -160,4 +160,9 @@ class Vehicle_Table:
         for veh in self.table:
             veh.free_time = max(veh.free_time, cur_time)
 
+    def get_total_cost(self):
+        ret = 0.0
+        for veh in self.table: ret += veh.get_total_cost()
+        return ret
+
 

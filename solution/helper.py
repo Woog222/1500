@@ -7,9 +7,12 @@ class Order_helper:
         self.order = order
         self.allocated = False
         self.departure_time = -1
+        self.arrival_time = -1
 
     def set_departure_time(self, departure_time):
         self.departure_time = departure_time
+    def set_arrival_time(self, arrival_time):
+        self.arrival_time = arrival_time
 
 class Veh_helper:
     def __init__(self, vehicle: Vehicle):
