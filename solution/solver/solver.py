@@ -7,7 +7,7 @@ from solution.Solution import Solution
 from itertools import combinations
 from object.graph import Graph
 from solution.vehicle_alloc import Vehicle_Alloc
-from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance
+from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance, list_delete, time_check
 
 
 class Solver:
@@ -23,27 +23,109 @@ class Solver:
 
         start_sec = time.time()
         for _ in range(config.NUM_ITER):
-            self.swap_vehicles()
+            swapped = False
+
+            swapped |= self.distribute_cycles()
+            print(f"\tdistribute_cycles -> {self.solution.get_total_cost():.2f}")
+
+            swapped |= self.swap_vehicles()
             print(f"\tswap vehicles -> {self.solution.get_total_cost():.2f}")
 
-            self.swap_orders()
+            swapped |= self.swap_orders()
             print(f"\tswap orders -> {self.solution.get_total_cost():.2f}")
 
-            self.swap_spatial_bundles()
+            swapped |= self.swap_spatial_bundles()
             print(f"\tswap spatial bundles -> {self.solution.get_total_cost():.2f}")
 
-            self.swap_cycles()
+            swapped |=self.swap_cycles()
             print(f"\tswap cycles -> {self.solution.get_total_cost():.2f}")
 
             end_sec = time.time()
-            if end_sec - start_sec > config.TIMELIMIT_SEC: break
+            if (end_sec - start_sec > config.TIMELIMIT_SEC) or (not swapped): break
 
 
+    def distribute_cycles(self) -> bool:
+
+        distributed = True
+        cnt = 0
+        comb = combinations(self.solution.vehicle_list, 2)
+
+        while distributed and cnt < 100:
+            distributed = False
+
+            for veh1, veh2 in comb:
+                if self.distribute_cycle_try(veh1, veh2):
+                    distributed = True
+                    cnt += 1
+
+        return cnt > 0
+
+    def distribute_cycle_try(self, veh1, veh2) -> bool:
+
+        for idx1 in range(len(veh1.cycle_list)):
+            for idx2 in range(len(veh2.cycle_list)):
+                if self.do_distribute_cycle(veh1, idx1, veh2, idx2):
+                    return True
+        return False
+
+    def do_distribute_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx):
+        """
+        veh1 -> veh2 insertion
+        :param veh1:
+        :param cycle1_idx:
+        :param veh2:
+        :param cycle2_idx:
+        :return:
+        """
+
+        try:
+            cycle1 = veh1.cycle_list[cycle1_idx]
+        except:
+            return False
+
+        # feasibility - cbm
+        max1 = 0
+        for order in cycle1.orders: max1 = max(order.cbm, max1)
+        if max1 > veh2.vehicle.capa: return False
+
+        start_idx1 = 0
+        for i in range(cycle1_idx): start_idx1 += veh1.cycle_list[i].get_cycle_order_cnt()
+        end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
 
 
+        veh1_temp_list = copy.copy(veh1.order_list)
+        veh2_temp_list = copy.copy(veh2.order_list)
+        temp1 = copy.copy(veh1.order_list[start_idx1:end_idx1])
+        veh1_temp_list = list_delete(veh1_temp_list, start_idx1, end_idx1)
+        veh2_temp_list = list_insert(veh2_temp_list, cycle2_idx, cycle2_idx, temp1)
+
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1_temp_list)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2_temp_list)
+        temp_veh1.update()
+        temp_veh2.update()
+
+        # violation check
+        if temp_veh1.get_time_violation() + temp_veh2.get_time_violation() > 0: return False
+
+        # cost check
+        original_cost = veh1.get_added_cost() + veh2.get_added_cost()
+        new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
+        if new_cost >= original_cost: return False
+
+        # time check
+        time_limit = (self.cur_batch + 1) * config.GROUP_INTERVAL
+        if time_check(temp_veh1.order_list, time_limit = time_limit, last = self.last) and \
+            time_check(temp_veh2.order_list, time_limit =time_limit, last = self.last ):
+
+            veh1.order_list = veh1_temp_list
+            veh2.order_list = veh2_temp_list
+            for veh in [veh1, veh2]: veh.update()
+            return True
+        else:
+            return False
 
 
-    def swap_vehicles(self) -> None:
+    def swap_vehicles(self):
 
         swapped = True
         cnt = 0
@@ -55,6 +137,8 @@ class Solver:
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
                     cnt += 1
+
+        return cnt > 0
 
 
     def do_swap_vehicle(self, veh1, veh2) -> bool:
@@ -96,7 +180,7 @@ class Solver:
         for veh in [veh1, veh2]: veh.update()
         return True
 
-    def swap_spatial_bundles(self) -> None:
+    def swap_spatial_bundles(self):
         swapped = True
         cnt = 0
 
@@ -107,6 +191,7 @@ class Solver:
                 if self.spatial_bundle_try(veh1, veh2):
                     cnt += 1
                     swapped = True
+        return cnt > 0
 
 
     def spatial_bundle_try(self,veh1:Vehicle_Alloc, veh2:Vehicle_Alloc) -> bool:
@@ -175,7 +260,7 @@ class Solver:
         veh1.update(); veh2.update()
         return True
 
-    def swap_cycles(self) -> None:
+    def swap_cycles(self):
         swapped = True
         cnt = 0
 
@@ -186,7 +271,7 @@ class Solver:
                 if self.swap_cycle_try(veh1, veh2):
                     cnt += 1
                     swapped = True
-
+        return cnt > 0
 
 
     def swap_cycle_try(self, veh1, veh2) -> bool:
@@ -280,7 +365,7 @@ class Solver:
             veh.update()
 
 
-    def swap_orders(self) -> None:
+    def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
 
         comb = combinations(vehicle_list, 2)
@@ -295,6 +380,8 @@ class Solver:
                         if self.do_swap_order(veh1, order1_idx, veh2, order2_idx):
                             swapped = True
                             cnt += 1
+
+        return cnt > 0
 
     def do_swap_order(self, veh1, order1_idx, veh2, order2_idx):
         order1 = veh1.order_list[order1_idx]

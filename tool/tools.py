@@ -6,6 +6,7 @@ import random
 import config
 from object.graph import Graph
 
+
 def can_time_cal(arrival_time: float, start: int, end: int):
     quotient = int(arrival_time // config.DAY)
     remainder = arrival_time % config.DAY
@@ -38,6 +39,21 @@ def deque_slice(deq:deque, start_idx = 0, end_idx = None):
 
 def list_insert(to:list, from_idx:int, to_idx:int, items:list)->list:
     return to[:from_idx] + items + to[to_idx:]
+
+def list_delete(lst:list, from_idx:int ,to_idx) -> list:
+    return lst[:from_idx] + lst[to_idx:]
+
+def time_check(order_list, time_limit:int, last:bool): # order_helper list
+    if len(order_list) == 0: return True
+
+    order_helper = order_list[-1]
+    start_time = order_helper.departure_time - order_helper.order.load
+
+    if last:
+        return start_time <= config.MAX_START_TIME
+    else:
+        return start_time <= time_limit
+
 
 
 def random_combinations(lst:list, r:int, graph:Graph):
