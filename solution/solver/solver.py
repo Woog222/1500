@@ -246,7 +246,7 @@ class Solver:
         # cost
         prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
-        if prev_cost < new_cost: return False
+        if prev_cost <= new_cost: return False
 
         # now swap!
         veh1.order_list = veh1_temp
