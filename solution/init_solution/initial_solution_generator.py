@@ -15,9 +15,12 @@ class Initial_Solution_Generator:
     """
     def __init__(self, graph:Graph, vehicle_list:list[Vehicle], order_list:list[Order], carry_over:bool, group: int):
         """
+
         :param graph:
-        :param vehicle_list
-        :param order_list: The list of orders to be dealt with.
+        :param vehicle_list:
+        :param order_list: orders to be dealt with at this batch
+        :param carry_over: carry over to the next batch if
+        :param group: this batch group number
         """
 
         self.graph = graph

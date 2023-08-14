@@ -39,7 +39,7 @@ class Program:
             self.vehicleTable.update_freetime(group * config.GROUP_INTERVAL)
 
             # init solution
-            print(f"\n\tbatch {group} : ")
+            print(f"\nbatch {group} : ")
             init_solution_generator = Initial_Solution_Generator(
                 graph = self.graph,
                 vehicle_list= self.vehicleTable.table,
@@ -67,7 +67,7 @@ class Program:
                 if order.serviced: continue
                 left.append(order)
             print(f"{len(batch)} -> {len(left)}")
-            print(f"\tTotal Cost: {self.vehicleTable.get_total_cost()}")
+            print(f"\tTotal Cost: {self.vehicleTable.get_total_cost():.2f}")
 
         self.vehicleTable.update_allocated_orders(config.WEEK)
         self.vehicleTable.write_order_result(final = True, init=True)
