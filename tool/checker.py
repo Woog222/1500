@@ -1,4 +1,4 @@
-import config
+import os
 import numpy as np
 import pandas as pd
 import warnings
@@ -7,9 +7,8 @@ warnings.filterwarnings(action='ignore')
 
 
 class checker:
-    def __init__(self, dir_final, dir_id2idx, dir_vehicle_result, dir_od_matrix, dir_vehicles, dir_orders) -> None:
+    def __init__(self, dir_final, dir_vehicle_result, dir_od_matrix, dir_vehicles, dir_orders) -> None:
         self.final = pd.read_csv(dir_final)
-        self.id2idx = pd.read_csv(dir_id2idx)
         self.vehicle_result = pd.read_csv(dir_vehicle_result)
         self.od_matrix = pd.read_csv(dir_od_matrix)
         self.vehicles = pd.read_csv(dir_vehicles)
@@ -17,11 +16,6 @@ class checker:
             self.orders = pd.read_csv(dir_orders)
         except:
             self.orders = pd.read_csv(dir_orders, encoding='cp949')
-
-        site_dict = {}
-        for i in range(len(self.id2idx)):
-            site_dict[i] = self.id2idx.ID.loc[i]
-        self.final['SiteCode'] = self.final['SiteCode'].apply(lambda x: site_dict[x])
 
     def get_summary(self):
         success_order = set(self.final.query('Delivered=="Yes"').ORD_NO.unique())
@@ -72,13 +66,13 @@ class checker:
 
         corner_feasible_idx = result_check2[(result_check2['ServiceStartTime'] >= result_check2['start']) | (
                     result_check2['ServiceStartTime'] <= result_check2['end'])].index
-        corner_feasible_idx = set(corner_idx).intersection(set(corner_feasible_idx))
+        corner_feasible_idx = list(set(corner_idx).intersection(set(corner_feasible_idx)))
         result_check2.loc[corner_idx, 'feasibility'] = 0
         result_check2.loc[corner_feasible_idx, 'feasibility'] = 1
 
         normal_feasible_idx = result_check2[(result_check2['ServiceStartTime'] >= result_check2['start']) & (
                     result_check2['ServiceStartTime'] <= result_check2['end'])].index
-        normal_feasible_idx = set(normal_idx).intersection(set(normal_feasible_idx))
+        normal_feasible_idx = list(set(normal_idx).intersection(set(normal_feasible_idx)))
         result_check2.loc[normal_idx, 'feasibility'] = 0
         result_check2.loc[normal_feasible_idx, 'feasibility'] = 1
 
@@ -125,8 +119,8 @@ class checker:
 
 
 if __name__ == "__main__":
-    cls = checker(config.FINAL_ORDER_RESULT_DIR, config.IDX2ID_DIR, config.VEH_RESULT_DIR, './data/raw/od_matrix.csv',
-                  './data/raw/vehicles.csv', './data/raw/orders.csv')
+    cls = checker(os.path.join("results", "final.csv"), os.path.join("results", "vehicle_result.csv"), os.path.join("data", "raw", "od_matrix.csv"),
+                  os.path.join("data", "raw", "vehicles.csv"), os.path.join("data", "raw", "orders.csv"))
     cls.get_summary()
     cls.check_traveltime()
     cls.check_timewindow()
