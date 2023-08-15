@@ -64,7 +64,7 @@ class Solution:
     def get_total_waiting_time(self):
         ret = 0
         for veh in self.vehicle_list:
-            ret += veh.get_wating_time()
+            ret += veh.get_waiting_time()
         return ret
 
     def get_total_spent_time(self):

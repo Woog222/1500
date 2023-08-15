@@ -7,9 +7,10 @@ from config import *
 
 
 class edge:
-    def __init__(self, time_ = -1.0, dist_ = -1.0):
+    def __init__(self, time_ = -1, dist_ = -1):
         self.time = time_
         self.dist = dist_
+
 
 class Graph:
     def __init__(self, file_dir):
@@ -42,6 +43,7 @@ class Graph:
 
                 time = float(time)
                 dist = float(dist)
+
                 # adj matrix
                 self.table[from_][to_] = edge(time, dist)
 
@@ -59,11 +61,15 @@ class Graph:
     def is_terminal(self, idx:int):
         return self.ID[idx].startswith(TERMINAL_START_CHARACTER)
 
-    def get_time(self, from_, to_):
-        return self.table[from_][to_].time
+    def get_time(self, from_, to_, cost=False):
+        ret = self.table[from_][to_].time
+        if cost: return ret
+        return int(math.ceil(ret)) if INTEGER else ret
 
-    def get_dist(self, from_, to_):
-        return self.table[from_][to_].dist
+    def get_dist(self, from_, to_, cost=False):
+        ret = self.table[from_][to_].dist
+        if cost: return ret
+        return int(math.ceil(ret)) if INTEGER else ret
 
     def get_size(self):
         return len(self.ID)

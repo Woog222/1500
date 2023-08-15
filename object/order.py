@@ -52,12 +52,12 @@ class Order:
         seperator = ","
         sb = []
 
-        terminal_order = self.order_id == STRING_NULL
+        terminal_order = (self.order_id == STRING_NULL)
 
         sb.append(str(self.order_id))
         sb.append(str(self.vehicle.veh_num))
-        sb.append(str(self.sequence))
-        sb.append(str(self.dest_id))
+        sb.append(str(self.sequence)) # sequence
+        sb.append(str(self.dest_id) if self.delivered else str(self.terminal_id)) # site code
 
         if self.delivered:
             sb.append(str(self.arrival_time)) # arrival

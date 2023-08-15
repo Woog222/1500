@@ -3,6 +3,7 @@ import argparse
 import os
 
 def preprocessing():
+
     args = parse_args()
     if args.raw:
         directory = os.path.join('data', 'raw')

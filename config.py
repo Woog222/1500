@@ -1,6 +1,7 @@
 import os
 
 DEBUG = True
+INTEGER = False
 
 
 HOUR = 60

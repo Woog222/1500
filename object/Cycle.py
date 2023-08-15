@@ -31,7 +31,7 @@ class Cycle:
         cur_loc = self.terminal
 
         if allocate:
-            self.terminal_loading_order = Order(dest_id = self.terminal)
+            self.terminal_loading_order = Order(dest_id = self.terminal, terminal_id = self.terminal)
             self.terminal_loading_order.allocate(arrival_time=cur_time, vehicle=self.vehicle)
 
         load_max = 0

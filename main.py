@@ -1,10 +1,11 @@
 import os.path
 
 import config
+from proc.postprocessing import post_processing
 
 from tool.checker import checker
 from simulator.program import Program
-from preproc.preprocessing import preprocessing
+from proc.preprocessing import preprocessing
 
 if __name__ == "__main__":
 
@@ -20,3 +21,4 @@ if __name__ == "__main__":
             dir_orders= os.path.join("data", "real_raw", "orders.csv"))
 
     ch.get_summary()
+    post_processing()

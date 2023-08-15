@@ -51,8 +51,8 @@ class Program:
 
             # optimization
             solution = init_solution
-            solver = Solver(solution, self.graph, group)
-            solver.solve()
+            #solver = Solver(solution, self.graph, group)
+            #solver.solve()
 
             # allocation
             print(f"\t{solution}", end=' ')

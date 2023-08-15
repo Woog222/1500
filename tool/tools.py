@@ -7,7 +7,7 @@ import config
 from object.graph import Graph
 
 
-def can_time_cal(arrival_time: float, start: int, end: int):
+def can_time_cal(arrival_time, start: int, end: int):
     quotient = int(arrival_time // config.DAY)
     remainder = arrival_time % config.DAY
 
@@ -29,7 +29,6 @@ def euclidean_distance(loc1:(float, float), loc2: (float, float)) -> float:
     scaling_factor = 111
 
     dx = abs(loc1[0] - loc2[0]); dy = abs(loc1[1] - loc2[1])
-
     dx *= scaling_factor; dy *= scaling_factor
     return (dx**2 + dy**2)**0.5
 
@@ -53,7 +52,6 @@ def time_check(order_list, time_limit:int, last:bool): # order_helper list
         return start_time <= config.MAX_START_TIME
     else:
         return start_time <= time_limit
-
 
 
 def random_combinations(lst:list, r:int, graph:Graph):

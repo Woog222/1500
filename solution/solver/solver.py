@@ -63,8 +63,8 @@ class Solver:
     def distribute_cycle_try(self, veh1, veh2) -> bool:
 
         for idx1 in range(len(veh1.cycle_list)):
-                if self.do_distribute_cycle(veh1, idx1, veh2):
-                    return True
+            if self.do_distribute_cycle(veh1, idx1, veh2):
+                return True
         return False
 
     def do_distribute_cycle(self, veh1, cycle1_idx, veh2):

@@ -87,7 +87,7 @@ class Vehicle:
         route = self.get_total_route()
         ret = 0
         for i in range(1, len(route)):
-            ret += self.graph.get_dist(route[i-1], route[i])
+            ret += self.graph.get_dist(route[i-1], route[i], cost=True)
         return ret
 
     def get_total_travel_time(self):
