@@ -6,8 +6,8 @@ import config
 
 def post_processing(first_date:datetime.datetime):
 
-    dfs = [ ( os.path.join("results", f"order_result{i}") ,
-             pd.read_csv(os.path.join("results",f"order_result{i}"))
+    dfs = [ ( os.path.join("results", f"order_result{i}.csv") ,
+             pd.read_csv(os.path.join("results",f"order_result{i}.csv"))
              )
         for i in range(config.LAST_BATCH)
     ]
