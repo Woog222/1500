@@ -6,7 +6,7 @@ def preprocessing():
 
     args = parse_args()
     if args.raw:
-        directory = os.path.join('data', 'real_raw')
+        directory = os.path.join('data', 'raw')
         # 파일 불러오기
         terminals = pd.read_csv(os.path.join(directory, 'terminals.csv'), encoding='cp949')
         od_matrix = pd.read_csv(os.path.join(directory, 'od_matrix.csv'))
