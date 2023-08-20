@@ -1,8 +1,7 @@
 import os
 
-DEBUG = True
+DEBUG = False
 INTEGER = True
-
 
 HOUR = 60
 DAY = HOUR*24
