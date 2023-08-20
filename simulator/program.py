@@ -25,7 +25,6 @@ class Program:
 
     def simulator(self):
         print("Simulation ongoing..")
-        self.vehicleTable.write_order_result(init=True, final=False)
 
         left = []
         for group in range(config.LAST_BATCH):
