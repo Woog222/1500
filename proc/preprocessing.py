@@ -1,6 +1,8 @@
 import pandas as pd
 import argparse
 import os
+import datetime
+import numpy as np
 
 def preprocessing():
 
@@ -11,13 +13,22 @@ def preprocessing():
         terminals = pd.read_csv(os.path.join(directory, 'terminals.csv'), encoding='cp949')
         od_matrix = pd.read_csv(os.path.join(directory, 'od_matrix.csv'))
         veh_table = pd.read_csv(os.path.join(directory, 'vehicles.csv'))
-        try: orders = pd.read_csv(os.path.join(directory, 'orders345.csv'), encoding='cp949')
-        except: orders = pd.read_csv(os.path.join(directory, 'orders345.csv'))
+        try: orders = pd.read_csv(os.path.join(directory, 'orders.csv'), encoding='cp949')
+        except: orders = pd.read_csv(os.path.join(directory, 'orders.csv'))
 
         # 주문 데이터 가공
         orders['하차가능시간_시작'] = 60 * orders['하차가능시간_시작'].str[:-3].astype('Int64')
         orders['하차가능시간_종료'] = 60 * orders['하차가능시간_종료'].str[:-3].astype('Int64')
-        orders.Group = ((orders.date.str[-1]).astype('Int64') - 1) * 4 + orders.Group
+        orders.date = pd.to_datetime(orders.date)
+        date_list = sorted(orders.date.unique())
+        first_day = date_list[0]
+        date = first_day; date_dict = {}; group = 0
+        while True:
+            date_dict[date] = group
+            if date == max(date_list): break
+            date += np.timedelta64(datetime.timedelta(hours=6))
+            group += 1
+        orders.Group = orders.date.map(date_dict) + orders.Group
 
         # 칼럼 순서 맞추기
         orders = orders[
@@ -32,6 +43,9 @@ def preprocessing():
         od_matrix.to_csv(os.path.join(directory, 'od_matrix.txt'), sep=' ', index=False, header=False)
         veh_table.to_csv(os.path.join(directory, 'vehicles.txt'), sep=' ', index=False, header=False)
         orders.to_csv(os.path.join(directory, 'orders.txt'), sep=' ', index=False, header=False)
+
+        return first_day
+    return np.datetime64('2023-05-01')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Testing Files')
