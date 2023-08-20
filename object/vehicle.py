@@ -14,6 +14,7 @@ class Vehicle:
         self.veh_num = veh_num
         self.start_center = start_center
         self.graph = graph
+        self.sequence = 0
 
         """
             CONST in a batch
@@ -49,12 +50,12 @@ class Vehicle:
     def allocate_vehicle(self, cycle_list): # cycle_list: list[Cycle]
         if len(cycle_list) == 0: return
 
-        cur_time = self.free_time; cur_loc = self.start_loc
+        cur_time = self.free_time; cur_loc = self.start_loc; cur_sequence = self.sequence
         for cycle in cycle_list:
-            cur_time, cur_loc = cycle.get_after_info(start_time=cur_time, start_loc=cur_loc,
-                                                     allocate=True)
+            cur_time, cur_loc, cur_sequence = cycle.get_after_info(start_time=cur_time, start_loc=cur_loc,
+                                                    cur_sequence = cur_sequence, allocate=True)
             self.allocated_cycle_list.append(cycle)
-        self.free_time = cur_time; self.start_loc = cur_loc
+        self.free_time = cur_time; self.start_loc = cur_loc; self.sequence = cur_sequence
 
     """
         Complex Methods

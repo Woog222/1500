@@ -6,7 +6,6 @@ from tool.tools import can_time_cal
 
 class Order:
 
-    general_sequence = 0
     def __init__(self, dest_id, order_id = ORDER_ID_NULL,
                  terminal_id = -1, latitude=-1.0, longitude=-1.0, cbm=0.0,
                  load=0, group=-1, start=0, end=DAY):
@@ -33,15 +32,14 @@ class Order:
         self.sequence = -1
 
     def get_coordinates(self):
-        return (self.latitude, self.longitude)
+        return self.latitude, self.longitude
 
-    def allocate(self, arrival_time:int, vehicle:Vehicle):
+    def allocate(self, arrival_time:int, vehicle:Vehicle, sequence):
         self.serviced = True
         self.arrival_time = arrival_time
         self.vehicle = vehicle
         self.start_time = can_time_cal(arrival_time, self.start, self.end)
-        Order.general_sequence += 1
-        self.sequence = Order.general_sequence
+        self.sequence = sequence
 
     def update(self, cur_time:int):
         if self.serviced and (self.start_time + self.load <= cur_time):

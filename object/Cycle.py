@@ -22,7 +22,7 @@ class Cycle:
 
         self.terminal_loading_order = None # after confirmed
 
-    def get_after_info(self, start_time:int, start_loc:int, allocate:bool = False):
+    def get_after_info(self, start_time:int, start_loc:int, cur_sequence:int, allocate:bool = False):
         """
         :param terminal_arrival_time: The time at which you arrived at starting terminal
         :return:
@@ -32,7 +32,8 @@ class Cycle:
 
         if allocate:
             self.terminal_loading_order = Order(dest_id = self.terminal, terminal_id = self.terminal)
-            self.terminal_loading_order.allocate(arrival_time=cur_time, vehicle=self.vehicle)
+            cur_sequence += 1
+            self.terminal_loading_order.allocate(arrival_time=cur_time, vehicle=self.vehicle, sequence=cur_sequence)
 
         load_max = 0
         for order in self.orders:
@@ -46,10 +47,11 @@ class Cycle:
                 load_max = max(load_max, order.load)
 
             if allocate:
-                order.allocate(arrival_time=arrival_time, vehicle=self.vehicle)
+                cur_sequence += 1
+                order.allocate(arrival_time=arrival_time, vehicle=self.vehicle, sequence=cur_sequence)
 
         cur_time += load_max
-        return cur_time, cur_loc
+        return cur_time, cur_loc, cur_sequence
 
 
     # for debugging
