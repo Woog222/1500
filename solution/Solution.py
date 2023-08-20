@@ -1,3 +1,5 @@
+import copy
+
 from object.order import Order
 from object.graph import Graph
 from solution.helper import Order_helper
@@ -11,7 +13,7 @@ class Solution:
 
     def __copy__(self):
 
-        vehicle_list = [Vehicle_Alloc(vehicle=veh_alloc.vehicle, graph = self.graph, allocated_order_list=veh_alloc.order_list)
+        vehicle_list = [ copy.copy(veh_alloc)
                         for veh_alloc in self.vehicle_list]
 
         new_solution = Solution(graph = self.graph, vehicle_list = vehicle_list, order_list = self.order_list)
