@@ -1,10 +1,12 @@
 import copy
 import time
 from random import shuffle
+import math
+import random
 
 import config
 from solution.Solution import Solution
-from itertools import combinations
+from itertools import combinations, combinations_with_replacement
 from object.graph import Graph
 from solution.vehicle_alloc import Vehicle_Alloc
 from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance, list_delete, time_check
@@ -13,9 +15,12 @@ from tool.tools import deque_slice, list_insert, random_combinations, euclidean_
 class Solver:
     def __init__(self, solution: Solution, graph: Graph, cur_batch):
         self.solution = solution
+        self.best_solution = copy.copy(solution)
         self.graph = graph
         self.cur_batch = cur_batch
         self.last = ((cur_batch + 1)==config.LAST_BATCH)
+        self.start_sec = time.time()
+        self.simulated_annealing = False
 
     def solve(self):
 
@@ -29,17 +34,19 @@ class Solver:
 
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
 
-        start_sec = time.time()
         for _ in range(config.NUM_ITER):
             swapped = False
 
             for name, fun in funs:
                 cnt = fun()
                 swapped |= cnt > 0
-                print(f"\t{name} ({cnt}) -> {self.solution.get_total_cost():.2f}")
+                print(f"\t{name} ({cnt}) -> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
 
             end_sec = time.time()
-            if (end_sec - start_sec > config.TIMELIMIT_SEC) or (not swapped): break
+            if (end_sec - self.start_sec > config.TIMELIMIT_SEC): break
+            if not swapped: self.simulated_annealing = True
+
+        return self.best_solution
 
 
     def distribute_cycles(self):
@@ -104,7 +111,7 @@ class Solver:
         # cost check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost >= original_cost: return False
+        if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
 
         # time check
         time_limit = (self.cur_batch + 1) * config.GROUP_INTERVAL
@@ -114,6 +121,10 @@ class Solver:
             veh1.order_list = veh1_temp_list
             veh2.order_list = veh2_temp_list
             for veh in [veh1, veh2]: veh.update()
+
+            if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+                self.best_solution = copy.copy(self.solution)
+
             return True
         else:
             return False
@@ -165,13 +176,16 @@ class Solver:
         # cost reduction check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost >= original_cost: return False
+        if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
 
         # now swap
         temp = veh1.order_list
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
         for veh in [veh1, veh2]: veh.update()
+        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
+
         return True
 
     def swap_spatial_bundles(self):
@@ -186,6 +200,7 @@ class Solver:
                     cnt += 1
                     swapped = True
         return cnt
+
 
 
     def spatial_bundle_try(self,veh1:Vehicle_Alloc, veh2:Vehicle_Alloc) -> bool:
@@ -246,7 +261,7 @@ class Solver:
         # cost
         prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
-        if prev_cost <= new_cost: return False
+        if prev_cost <= new_cost and not self.accept(prev_cost, new_cost): return False
 
         # now swap!
         veh1.order_list = veh1_temp
@@ -328,36 +343,16 @@ class Solver:
 
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost >= original_cost: return False
+        if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
 
         # now swap
         veh1.order_list = veh1_temp_list
         veh2.order_list = veh2_temp_list
         for veh in [veh1, veh2]: veh.update()
+        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
 
         return True
-
-    def swap_cycle(self, veh1, cycle1_idx, veh2, cycle2_idx):
-        cycle1 = veh1.cycle_list[cycle1_idx]
-        cycle2 = veh2.cycle_list[cycle2_idx]
-
-        start_idx1 = start_idx2 = 0
-        for i in range(cycle1_idx):
-            start_idx1 += veh1.cycle_list[i].get_cycle_order_cnt()
-        for j in range(cycle2_idx):
-            start_idx2 += veh2.cycle_list[j].get_cycle_order_cnt()
-        end_idx1 = start_idx1 + cycle1.get_cycle_order_cnt()
-        end_idx2 = start_idx2 + cycle2.get_cycle_order_cnt()
-
-        temp = veh1.order_list
-
-
-        veh1.order_list = temp[:start_idx1] + veh2.order_list[start_idx2:end_idx2] + temp[end_idx1:]
-        veh2.order_list = veh2.order_list[:start_idx2] + temp[start_idx1:end_idx1] + veh2.order_list[end_idx2:]
-
-        for veh in [veh1, veh2]:
-            veh.update()
-
 
     def swap_orders(self):
         vehicle_list = self.solution.vehicle_list
@@ -413,16 +408,9 @@ class Solver:
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
 
-        if new_cost >= original_cost:
+        if new_cost >= original_cost and not self.accept(original_cost, new_cost):
             return False
 
-        # now swap
-
-        self.swap_order(veh1, order1_idx, veh2, order2_idx)
-
-        return True
-
-    def swap_order(self, veh1, order1_idx, veh2, order2_idx):
         # swap
         temp = veh1.order_list[order1_idx]
         veh1.order_list[order1_idx] = veh2.order_list[order2_idx]
@@ -430,3 +418,19 @@ class Solver:
 
         for veh in [veh1, veh2]:
             veh.update()
+
+        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
+
+        return True
+
+    def accept(self, prev_cost, cur_cost):
+        # return False
+        if not self.simulated_annealing: return False
+        temperature = -math.log((time.time() - self.start_sec)/config.TIMELIMIT_SEC)
+        exponent = (prev_cost - cur_cost - 1)/temperature
+        exponent = max(-700, min(700, exponent))
+        acceptance_prob = math.exp(exponent)
+        if acceptance_prob > random.random():
+            return True
+        return False
