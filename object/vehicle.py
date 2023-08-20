@@ -135,9 +135,8 @@ class Vehicle_Table:
         return '\n'.join(str(vehicle) for vehicle in self.table)
 
 
-    def write_order_result(self, init=False, final=False):
-        file_dir = config.FINAL_ORDER_RESULT_DIR if final else config.ORDER_RESULT_DIR
-        with open(file_dir, 'w' if init else 'a') as f:
+    def write_order_result(self, dir, init=True):
+        with open(dir, 'w' if init else 'a') as f:
             if init: f.write(config.ORDER_COLUMNS)
 
             for veh in self.table:

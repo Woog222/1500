@@ -1,5 +1,5 @@
 import copy
-import math
+import os
 
 import config
 from object.graph import Graph
@@ -59,7 +59,7 @@ class Program:
             solution.update()
             solution.allocate_solution()
             self.vehicleTable.update_allocated_orders(group * config.GROUP_INTERVAL)
-            self.vehicleTable.write_order_result(init=False, final=False)
+            self.vehicleTable.write_order_result(os.path.join("results", f"order_result{group}.csv"))
 
             left = []
             for order in batch:
@@ -70,7 +70,7 @@ class Program:
             print(f"\tTotal Cost: {self.vehicleTable.get_total_cost():.2f}")
 
         self.vehicleTable.update_allocated_orders(config.WEEK)
-        self.vehicleTable.write_order_result(final = True, init=True)
+        self.vehicleTable.write_order_result(config.FINAL_ORDER_RESULT_DIR)
         self.vehicleTable.write_veh_result()
 
         print(self.orderTable)
