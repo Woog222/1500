@@ -47,28 +47,29 @@ class Order:
 
 
     def __str__(self):
+        allocated = self.sequence != -1
         seperator = ","
         sb = []
 
         terminal_order = (self.order_id == STRING_NULL)
 
         sb.append(str(self.order_id))
-        sb.append(str(self.vehicle.veh_num))
-        sb.append(str(self.sequence)) # sequence
-        sb.append(str(self.dest_id) if self.delivered else str(self.terminal_id)) # site code
+        sb.append(str(self.vehicle.veh_num) if allocated else config.STRING_NULL)
+        sb.append(str(self.sequence) if allocated else config.STRING_NULL) # sequence
+        sb.append(str(self.dest_id) if allocated else config.STRING_NULL) # site code !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         if self.delivered:
-            sb.append(str(self.arrival_time)) # arrival
-            sb.append(str(self.start_time - self.arrival_time)) # wating
-            sb.append(str(self.load)) # service
-            sb.append(str(self.start_time + self.load)) # departure
-            sb.append(STRING_NULL if terminal_order else "Yes")
+            sb.append(str(self.arrival_time) if allocated else config.STRING_NULL) # arrival
+            sb.append(str(self.start_time - self.arrival_time) if allocated else config.STRING_NULL) # wating
+            sb.append(str(self.load) if allocated else config.STRING_NULL) # service
+            sb.append(str(self.start_time + self.load) if allocated else config.STRING_NULL) # departure
+            sb.append((STRING_NULL if terminal_order else "Yes") if allocated else config.STRING_NULL)
         else:
             sb.append(STRING_NULL)
             sb.append(STRING_NULL)
             sb.append(STRING_NULL)
             sb.append(STRING_NULL)
-            sb.append(STRING_NULL if terminal_order else "No")
+            sb.append((STRING_NULL if terminal_order else "No") if allocated else config.STRING_NULL)
 
         if DEBUG:
             sb.append(str(self.cbm))

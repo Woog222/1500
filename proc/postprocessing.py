@@ -6,12 +6,11 @@ import config
 import numpy as np
 
 def post_processing(first_date:datetime.datetime):
-
-    dfs = [ ( os.path.join("results", f"order_result{i}.csv") ,
-             pd.read_csv(os.path.join("results",f"order_result{i}.csv"))
-             )
-        for i in range(config.LAST_BATCH)
-    ]
+    dfs = []
+    for i in range(config.LAST_BATCH):
+        try: df = pd.read_csv(os.path.join("results", f"order_result{i}.csv"), encoding='cp949')
+        except: df = pd.read_csv(os.path.join("results", f"order_result{i}.csv"))
+        dfs.append(( os.path.join("results", f"order_result{i}.csv"), df))
     dfs.append((config.FINAL_ORDER_RESULT_DIR ,pd.read_csv(config.FINAL_ORDER_RESULT_DIR)))
 
     idx2id = pd.read_csv(config.IDX2ID_DIR, index_col = 'IDX')
@@ -19,7 +18,7 @@ def post_processing(first_date:datetime.datetime):
         """
             PostProcessing
         """
-        df['SiteCode'] = df['SiteCode'].apply(lambda x : idx2id.loc[x,'ID'] )
+        df['SiteCode'] = df['SiteCode'].apply(lambda x : idx2id.loc[int(x),'ID'] if x != config.STRING_NULL else x)
 
         cols = ['ArrivalTime', 'DepartureTime']
         for col in cols:

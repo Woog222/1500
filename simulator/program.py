@@ -28,6 +28,7 @@ class Program:
 
         left = []
         for group in range(config.LAST_BATCH):
+            result_dir = os.path.join("results", f"order_result{group}.csv")
 
             # left
             batch = copy.copy(self.orderTable.table[group])
@@ -50,8 +51,8 @@ class Program:
 
             # optimization
             solution = init_solution
-            #solver = Solver(solution, self.graph, group)
-            #solver.solve()
+            solver = Solver(solution, self.graph, group)
+            solver.solve()
 
             # allocation
             print(f"\t{solution}", end=' ')
@@ -65,6 +66,10 @@ class Program:
                 ## 72 hour limit
                 if order.serviced: continue
                 left.append(order)
+
+            with open(result_dir, 'a') as f:
+                for order in left: f.write(str(order) + '\n')
+
             print(f"{len(batch)} -> {len(left)}")
             print(f"\tTotal Cost: {self.vehicleTable.get_total_cost():.2f}")
 
