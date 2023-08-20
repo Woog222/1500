@@ -426,6 +426,7 @@ class Solver:
 
     def accept(self, prev_cost, cur_cost):
         # return False
+        if not config.SIMULATED_ANNEALING: return False
         if not self.simulated_annealing: return False
         temperature = -math.log((time.time() - self.start_sec)/config.TIMELIMIT_SEC)
         exponent = (prev_cost - cur_cost - 1)/temperature

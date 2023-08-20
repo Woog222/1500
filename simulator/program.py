@@ -52,7 +52,7 @@ class Program:
             # optimization
             solution = init_solution
             solver = Solver(solution, self.graph, group)
-            solution = solver.solve()
+            solver.solve()
 
             # allocation
             print(f"\t{solution}", end=' ')
