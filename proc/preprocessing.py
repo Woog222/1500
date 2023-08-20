@@ -1,6 +1,8 @@
 import pandas as pd
 import argparse
 import os
+import datetime
+import numpy as np
 
 def preprocessing():
 
@@ -17,7 +19,15 @@ def preprocessing():
         # 주문 데이터 가공
         orders['하차가능시간_시작'] = 60 * orders['하차가능시간_시작'].str[:-3].astype('Int64')
         orders['하차가능시간_종료'] = 60 * orders['하차가능시간_종료'].str[:-3].astype('Int64')
-        orders.Group = ((orders.date.str[-1]).astype('Int64') - 1) * 4 + orders.Group
+        orders.date = pd.to_datetime(orders.date)
+        date_list = sorted(orders.date.unique())
+        date = date_list[0]; date_dict = {}; group = 0
+        while True:
+            date_dict[date] = group
+            if date == max(date_list): break
+            date += np.timedelta64(datetime.timedelta(hours=6))
+            group += 1
+        orders.Group = orders.date.map(date_dict) + orders.Group
 
         # 칼럼 순서 맞추기
         orders = orders[
