@@ -9,7 +9,7 @@ from proc.preprocessing import preprocessing
 
 if __name__ == "__main__":
 
-    preprocessing()
+    first_date = preprocessing()
     program = Program()
     program.simulator()
 
@@ -20,4 +20,4 @@ if __name__ == "__main__":
             dir_orders= os.path.join("data", "raw", "orders.csv"))
 
     ch.get_summary()
-    post_processing()
+    post_processing(first_date = first_date)
