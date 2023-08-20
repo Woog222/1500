@@ -155,7 +155,7 @@ class Initial_Solution_Generator:
             if end_time - order.group*config.GROUP_INTERVAL >= config.TIME_CRITERION: continue
 
 
-            if start_time < config.MAX_START_TIME and score < best_score:
+            if start_time < config.MAX_TIME - order.load and score < best_score:
                 ret = order_helper
                 best_score = score
 
