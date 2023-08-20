@@ -9,6 +9,14 @@ class Solution:
         General Solution Frame
     """
 
+    def __copy__(self):
+
+        vehicle_list = [Vehicle_Alloc(vehicle=veh_alloc.vehicle, graph = self.graph, allocated_order_list=veh_alloc.order_list)
+                        for veh_alloc in self.vehicle_list]
+
+        new_solution = Solution(graph = self.graph, vehicle_list = vehicle_list, order_list = self.order_list)
+        return new_solution
+
     def __init__(self, graph:Graph, vehicle_list:list[Vehicle_Alloc], order_list:list[Order_helper]):
         """
         :param graph:
