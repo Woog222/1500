@@ -44,8 +44,8 @@ def preprocessing():
         veh_table.to_csv(os.path.join(directory, 'vehicles.txt'), sep=' ', index=False, header=False)
         orders.to_csv(os.path.join(directory, 'orders.txt'), sep=' ', index=False, header=False)
 
-        return first_day
-    return np.datetime64('2023-05-01')
+        return pd.Timestamp(first_day).to_pydatetime()
+    return pd.Timestamp(np.datetime64('2023-05-01')).to_pydatetime()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Testing Files')

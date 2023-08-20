@@ -3,6 +3,7 @@ import os
 
 import pandas as pd
 import config
+import numpy as np
 
 def post_processing(first_date:datetime.datetime):
 
@@ -20,9 +21,10 @@ def post_processing(first_date:datetime.datetime):
         """
         df['SiteCode'] = df['SiteCode'].apply(lambda x : idx2id.loc[x,'ID'] )
 
-        cols = ['ArrivalTime', 'WaitingTime', 'ServiceTime', 'DepartureTime']
+        cols = ['ArrivalTime', 'DepartureTime']
         for col in cols:
-            df[col] = df[col].apply(lambda x : (first_date + datetime.timedelta(minutes=x)).strftime(config.DATETIME_FORMAT))
+            df[col] = df[col].apply(lambda x : (first_date + datetime.timedelta(minutes=int(x))).strftime(config.DATETIME_FORMAT)
+                                    if x != config.STRING_NULL else x)
 
         df.to_csv(dir, index=False)
 
