@@ -10,7 +10,7 @@ WEEK = DAY*7
 
 MAX = 987654321
 GRAPH_SIZE = 2000
-LAST_BATCH = 12                                 # check
+LAST_BATCH = 24                                 # check
 GROUP_INTERVAL = 360
 MAX_TIME = LAST_BATCH * GROUP_INTERVAL + DAY
 MAX_START_TIME = MAX_TIME - 60                  # check - 60

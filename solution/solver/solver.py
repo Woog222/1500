@@ -40,10 +40,12 @@ class Solver:
             for name, fun in funs:
                 cnt = fun()
                 swapped |= cnt > 0
-                print(f"\t{name} ({cnt}) -> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
+                print(f"\t{name} ({cnt}) -> {self.best_solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
 
             end_sec = time.time()
             if (end_sec - self.start_sec > config.TIMELIMIT_SEC): break
+            if not swapped and not config.SIMULATED_ANNEALING: break
+            if not swapped and self.simulated_annealing: break
             if not swapped: self.simulated_annealing = True
 
         return self.best_solution
@@ -176,7 +178,7 @@ class Solver:
         # cost reduction check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
+        if new_cost >= original_cost: return False
 
         # now swap
         temp = veh1.order_list
@@ -428,7 +430,7 @@ class Solver:
         # return False
         if not config.SIMULATED_ANNEALING: return False
         if not self.simulated_annealing: return False
-        temperature = -math.log((time.time() - self.start_sec)/config.TIMELIMIT_SEC)
+        temperature = 100*math.exp(-10*(time.time() - self.start_sec)/config.TIMELIMIT_SEC)
         exponent = (prev_cost - cur_cost - 1)/temperature
         exponent = max(-700, min(700, exponent))
         acceptance_prob = math.exp(exponent)
