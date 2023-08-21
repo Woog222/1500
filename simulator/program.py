@@ -1,5 +1,6 @@
 import copy
 import os
+import time
 
 import config
 from object.graph import Graph
@@ -13,6 +14,9 @@ from solution.solver.solver import Solver
 
 class Program:
     def __init__(self):
+        self.start_time = time.time()
+        config.TIMEOUT = self.start_time + config.TIME_CONSTRAINT
+
         self.graph = Graph(config.OD_MATRIX)
         print("Graph constructed")
         self.vehicleTable = Vehicle_Table(config.VEHICLES, self.graph)

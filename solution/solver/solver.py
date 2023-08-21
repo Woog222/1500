@@ -22,6 +22,8 @@ class Solver:
         self.start_sec = time.time()
         self.simulated_annealing = False
 
+        self.allocated_time = (config.TIMEOUT - self.start_sec) / (config.LAST_BATCH - self.cur_batch)
+
     def solve(self):
 
         funs = [
@@ -43,7 +45,7 @@ class Solver:
                 print(f"\t{name:17s} \t({cnt}) \t-> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
 
             end_sec = time.time()
-            if (end_sec - self.start_sec > config.TIMELIMIT_SEC): break
+            if (end_sec - self.start_sec > self.allocated_time): break
             if not swapped and not config.SIMULATED_ANNEALING: break
             if not swapped and self.simulated_annealing: break
             if not swapped: self.simulated_annealing = True

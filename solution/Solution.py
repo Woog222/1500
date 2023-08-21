@@ -12,12 +12,8 @@ class Solution:
     """
 
     def __copy__(self):
-
-        vehicle_list = [ copy.copy(veh_alloc)
-                        for veh_alloc in self.vehicle_list]
-
-        new_solution = Solution(graph = self.graph, vehicle_list = vehicle_list, order_list = self.order_list)
-        return new_solution
+        vehicle_list = [ copy.copy(veh_alloc) for veh_alloc in self.vehicle_list]
+        return Solution(graph = self.graph, vehicle_list = vehicle_list, order_list = self.order_list)
 
     def __init__(self, graph:Graph, vehicle_list:list[Vehicle_Alloc], order_list:list[Order_helper]):
         """
