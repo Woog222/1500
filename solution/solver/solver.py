@@ -36,17 +36,28 @@ class Solver:
 
         for _ in range(config.NUM_ITER):
             swapped = False
+            temp_cost = self.solution.get_total_cost()
 
             for name, fun in funs:
                 cnt = fun()
                 swapped |= cnt > 0
-                print(f"\t{name:17s} \t({cnt}) \t-> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
+                if self.simulated_annealing:
+                    print(f"\t{name:17s} \t({cnt}) \t-> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
+                else:
+                    print(f"\t{name:17s} \t({cnt}) \t-> {self.solution.get_total_cost():.2f}")
 
             end_sec = time.time()
+            cost_reduction = temp_cost - self.solution.get_total_cost()
             if (end_sec - self.start_sec > config.TIMELIMIT_SEC): break
             if not swapped and not config.SIMULATED_ANNEALING: break
             if not swapped and self.simulated_annealing: break
-            if not swapped: self.simulated_annealing = True
+            if not self.simulated_annealing and (not swapped or cost_reduction < 10):
+                print("\t-- TURN SIMULATED ANNEALING ON --")
+                self.best_solution = copy.copy(self.solution)
+                self.simulated_annealing = True
+
+        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
 
         return self.best_solution
 
@@ -124,7 +135,7 @@ class Solver:
             veh2.order_list = veh2_temp_list
             for veh in [veh1, veh2]: veh.update()
 
-            if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            if self.simulated_annealing and self.solution.get_total_cost() < self.best_solution.get_total_cost():
                 self.best_solution = copy.copy(self.solution)
 
             return True
@@ -185,7 +196,7 @@ class Solver:
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
         for veh in [veh1, veh2]: veh.update()
-        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+        if self.simulated_annealing and self.solution.get_total_cost() < self.best_solution.get_total_cost():
             self.best_solution = copy.copy(self.solution)
 
         return True
@@ -265,13 +276,15 @@ class Solver:
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
         if prev_cost <= new_cost and not self.accept(prev_cost, new_cost): return False
 
-        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
-            self.best_solution = copy.copy(self.solution)
 
         # now swap!
         veh1.order_list = veh1_temp
         veh2.order_list = veh2_temp
         veh1.update(); veh2.update()
+
+        if self.simulated_annealing and self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
+
         return True
 
     def swap_cycles(self):
@@ -354,7 +367,8 @@ class Solver:
         veh1.order_list = veh1_temp_list
         veh2.order_list = veh2_temp_list
         for veh in [veh1, veh2]: veh.update()
-        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+
+        if self.simulated_annealing and self.solution.get_total_cost() < self.best_solution.get_total_cost():
             self.best_solution = copy.copy(self.solution)
 
         return True
@@ -421,7 +435,7 @@ class Solver:
         for veh in [veh1, veh2]:
             veh.update()
 
-        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+        if self.simulated_annealing and self.solution.get_total_cost() < self.best_solution.get_total_cost():
             self.best_solution = copy.copy(self.solution)
 
         return True
