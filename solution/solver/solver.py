@@ -52,7 +52,7 @@ class Solver:
             cost_reduction = temp_cost - self.solution.get_total_cost()
             if (end_sec - self.start_sec > self.allocated_time): break
             if not swapped and not config.SIMULATED_ANNEALING: break
-            if not swapped and self.simulated_annealing: break
+            if (0 < cost_reduction < 1) and self.simulated_annealing: break
             if not self.simulated_annealing and (not swapped or cost_reduction < 10):
                 print("\t-- TURN SIMULATED ANNEALING ON --")
                 self.best_solution = copy.copy(self.solution)
@@ -446,7 +446,7 @@ class Solver:
         # return False
         if not config.SIMULATED_ANNEALING: return False
         if not self.simulated_annealing: return False
-        temperature = 100*math.exp(-10*(time.time() - self.start_sec)/config.TIMELIMIT_SEC)
+        temperature = 100*math.exp(-10*(time.time() - self.start_sec)/self.allocated_time)
         exponent = (prev_cost - cur_cost - 1)/temperature
         exponent = max(-700, min(700, exponent))
         acceptance_prob = math.exp(exponent)
