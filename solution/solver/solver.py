@@ -265,6 +265,9 @@ class Solver:
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
         if prev_cost <= new_cost and not self.accept(prev_cost, new_cost): return False
 
+        if self.solution.get_total_cost() < self.best_solution.get_total_cost():
+            self.best_solution = copy.copy(self.solution)
+
         # now swap!
         veh1.order_list = veh1_temp
         veh2.order_list = veh2_temp
