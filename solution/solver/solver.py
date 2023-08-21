@@ -25,11 +25,11 @@ class Solver:
     def solve(self):
 
         funs = [
-            ("distribution_cycles", self.distribute_cycles),
             ("swap vehicles", self.swap_vehicles),
             ("swap orders", self.swap_orders),
             ("swap spatial bundles", self.swap_spatial_bundles),
-            ("swap cycles", self.swap_cycles)
+            ("swap cycles", self.swap_cycles),
+            ("distribute cycles", self.distribute_cycles)
         ]
 
         print(f"\tinit solution -> {self.solution.get_total_cost():.2f}")
@@ -40,7 +40,7 @@ class Solver:
             for name, fun in funs:
                 cnt = fun()
                 swapped |= cnt > 0
-                print(f"\t{name} ({cnt}) -> {self.best_solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
+                print(f"\t{name:17s} ({cnt}) \t-> {self.solution.get_total_cost():.2f}, {self.best_solution.get_total_cost():.2f}")
 
             end_sec = time.time()
             if (end_sec - self.start_sec > config.TIMELIMIT_SEC): break
@@ -113,7 +113,7 @@ class Solver:
         # cost check
         original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = temp_veh1.get_added_cost() + temp_veh2.get_added_cost()
-        if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
+        if new_cost >= original_cost: return False
 
         # time check
         time_limit = (self.cur_batch + 1) * config.GROUP_INTERVAL
@@ -382,14 +382,12 @@ class Solver:
         if order2.order.cbm > veh1.vehicle.capa: return False
         if order1.order.cbm > veh2.vehicle.capa: return False
 
-        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1.order_list)
-        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2.order_list)
-        new_list1 = temp_veh1.order_list.copy()
+        new_list1 = veh1.order_list.copy()
+        new_list2 = veh2.order_list.copy()
         new_list1[order1_idx] = order2
-        new_list2 = temp_veh2.order_list.copy()
         new_list2[order2_idx] = order1
-        temp_veh1.order_list = new_list1
-        temp_veh2.order_list = new_list2
+        temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, new_list1)
+        temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, new_list2)
         temp_veh1.update()
         temp_veh2.update()
 
@@ -414,9 +412,8 @@ class Solver:
             return False
 
         # swap
-        temp = veh1.order_list[order1_idx]
-        veh1.order_list[order1_idx] = veh2.order_list[order2_idx]
-        veh2.order_list[order2_idx] = temp
+        veh1.order_list[order1_idx] = order2
+        veh2.order_list[order2_idx] = order1
 
         for veh in [veh1, veh2]:
             veh.update()
