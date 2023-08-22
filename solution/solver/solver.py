@@ -53,7 +53,7 @@ class Solver:
             if (end_sec - self.start_sec > self.allocated_time): break
             if not swapped and not config.SIMULATED_ANNEALING: break
             if (0 <= cost_reduction < 1) and self.simulated_annealing: break
-            if not self.simulated_annealing and (not swapped or cost_reduction < 10):
+            if not self.simulated_annealing and (not swapped or cost_reduction < 1):
                 print("\t-- TURN SIMULATED ANNEALING ON --")
                 self.best_solution = copy.copy(self.solution)
                 self.simulated_annealing = True
