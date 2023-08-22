@@ -112,8 +112,12 @@ class Initial_Solution_Generator:
                         start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
                         veh.cur_time = start_time + order_helper.order.load
                         veh.cur_loc = order_helper.order.dest_id
+
+                    start_time = can_time_cal(arrival_time, order_helper.order.start, order_helper.order.end)
                     order_helper.set_departure_time(start_time + order_helper.order.load)
                     order_helper.set_arrival_time(arrival_time)
+
+                    veh.cur_time = max(veh.cur_time, start_time + order_helper.order.load)
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
