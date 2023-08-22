@@ -80,9 +80,9 @@ class Initial_Solution_Generator:
                 if order.allocated: left_orders -= 1
 
             vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time))
-            # if self.cur_batch + 1 != config.LAST_BATCH: vehicle_list = vehicle_list[:int(left_orders)]
-            #vehicle_list.sort(key=lambda x: self.graph.get_dist(x.cur_loc, terminal) * x.vehicle.vc + (
-            #    x.vehicle.fc if x.vehicle.get_total_count() + len(x.allocated_order) == 0 else 0))
+            if self.cur_batch + 1 != config.LAST_BATCH: vehicle_list = vehicle_list[:int(left_orders)]
+            vehicle_list.sort(key=lambda x: self.graph.get_dist(x.cur_loc, terminal) * x.vehicle.vc + (
+                x.vehicle.fc if x.vehicle.get_total_count() + len(x.allocated_order) == 0 else 0))
 
             for veh in vehicle_list:
                 order_helper = self.next_order(veh, veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
