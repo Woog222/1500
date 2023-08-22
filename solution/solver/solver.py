@@ -149,11 +149,14 @@ class Solver:
 
         swapped = True
         cnt = 0
+        vehicle_list = []
+        for veh in self.solution.vehicle_list:
+            if len(veh.order_list) > 0: vehicle_list.append(veh)
 
-        while swapped and cnt < 50:
+        while swapped:
             swapped= False
 
-            for veh1, veh2 in combinations(self.solution.vehicle_list, 2):
+            for veh1, veh2 in combinations(vehicle_list, 2):
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
                     cnt += 1
