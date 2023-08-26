@@ -32,9 +32,9 @@ def preprocessing():
 
         # 칼럼 순서 맞추기
         orders = orders[
-            ['주문ID', '하차지_위도', '하차지_경도', '터미널ID', '착지ID', 'CBM', '하차가능시간_시작', '하차가능시간_종료', '하차작업시간(분)', 'Group']]
+            ['주문ID', '하차지_위도', '하차지_경도', '터미널ID', '착지ID', 'CBM', '하차가능시간_시작', '하차가능시간_종료', '하차작업시간_분', 'Group']]
         od_matrix = od_matrix[['origin', 'Destination', 'Distance_km', 'Time_minute']]
-        veh_table = veh_table[['VehNum', 'VehTon', 'BusinessStartTM', 'BusinessEndTM', 'MaxCapaCBM', 'StartCenter', 'FixedCost', 'VariableCost']]
+        veh_table = veh_table[['UserID', 'VehTon', 'BusinessStartTM', 'BusinessEndTM', 'MaxCapaCBM', 'StartCenter', 'FixedCost', 'VariableCost']]
         terminals = terminals[['ID', 'Origin_Lat', 'Origin_Lon', '상차지권역']]
 
         # 가공 데이터 저장

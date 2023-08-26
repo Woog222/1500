@@ -2,7 +2,7 @@ from object.vehicle import Vehicle
 from object.order import Order
 from object.graph import Graph
 import config
-from tool.tools import can_time_cal
+from tool.tools import can_time_cal, order_compute
 
 
 class Cycle:
@@ -35,23 +35,17 @@ class Cycle:
             cur_sequence += 1
             self.terminal_loading_order.allocate(arrival_time=cur_time, vehicle=self.vehicle, sequence=cur_sequence)
 
-        load_max = 0
-        for order in self.orders:
-            if cur_loc != order.dest_id:
-                arrival_time = cur_time + load_max + self.graph.get_time(cur_loc ,order.dest_id)
-                start_time = can_time_cal(arrival_time, order.start, order.end)
-                cur_time = start_time
-                cur_loc = order.dest_id
-                load_max = order.load
-            else:
-                load_max = max(load_max, order.load)
+        order_infos = order_compute(cur_loc=start_loc, cur_time=start_time, graph=self.graph, order_list=self.orders)
 
+
+        for order_info in order_infos:
             if allocate:
                 cur_sequence += 1
-                order.allocate(arrival_time=arrival_time, vehicle=self.vehicle, sequence=cur_sequence)
+                order_info[0].allocate(arrival_time=order_info[1], vehicle=self.vehicle, sequence=cur_sequence)
 
-        cur_time += load_max
-        return cur_time, cur_loc, cur_sequence
+        last_order_info= order_infos[-1]
+        return last_order_info[3], last_order_info[0].dest_id, cur_sequence
+        # return cur_time, cur_loc, cur_sequence
 
 
     # for debugging

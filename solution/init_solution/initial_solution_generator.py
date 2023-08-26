@@ -2,7 +2,7 @@ import config
 from object.graph import Graph
 from object.order import Order
 from object.vehicle import Vehicle
-from tool.tools import can_time_cal
+from tool.tools import can_time_cal, order_compute
 from solution.Solution import Solution
 from solution.helper import Veh_helper, Order_helper
 from solution.vehicle_alloc import Vehicle_Alloc
@@ -80,9 +80,9 @@ class Initial_Solution_Generator:
                 if order.allocated: left_orders -= 1
 
             vehicle_list.sort(key=lambda x: (self.graph.get_time(x.cur_loc, terminal) + x.cur_time))
-            # if self.cur_batch + 1 != config.LAST_BATCH: vehicle_list = vehicle_list[:int(left_orders)]
-            #vehicle_list.sort(key=lambda x: self.graph.get_dist(x.cur_loc, terminal) * x.vehicle.vc + (
-            #    x.vehicle.fc if x.vehicle.get_total_count() + len(x.allocated_order) == 0 else 0))
+            if self.cur_batch + 1 != config.LAST_BATCH: vehicle_list = vehicle_list[:int(left_orders)]
+            vehicle_list.sort(key=lambda x: self.graph.get_dist(x.cur_loc, terminal) * x.vehicle.vc + (
+                x.vehicle.fc if x.vehicle.get_total_count() + len(x.allocated_order) == 0 else 0))
 
             for veh in vehicle_list:
                 order_helper = self.next_order(veh, veh.cur_loc, veh.cur_time, veh.left, orders = orders, first=True)
@@ -117,7 +117,7 @@ class Initial_Solution_Generator:
                     order_helper.set_departure_time(start_time + order_helper.order.load)
                     order_helper.set_arrival_time(arrival_time)
 
-                    veh.cur_time = max(veh.cur_time, start_time + order_helper.order.load)
+                    veh.cur_time = max(veh.cur_time , start_time + order_helper.order.load)
 
             for veh in vehicle_list:
                 veh.left = veh.vehicle.capa
@@ -132,21 +132,15 @@ class Initial_Solution_Generator:
 
         for order_helper in orders:
             order = order_helper.order
-
             if order_helper.allocated or left < order.cbm or self.graph.get_time(cur_loc, order.dest_id) < 0:
                 continue
 
-            if cur_loc == order.dest_id:
-                last_order = veh.allocated_order[-1]
-                arrival_time = last_order.arrival_time
-                start_time = can_time_cal(arrival_time, order.start, order.end)
-                end_time = start_time + order.load
-            else:
-                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-                start_time = can_time_cal(arrival_time, order.start, order.end)
-                end_time = start_time + order.load
 
-
+            order_info = order_compute(graph=self.graph,
+                                       cur_time = veh.allocated_order[-1].arrival_time if cur_loc == order.dest_id else cur_time,
+                                       cur_loc = cur_loc,
+                                       order_list = [order])
+            order, arrival_time, start_time, departure_time = order_info[0]
             score = start_time
             if self.cur_batch - order.group >= 4: score -= config.MAX_START_TIME
             elif self.cur_batch - order.group >= 8: score -= config.MAX_START_TIME * 2
@@ -156,8 +150,7 @@ class Initial_Solution_Generator:
                     (start_time-self.graph.get_time(cur_loc, order.dest_id) >= (self.cur_batch+1)*config.GROUP_INTERVAL): continue
 
 
-            if end_time - order.group*config.GROUP_INTERVAL >= config.TIME_CRITERION: continue
-
+            if departure_time - order.group*config.GROUP_INTERVAL >= config.TIME_CRITERION: continue
 
             if start_time < config.MAX_START_TIME and score < best_score:
                 ret = order_helper

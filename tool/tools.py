@@ -80,3 +80,44 @@ def random_combinations(lst:list, r:int, graph:Graph):
         else:
             idx += 1
     return all_combinations[:idx]
+
+def veh_combination(veh_list): # vehicle alloc
+    n = len(veh_list)
+    ret = [] # (veh1, veh2)
+
+    for i in range(n):
+        for j in range(i+1, n):
+            veh1 = veh_list[i]; veh2 = veh_list[j]
+            if len(veh1.order_list) ==0 and len(veh2.order_list)==0:
+                continue
+            ret.append((veh1, veh2))
+    return ret
+
+def order_compute(cur_time, cur_loc, order_list, graph):
+    """
+    A singleton cycle only
+    :param cur_time:
+    :param cur_loc:
+    :param order_list: [Order]
+    :param graph:
+    :return:
+    """
+    ret = [(order, -1,-1,-1) for order in order_list]
+
+    arrival_time = cur_time
+    for i, order in enumerate(order_list):
+        if order.dest_id == cur_loc:
+            start_time = can_time_cal(arrival_time, order.start, order.end)
+            end_time = start_time + order.load
+
+        else:
+            arrival_time = cur_time + graph.get_time(cur_loc, order.dest_id)
+            start_time = can_time_cal(arrival_time, order.start, order.end)
+            end_time = start_time + order.load
+
+        ret[i] = (ret[i][0], arrival_time, start_time, end_time)
+
+        cur_time = max(cur_time, end_time)
+        cur_loc = order.dest_id
+    return ret
+
