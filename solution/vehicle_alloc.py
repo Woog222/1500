@@ -5,7 +5,7 @@ from object.Cycle import Cycle
 from object.bundle import Spatial_bundle
 from object.graph import Graph
 from object.vehicle import Vehicle
-from tool.tools import can_time_cal
+from tool.tools import can_time_cal, order_compute
 from solution.helper import Order_helper
 from collections import deque
 from itertools import islice
@@ -53,8 +53,8 @@ class Vehicle_Alloc:
         temp_orders = []
         left = self.vehicle.capa
         cur_terminal = -1
-        cur_loc = self.vehicle.start_loc; cur_time = self.vehicle.free_time
 
+        ##################### cycle bundling with capa only #####################
         for order_helper in self.order_list:
             order = order_helper.order
             # terminal loading
@@ -64,20 +64,27 @@ class Vehicle_Alloc:
                 cur_terminal = order.terminal_id
                 left = self.vehicle.capa
                 temp_orders = []
-                cur_time += self.graph.get_time(cur_loc, cur_terminal)
-                cur_loc = order.terminal_id
-
-            if cur_loc != order.dest_id:
-                arrival_time = cur_time + self.graph.get_time(cur_loc, order.dest_id)
-                start_time = can_time_cal(arrival_time, order.start, order.end)
-                cur_time = start_time + order.load; cur_loc = order.dest_id
-
-            order_helper.set_departure_time(cur_time)
             left -= order.cbm
             temp_orders.append(order)
 
         # last one
         self.cycle_list.append(Cycle(temp_orders, self.vehicle, self.graph))
+
+
+        #######################################################################
+
+        cur_loc = self.vehicle.start_loc; cur_time = self.vehicle.free_time
+        idx = 0
+
+        for cycle in self.cycle_list:
+            cur_time += self.graph.get_time(cur_loc, cycle.terminal)
+            cur_loc = cycle.terminal
+            order_infos = order_compute(graph=self.graph, order_list=cycle.orders, cur_loc = cur_loc, cur_time = cur_time)
+            for order_info in order_infos:
+                order_helper = self.order_list[idx]; idx+=1
+                order, arrival_time, start_time, end_time = order_info
+                order_helper.set_departure_time(end_time)
+                order_helper.set_arrival_time(arrival_time)
 
     def update_spatial_bundle(self):
         self.spatial_bundle = []
