@@ -13,6 +13,10 @@ from itertools import islice
 
 class Vehicle_Alloc:
 
+    def __copy__(self):
+        allocated_order_list_copy = [ copy.copy(order_helper) for order_helper in self.order_list]
+        return Vehicle_Alloc(vehicle=self.vehicle, graph=self.graph, allocated_order_list= allocated_order_list_copy)
+
     def __init__(self, vehicle:Vehicle, graph:Graph, allocated_order_list:list[Order_helper]):
         self.graph = graph
         self.vehicle = vehicle # const
