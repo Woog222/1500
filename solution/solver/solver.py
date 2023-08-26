@@ -9,7 +9,8 @@ from solution.Solution import Solution
 from itertools import combinations, combinations_with_replacement
 from object.graph import Graph
 from solution.vehicle_alloc import Vehicle_Alloc
-from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance, list_delete, time_check
+from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance, list_delete, time_check, \
+    veh_combination
 
 
 class Solver:
@@ -146,18 +147,12 @@ class Solver:
 
 
     def swap_vehicles(self):
-
         swapped = True
         cnt = 0
 
-        veh_list = []
-        for veh in self.solution.vehicle_list:
-            if len(veh.order_list) > 0: veh_list.append(veh)
-
-        while swapped:
+        while swapped and cnt < 1000:
             swapped= False
-
-            for veh1, veh2 in combinations(veh_list, 2):
+            for veh1, veh2 in veh_combination(self.solution.vehicle_list):
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
                     cnt += 1

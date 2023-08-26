@@ -5,6 +5,7 @@ import random
 
 import config
 from object.graph import Graph
+from solution.vehicle_alloc import Vehicle_Alloc
 
 
 def can_time_cal(arrival_time, start: int, end: int):
@@ -80,3 +81,15 @@ def random_combinations(lst:list, r:int, graph:Graph):
         else:
             idx += 1
     return all_combinations[:idx]
+
+def veh_combination(veh_list:[Vehicle_Alloc]):
+    n = len(veh_list)
+    ret = [] # (veh1, veh2)
+
+    for i in range(n):
+        for j in range(i+1, n):
+            veh1 = veh_list[i]; veh2 = veh_list[j]
+            if len(veh1.order_list) ==0 and len(veh2.order_list)==0:
+                continue
+            ret.append((veh1, veh2))
+    return ret
