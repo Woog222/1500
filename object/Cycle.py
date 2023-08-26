@@ -44,6 +44,7 @@ class Cycle:
                 cur_loc = order.dest_id
                 load_max = order.load
             else:
+
                 load_max = max(load_max, order.load)
 
             if allocate:
