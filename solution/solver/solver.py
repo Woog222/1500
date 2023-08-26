@@ -149,6 +149,10 @@ class Solver:
     def swap_vehicles(self):
         swapped = True
         cnt = 0
+        vehicle_list = []
+        for veh in self.solution.vehicle_list:
+            if len(veh.order_list) > 0: vehicle_list.append(veh)
+
 
         while swapped and cnt < 1000:
             swapped= False
