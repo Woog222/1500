@@ -127,8 +127,9 @@ def write_solver_result(dir:str, cost_delta, route1, new_route1, route2=[], new_
     """
     with open(dir, 'a') as f:
         f.write(str(cost_delta)); f.write(',')
-        f.write('|'.join(route1)); f.write(',')
-        f.write('|'.join(route2)); f.write(',')
-        f.write('|'.join(new_route1)); f.write(',')
-        f.write('|'.join(new_route2));f.write('\n')
+        f.write('|'.join(str(item) for item in route1)); f.write(',')
+        f.write('|'.join(str(item) for item in route2)); f.write(',')
+        f.write('|'.join(str(item) for item in new_route1)); f.write(',')
+        f.write('|'.join(str(item) for item in new_route2));f.write('\n')
+
 
