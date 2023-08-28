@@ -1,6 +1,6 @@
 import os
 
-DEBUG = False
+DEBUG = True
 INTEGER = True
 SIMULATED_ANNEALING = True
 
