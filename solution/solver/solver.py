@@ -10,7 +10,7 @@ from itertools import combinations, combinations_with_replacement
 from object.graph import Graph
 from solution.vehicle_alloc import Vehicle_Alloc
 from tool.tools import deque_slice, list_insert, random_combinations, euclidean_distance, list_delete, time_check, \
-    veh_combination
+    veh_combination, write_solver_result
 
 
 class Solver:
@@ -22,6 +22,11 @@ class Solver:
         self.last = ((cur_batch + 1)==config.LAST_BATCH)
         self.start_sec = time.time()
         self.simulated_annealing = False
+
+        if config.DEBUG:
+            for dir in config.SOLVER_DIRS:
+                with open(dir, 'w') as f:
+                    f.write(config.SOLVER_COLUMNS + '\n')
 
         self.allocated_time = (config.TIMEOUT - self.start_sec) / (config.LAST_BATCH - self.cur_batch)
 
@@ -134,6 +139,11 @@ class Solver:
         if time_check(temp_veh1.order_list, time_limit = time_limit, last = self.last) and \
             time_check(temp_veh2.order_list, time_limit =time_limit, last = self.last ):
 
+            if config.DEBUG:
+                write_solver_result(config.DISTRIBUTION_DIR, cost_delta = original_cost-new_cost,
+                                route1=veh1.get_route(), route2=veh2.get_route(),
+                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route())
+
             veh1.order_list = veh1_temp_list
             veh2.order_list = veh2_temp_list
             for veh in [veh1, veh2]: veh.update()
@@ -197,6 +207,11 @@ class Solver:
         if new_cost >= original_cost: return False
 
         # now swap
+        if config.DEBUG:
+            write_solver_result(config.SWAP_VEHICLE_DIR, cost_delta=original_cost - new_cost,
+                                route1=veh1.get_route(), route2=veh2.get_route(),
+                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route())
+
         temp = veh1.order_list
         veh1.order_list = veh2.order_list
         veh2.order_list = temp
@@ -277,12 +292,17 @@ class Solver:
         if self.last and start_time2 > config.MAX_START_TIME: return False
 
         # cost
-        prev_cost = veh1.get_added_cost() + veh2.get_added_cost()
+        original_cost = veh1.get_added_cost() + veh2.get_added_cost()
         new_cost = veh1_alloc_temp.get_added_cost() + veh2_alloc_temp.get_added_cost()
-        if prev_cost <= new_cost and not self.accept(prev_cost, new_cost): return False
+        if original_cost <= new_cost and not self.accept(original_cost, new_cost): return False
 
 
         # now swap!
+        if config.DEBUG:
+            write_solver_result(config.SWAP_SPATIAL_DIR, cost_delta=original_cost - new_cost,
+                                route1=veh1.get_route(), route2=veh2.get_route(),
+                                new_route1=veh1_alloc_temp.get_route(), new_route2=veh2_alloc_temp.get_route())
+
         veh1.order_list = veh1_temp
         veh2.order_list = veh2_temp
         veh1.update(); veh2.update()
@@ -348,8 +368,6 @@ class Solver:
 
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, veh1_temp_list)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, veh2_temp_list)
-        temp_veh1.update()
-        temp_veh2.update()
 
         if temp_veh1.get_time_violation() + temp_veh2.get_time_violation() > 0: return False
 
@@ -369,6 +387,11 @@ class Solver:
         if new_cost >= original_cost and not self.accept(original_cost, new_cost): return False
 
         # now swap
+        if config.DEBUG:
+            write_solver_result(config.SWAP_CYCLE_DIR, cost_delta=original_cost - new_cost,
+                                route1=veh1.get_route(), route2=veh2.get_route(),
+                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route())
+
         veh1.order_list = veh1_temp_list
         veh2.order_list = veh2_temp_list
         for veh in [veh1, veh2]: veh.update()
@@ -410,8 +433,6 @@ class Solver:
         new_list2[order2_idx] = order1
         temp_veh1 = Vehicle_Alloc(veh1.vehicle, self.graph, new_list1)
         temp_veh2 = Vehicle_Alloc(veh2.vehicle, self.graph, new_list2)
-        temp_veh1.update()
-        temp_veh2.update()
 
         # feasibility check - time
         if temp_veh1.get_violation() + temp_veh2.get_violation() > 0: return False
@@ -434,6 +455,11 @@ class Solver:
             return False
 
         # swap
+        if config.DEBUG:
+            write_solver_result(config.SWAP_ORDER_DIR, cost_delta=original_cost - new_cost,
+                                route1=veh1.get_route(), route2=veh2.get_route(),
+                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route())
+
         veh1.order_list[order1_idx] = order2
         veh2.order_list[order2_idx] = order1
 

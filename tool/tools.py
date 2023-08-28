@@ -121,3 +121,15 @@ def order_compute(cur_time, cur_loc, order_list, graph):
         cur_loc = order.dest_id
     return ret
 
+def write_solver_result(dir:str, cost_delta, route1, new_route1, route2=[], new_route2=[]):
+    """
+    "COST_DELTA,ROUTE1,ROUTE2,NEW_ROUTE1,NEW_ROUTE2"
+    """
+    with open(dir, 'a') as f:
+        f.write(str(cost_delta)); f.write(',')
+        f.write(str(route1)); f.write(',')
+        f.write(str(route2)); f.write(',')
+        f.write(str(new_route1)); f.write(',')
+        f.write(str(new_route2)); f.write(',')
+        f.write('\n')
+

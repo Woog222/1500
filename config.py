@@ -10,7 +10,7 @@ WEEK = DAY*7
 
 MAX = 987654321
 GRAPH_SIZE = 2000
-LAST_BATCH = 12                       # check
+LAST_BATCH = 1                       # check
 GROUP_INTERVAL = 360
 MAX_TIME = LAST_BATCH * GROUP_INTERVAL + DAY
 MAX_START_TIME = MAX_TIME - 60                  # check - 60
@@ -37,6 +37,14 @@ ORDER_RESULT_DIR = os.path.join("results", "order_result.csv")
 VEH_RESULT_DIR = os.path.join("results", "vehicle_result.csv")
 IDX2ID_DIR = os.path.join("results", "id2idx.csv")
 COORDINAES_DIR = os.path.join("results", "coordinates.csv")
+
+DISTRIBUTION_DIR = os.path.join("results", "distribution.csv")
+SWAP_VEHICLE_DIR = os.path.join("results", "swap_vehicles.csv")
+SWAP_SPATIAL_DIR = os.path.join("results", "swap_spatial.csv")
+SWAP_CYCLE_DIR = os.path.join("results", "swap_cycles.csv")
+SWAP_ORDER_DIR = os.path.join("results", "swap_order.csv")
+SOLVER_DIRS = [DISTRIBUTION_DIR, SWAP_ORDER_DIR, SWAP_SPATIAL_DIR, SWAP_CYCLE_DIR, SWAP_VEHICLE_DIR]
+SOLVER_COLUMNS = "COST_DELTA,ROUTE1,ROUTE2,NEW_ROUTE1,NEW_ROUTE2"
 """
         DATA
 """
