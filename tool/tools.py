@@ -130,6 +130,5 @@ def write_solver_result(dir:str, cost_delta, route1, new_route1, route2=[], new_
         f.write(str(route1)); f.write(',')
         f.write(str(route2)); f.write(',')
         f.write(str(new_route1)); f.write(',')
-        f.write(str(new_route2)); f.write(',')
-        f.write('\n')
+        f.write(str(new_route2));f.write('\n')
 
