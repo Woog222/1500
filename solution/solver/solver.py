@@ -210,7 +210,8 @@ class Solver:
         if config.DEBUG:
             write_solver_result(config.SWAP_VEHICLE_DIR, cost_delta=original_cost - new_cost,
                                 route1=veh1.get_route(), route2=veh2.get_route(),
-                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route())
+                                new_route1=temp_veh1.get_route(), new_route2=temp_veh2.get_route(),
+                                veh1 = veh1.vehicle.veh_num, veh2= veh2.vehicle.veh_num)
 
         temp = veh1.order_list
         veh1.order_list = veh2.order_list
