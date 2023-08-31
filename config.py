@@ -10,7 +10,7 @@ WEEK = DAY*7
 
 MAX = 987654321
 GRAPH_SIZE = 2000
-LAST_BATCH = 6                       # check
+LAST_BATCH = 12                       # check
 GROUP_INTERVAL = 360
 MAX_TIME = LAST_BATCH * GROUP_INTERVAL + DAY
 MAX_START_TIME = MAX_TIME - 60                  # check - 60
@@ -20,7 +20,7 @@ SPATIAL_BUNDLE_CRITERION = 100
 
 TIMELIMIT_SEC = 60*8                            # check
 NUM_ITER = 30
-TIME_CONSTRAINT = 60*4
+TIME_CONSTRAINT = 60*90
 TIMEOUT = -1
 
 ORDER_ID_NULL = "Null"

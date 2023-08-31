@@ -159,14 +159,11 @@ class Solver:
     def swap_vehicles(self):
         swapped = True
         cnt = 0
-        vehicle_list = []
-        for veh in self.solution.vehicle_list:
-            if len(veh.order_list) > 0: vehicle_list.append(veh)
 
 
         while swapped and cnt < 1000:
             swapped= False
-            for veh1, veh2 in veh_combination(self.solution.vehicle_list):
+            for veh1, veh2 in combinations(self.solution.vehicle_list, 2):
                 if self.do_swap_vehicle(veh1, veh2):
                     swapped = True
                     cnt += 1
@@ -175,6 +172,7 @@ class Solver:
 
 
     def do_swap_vehicle(self, veh1, veh2) -> bool:
+        if len(veh1.order_list) + len(veh2.order_list) == 0: return False
         # capa check
         max1 = max2 = 0
         for order in veh1.order_list:
